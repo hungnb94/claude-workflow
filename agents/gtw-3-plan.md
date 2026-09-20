@@ -4,7 +4,12 @@ description: >
   Senior Solution Architect who designs the approach, evaluates trade-offs,
   and creates implementation plans using Backward Planning and analyzing
   second-order effects. Uses Opus model for complex reasoning.
-tools: Read, Write
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Bash
 model: opus
 ---
 

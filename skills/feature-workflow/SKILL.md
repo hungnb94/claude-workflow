@@ -28,6 +28,7 @@ Lý do tách subagent: mỗi bước nhận đúng lượng ngữ cảnh nó c�
 Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 
 - **Bug đã xảy ra** (có lỗi/crash/hành vi sai đang tồn tại): quy trình này thiếu bước reproduce và tìm root cause. Nói rõ và đề nghị làm theo luồng bug thường (reproduce → root cause → fix → test).
+- **Story quá nhỏ, 1 bước** (chỉ sửa 1-2 dòng, đổi text/config đơn giản): làm trực tiếp, không cần 6 bước. Nói rõ vì sao quy trình này thừa cho việc nhỏ này.
 - **Story quá lớn** (dự kiến chạm quá nhiều module, hoặc Bước 1 ra hơn ~10 acceptance criteria): đề nghị chẻ thành nhiều story nhỏ, chạy quy trình riêng cho từng story.
 
 ## Tham số & khởi tạo
@@ -120,7 +121,7 @@ Tham số:
 **Sau Bước 5 — không hỏi người dùng, tự động chạy tiếp Bước 6.** Bước 5 chỉ review, không sửa gì —
 nên chỉ dừng lại khi thật sự không đọc được diff (lỗi công cụ, không phải lỗi trong code). Mục đích
 của Bước 6 là loại bỏ việc người dùng phải quay lại yêu cầu "sửa mấy cái lỗi đó đi": Bước 6 sửa
-toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `06-fix.md` prompt) mà không cần hỏi.
+toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem definition của fw-6-fix) mà không cần hỏi.
 Nếu `05-review.md` báo tổng Blocker = Major = Minor = 0: bỏ qua Bước 6 (không có gì để sửa), coi
 Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dưới.
 
@@ -137,4 +138,4 @@ Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dư
   đúng tiêu chí này; Bước 3 (chọn hướng), Bước 4 (viết code), Bước 5 (review, đánh giá SOLID/over-
   engineering là Major) và Bước 6 (sửa) đều phải áp dụng SOLID (Single Responsibility, Open/Closed,
   Liskov Substitution, Interface Segregation, Dependency Inversion) và loại bỏ abstraction/interface/
-  config thừa so với nhu cầu thật của story — chi tiết nằm trong từng file prompt tương ứng.
+  config thừa so với nhu cầu thật của story — chi tiết nằm trong definition của từng subagent.

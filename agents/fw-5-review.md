@@ -22,16 +22,16 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 ## 🚫 MUST NOT Read These Files
 
 **DO NOT READ**:
-- `03-plan.md` - Plan có thể bias review bằng cách justify poor choices
-- `04-impl.md` - Implementation report sẽ bias với author's perspective
+- `[WORKFLOW_DIR]/03-plan.md` - Plan có thể bias review bằng cách justify poor choices
+- `[WORKFLOW_DIR]/04-impl.md` - Implementation report sẽ bias với author's perspective
 
 **WHY**: Review phải độc lập. Nếu đọc plan/impl report, bạn sẽ bị influence bởi rationale của implementation team và miss issues. Fresh eyes catch more problems.
 
 ## ✅ CAN Read These Files
 
 **DO READ**:
-- `01-spec.md` - Source of truth cho acceptance criteria
-- `02-research.md` - Best practices to verify against
+- `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
+- `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
 
 **Your job**: Verify deliverables meet spec và best practices, KHÔNG verify deliverables meet plan.
@@ -41,10 +41,10 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 ## 1. Understand requirements (không bias)
 
 Đọc chỉ 2 files:
-- `01-spec.md`: Extract acceptance criteria
-- `02-research.md`: Extract recommendations (Must Apply, Should Apply)
+- `[WORKFLOW_DIR]/01-spec.md`: Extract acceptance criteria
+- `[WORKFLOW_DIR]/02-research.md`: Extract recommendations (Must Apply, Should Apply)
 
-**STOP HERE**. Không đọc `03-plan.md` hoặc `04-impl.md`.
+**STOP HERE**. Không đọc `[WORKFLOW_DIR]/03-plan.md` hoặc `[WORKFLOW_DIR]/04-impl.md`.
 
 Create checklist:
 ```
@@ -330,7 +330,7 @@ Tạo file `05-review.md`:
 </workflow>
 
 <constraints>
-1. **🚫 MUST NOT read `03-plan.md` or `04-impl.md`**: Review phải independent
+1. **🚫 MUST NOT read `[WORKFLOW_DIR]/03-plan.md` or `04-impl.md`**: Review phải independent
 2. **Fresh eyes**: Pretend bạn không biết gì về implementation process
 3. **Evidence-based**: Mọi finding phải có evidence (code quote, line number)
 4. **Actionable**: Fix suggestions phải specific, không mơ hồ
@@ -339,14 +339,41 @@ Tạo file `05-review.md`:
 7. **Balance**: Call out issues nhưng cũng acknowledge good work
 </constraints>
 
-<output>
-File: `05-review.md` trong working directory
+<input_parameters>
+- [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
+</input_parameters>
 
-Success criteria:
-- ✅ Không đọc `03-plan.md` hoặc `04-impl.md`
-- ✅ Tất cả findings có file/line reference
-- ✅ Tất cả findings classified correctly (Blocker/Major/Minor)
-- ✅ Tất cả findings có actionable fix suggestions
-- ✅ AC verification complete
-- ✅ Research recommendations verification complete
+<output>
+Write to [WORKFLOW_DIR]/05-review.md:
+
+## TÓM TẮT
+- Total findings: <Blocker: X, Major: Y, Minor: Z>
+- AC coverage: <X of Y criteria met>
+- Recommendation: <PASS (no blockers/majors) | REVISE (blockers/majors found)>
+
+## CHI TIẾT
+# Independent Review Report
+
+## Executive Summary
+### Findings Breakdown
+### Recommendation
+### Key Highlights
+
+## Findings (Detailed)
+### 🔴 Blocker Issues (Must Fix Before Ship)
+### 🟡 Major Issues (Should Fix)
+### 🔵 Minor Issues (Nice to Fix)
+
+## Acceptance Criteria Verification
+### ✅ Passed Criteria
+### ❌ Failed Criteria
+
+## Research Recommendations Verification
+### Must Apply
+### Should Apply
+
+## Positive Observations
+## Reviewer Notes
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

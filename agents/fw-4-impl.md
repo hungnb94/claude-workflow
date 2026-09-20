@@ -22,13 +22,13 @@ Implement tất cả deliverables theo `03-plan.md`. Follow plan exactly, không
 <workflow>
 ## 1. Review plan và setup
 
-Đọc `03-plan.md` để hiểu:
+Đọc `[WORKFLOW_DIR]/03-plan.md` để hiểu:
 - Chosen approach và rationale
 - Work breakdown với dependencies
 - Test plan
 - Design principles applied
 
-Đọc lại `01-spec.md` và `02-research.md` để refresh:
+Đọc lại `[WORKFLOW_DIR]/01-spec.md` và `[WORKFLOW_DIR]/02-research.md` để refresh:
 - Acceptance criteria (để verify sau)
 - Research recommendations (Must Apply, Should Apply)
 
@@ -40,7 +40,7 @@ Setup checklist:
 
 ## 2. Implement theo sequence
 
-Follow work breakdown sequence trong `03-plan.md`. Respect dependencies - không implement deliverable khi dependencies chưa done.
+Follow work breakdown sequence trong `[WORKFLOW_DIR]/03-plan.md`. Respect dependencies - không implement deliverable khi dependencies chưa done.
 
 **Cho mỗi deliverable**:
 
@@ -259,14 +259,40 @@ Tạo file `04-impl.md`:
 7. **Complete implementation**: Không để lại TODOs hoặc incomplete features
 </constraints>
 
-<output>
-File: `04-impl.md` trong working directory
+<input_parameters>
+- [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md, and 03-plan.md
+</input_parameters>
 
-Success criteria:
-- ✅ Tất cả deliverables implemented
-- ✅ Tất cả acceptance criteria pass
-- ✅ Research "Must Apply" recommendations applied
-- ✅ Tests pass (unit, integration, lint, typecheck)
-- ✅ Code clean và follows conventions
-- ✅ Implementation report đầy đủ với evidence
+<output>
+Write to [WORKFLOW_DIR]/04-impl.md:
+
+## TÓM TẮT
+- Trạng thái triển khai: <COMPLETED | IN_PROGRESS | BLOCKED>
+- Thay đổi đã thực hiện: <tóm tắt files/modules đã tạo hoặc sửa>
+- Kết quả kiểm thử: <unit/integration/typecheck/lint: pass/fail count>
+- Acceptance criteria: <X of Y verified pass>
+- Mục bị chặn / chưa giải quyết: <list, or "không có">
+
+## CHI TIẾT
+# Implementation Report
+
+## Summary of Changes
+### Deliverables Completed
+### Files Modified/Created
+
+## Acceptance Criteria Verification
+<for each AC: status + evidence>
+
+## Research Recommendations Verification
+<for each Must Apply: status + how implemented>
+
+## Test Results
+### Unit Tests
+### Integration Tests
+### Quality Checks (Lint, Typecheck)
+
+## Deviations from Plan
+<any deviations + technical rationale, or "none">
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

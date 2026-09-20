@@ -23,7 +23,7 @@ Nghiên cứu best practices cho loại task này, so sánh với internal conve
 <workflow>
 ## 1. Xác định loại task và research scope
 
-Đọc `01-spec.md` để hiểu:
+Đọc `[WORKFLOW_DIR]/01-spec.md` để hiểu:
 - Task type (API development, UI component, data processing, etc.)
 - Technical domain (backend, frontend, mobile, infrastructure, etc.)
 - Key requirements và constraints
@@ -53,7 +53,7 @@ Tìm hiểu cách top practitioners làm:
 
 ## 3. Compare với internal conventions
 
-Đọc conventions đã list trong `01-spec.md` và so sánh với research findings:
+Đọc conventions đã list trong `[WORKFLOW_DIR]/01-spec.md` và so sánh với research findings:
 
 Classify mỗi convention:
 - ✅ **MATCH**: Convention align với best practices → keep
@@ -149,13 +149,42 @@ Tạo file `02-research.md` với:
 6. **Actionable recommendations**: Recommendations phải specific và actionable, không mơ hồ
 </constraints>
 
-<output>
-File: `02-research.md` trong working directory
+<input_parameters>
+- [WORKFLOW_DIR]: absolute path containing 01-spec.md
+</input_parameters>
 
-Success criteria:
-- ✅ Đã research both Tier 1 (industry average) và Tier 2 (top experts)
-- ✅ Mỗi finding có source/reference
-- ✅ Tất cả conventions đã được classified
-- ✅ Conflicts có clear rationale cho decision
-- ✅ Recommendations prioritized và actionable
+<output>
+Write to [WORKFLOW_DIR]/02-research.md:
+
+## TÓM TẮT
+- Loại tác vụ: <architecture / component / algorithm / integration>
+- Best practice nổi bật: <top 2-3 practices>
+- Gap analysis: <conventions aligned vs conflict>
+- Khuyến nghị cốt lõi: <Must Apply list>
+- Câu hỏi cần làm rõ: <list if serious conflict needing user decision, or "không có">
+
+## CHI TIẾT
+# Research Findings
+
+## Task Type Analysis
+[Mô tả task type và research scope]
+
+## Best Practices Research
+### Industry Average (Tier 1)
+- [Practice + Source + Rationale]
+
+### Top-tier Experts (Tier 2)
+- [Practice + Company/Expert + Source + Rationale]
+
+## Comparison với Internal Conventions
+### ✅ Aligned Conventions (Keep)
+### ⚠️ Conflicting Conventions (Recommend Change)
+### 🔵 Conflicting Conventions (Keep Despite Conflict)
+
+## Summary Recommendations
+### Must Apply
+### Should Apply
+### Optional
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

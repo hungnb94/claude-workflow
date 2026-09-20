@@ -22,7 +22,7 @@ Fix tất cả Blocker và Major issues từ review report. Evaluate Minor issue
 <workflow>
 ## 1. Read review report
 
-Đọc `05-review.md` để:
+Đọc `[WORKFLOW_DIR]/05-review.md` để:
 - Extract tất cả findings
 - Understand severity của mỗi finding
 - Understand fix suggestions
@@ -463,16 +463,38 @@ See checklist below for steps to publish deliverables.
 8. **Document all decisions**: For Minor issues, document fix/skip decision với rationale
 </constraints>
 
-<output>
-File: `06-fix.md` trong working directory
+<input_parameters>
+- [WORKFLOW_DIR]: absolute path containing all prior step files
+</input_parameters>
 
-Success criteria:
-- ✅ All Blocker issues fixed
-- ✅ All Major issues fixed
-- ✅ Minor issues evaluated (fix or skip with rationale)
-- ✅ All tests passing
-- ✅ All acceptance criteria re-verified and passing
-- ✅ Lessons learned documented
-- ✅ Publication checklist prepared
-- ✅ User informed that deliverables ready but not yet published
+<output>
+Write to [WORKFLOW_DIR]/06-fix.md:
+
+## TÓM TẮT
+- Blockers fixed: <count>
+- Majors fixed: <count>
+- Minors fixed/skipped: <X fixed, Y skipped>
+- AC verification: <all met | X of Y met + explanation for gaps>
+- Tests status: <all pass | failures noted>
+- Ready to ship: <YES | NO + what's blocking>
+
+## CHI TIẾT
+# Remediation and Ship Preparation Report
+
+## Fixes Applied
+### Blockers Fixed
+### Major Issues Fixed
+### Minor Issues Addressed
+
+## Skipped Minors (With Rationale)
+## Acceptance Criteria Re-verification
+## Test and Quality Verification Results
+## Lessons Learned
+## Ship Preparation Checklist
+- [ ] Code formatted and clean
+- [ ] No uncommitted scratch files
+- [ ] Tests and typechecks pass
+- [ ] Ready for user commit/merge/push (do NOT commit or push automatically)
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

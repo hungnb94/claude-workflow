@@ -22,7 +22,7 @@ Khảo sát phạm vi yêu cầu và viết acceptance criteria (AC) cho task. A
 ## 1. Khảo sát phạm vi (Survey)
 
 Đọc và phân tích:
-- Yêu cầu của user (từ đầu conversation)
+- Yêu cầu của user ([STORY])
 - Các files liên quan trong codebase (nếu có)
 - Dependencies và integration points
 - Existing conventions trong project
@@ -136,13 +136,65 @@ Tạo file `01-spec.md` với cấu trúc:
 5. **Convention awareness**: List conventions nhưng không evaluate hay recommend thay đổi
 </constraints>
 
-<output>
-File: `01-spec.md` trong working directory
+<input_parameters>
+- [STORY]: the original feature request/story
+- [WORKFLOW_DIR]: absolute path to write output
+</input_parameters>
 
-Success criteria:
-- ✅ AC mô tả kết quả, không phải cấu trúc
-- ✅ Scope boundaries rõ ràng (in/out)
-- ✅ Constraints đã xác định
-- ✅ Integration points đã map
-- ✅ Project conventions đã liệt kê
+<output>
+Write to [WORKFLOW_DIR]/01-spec.md:
+
+## TÓM TẮT
+- Story: <1-2 sentences>
+- Acceptance criteria: <bulleted list, verifiable>
+- Non-goals: <list>
+- Ràng buộc bất biến: <list>
+- Điểm tích hợp: <files, modules, or services that will be touched>
+- Convention/quy ước đã có: <all conventions found with source + example, or "không có">
+- Câu hỏi cần làm rõ: <list, or "không có">
+
+## CHI TIẾT
+# Task Specification
+
+## Yêu cầu gốc
+[Trích dẫn yêu cầu từ user]
+
+## Scope Analysis
+### In Scope
+- [Item 1]
+- [Item 2]
+
+### Out of Scope (Non-goals)
+- [Item 1]
+- [Item 2]
+
+### Constraints
+- [Constraint 1]
+- [Constraint 2]
+
+### Integration Points
+- [System/Component 1]: [Mô tả giao tiếp]
+- [System/Component 2]: [Mô tả giao tiếp]
+
+## Acceptance Criteria
+### Functional Requirements
+1. [Requirement 1]
+2. [Requirement 2]
+
+### Non-functional Requirements
+- Performance: [Requirement]
+- Security: [Requirement]
+- UX: [Requirement]
+
+## Project Conventions (Reference for later steps)
+### Code Conventions
+- [Convention 1]
+
+### Testing Conventions
+- [Convention 1]
+
+### Documentation Conventions
+- [Convention 1]
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

@@ -97,7 +97,7 @@ Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools 
 
 | Bước | `subagent_type` | Model | Tools | Vì sao |
 |---|---|---|---|---|
-| 1 Chốt spec | `gtw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash | Senior Business Analyst - khảo sát scope, viết AC |
+| 1 Chốt spec | `gtw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Business Analyst - khảo sát scope, viết AC |
 | 2 Research | `gtw-2-research` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Research Specialist - tìm best practices, gap analysis |
 | 3 Kế hoạch | `gtw-3-plan` | **Opus** | Read, Grep, Glob, Write, Bash | Senior Solution Architect - cần reasoning phức tạp cho Backward Planning và second-order effects |
 | 4 Thực hiện | `gtw-4-impl` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Execution Engineer - tạo deliverables, verify |
@@ -142,7 +142,7 @@ vào `02-research.md` **trước** khi chạy Bước 3. Bình thường (không
 **Sau Bước 5 — không hỏi người dùng, tự động chạy tiếp Bước 6.** Bước 5 chỉ review, không sửa gì — nên
 chỉ dừng lại khi thật sự không đọc được deliverable (lỗi công cụ, không phải lỗi trong deliverable).
 Mục đích của Bước 6 là loại bỏ việc người dùng phải quay lại yêu cầu "sửa mấy cái lỗi đó đi": Bước 6
-sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `06-fix.md` prompt) mà không cần
+sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem definition của gtw-6-fix) mà không cần
 hỏi. Nếu `05-review.md` báo tổng Blocker = Major = Minor = 0: bỏ qua Bước 6 (không có gì để sửa), coi
 Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dưới.
 
@@ -165,4 +165,4 @@ Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dư
   hoạch (mỗi phần deliverable có đúng một mục đích, không lặp lại thông tin ở nhiều nơi, không thêm
   phần không ai yêu cầu, đúng cấu trúc lập luận), hoặc SOLID đầy đủ (Single Responsibility, Open/Closed,
   Liskov Substitution, Interface Segregation, Dependency Inversion) khi `01-spec.md` xác nhận nhiệm vụ
-  có phần kiến trúc/code thật — chi tiết nằm trong từng file prompt tương ứng.
+  có phần kiến trúc/code thật — chi tiết nằm trong definition của từng subagent.
