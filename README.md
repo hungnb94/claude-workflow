@@ -154,7 +154,7 @@ For standalone non-code tasks, documentation, project planning, and research:
 ## Project Structure
 
 ```text
-claude-workflow/
+claude-workflow/                 # Repository root (plugin identifier: workflow)
 ├── .claude-plugin/
 │   ├── plugin.json              # Plugin manifest (version 1.0.0, author, repo)
 │   └── marketplace.json         # Marketplace catalog distribution manifest

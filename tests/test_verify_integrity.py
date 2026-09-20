@@ -102,6 +102,9 @@ class TestVerifyIntegrity(unittest.TestCase):
     def test_version_sync_pass(self):
         self.assertTrue(vi.check_version_sync(self.repo_root))
         self.assertTrue(vi.check_version_sync(self.repo_root, check_tag="v1.0.0"))
+        self.assertTrue(vi.check_version_sync(self.repo_root, check_tag="1.0.0"))
+        self.assertTrue(vi.check_version_sync(self.repo_root, check_tag="workflow--v1.0.0"))
+        self.assertTrue(vi.check_version_sync(self.repo_root, check_tag="workflow--1.0.0"))
 
     def test_version_sync_mismatch(self):
         # Alter marketplace.json version
@@ -112,6 +115,10 @@ class TestVerifyIntegrity(unittest.TestCase):
 
     def test_version_sync_tag_mismatch(self):
         self.assertFalse(vi.check_version_sync(self.repo_root, check_tag="v2.0.0"))
+        self.assertFalse(vi.check_version_sync(self.repo_root, check_tag="workflow--v2.0.0"))
+
+    def test_version_sync_tag_prefix_mismatch(self):
+        self.assertFalse(vi.check_version_sync(self.repo_root, check_tag="other-plugin--v1.0.0"))
 
     def test_version_sync_plugin_name_mismatch(self):
         # Alter marketplace.json plugin name so it doesn't match plugin.json

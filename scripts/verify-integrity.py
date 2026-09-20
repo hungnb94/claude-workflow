@@ -140,7 +140,7 @@ def check_version_sync(repo_root: Path, check_tag: str = None) -> bool:
 
     marketplace_version = None
     for entry in plugins_list:
-        if entry.get("name") == plugin_name:
+        if isinstance(entry, dict) and entry.get("name") == plugin_name:
             marketplace_version = entry.get("version")
             break
 
@@ -159,7 +159,17 @@ def check_version_sync(repo_root: Path, check_tag: str = None) -> bool:
     print(f"[PASS] Version synchronized: {plugin_version} (plugin.json == marketplace.json)")
 
     if check_tag:
-        expected_version = check_tag.lstrip("v")
+        tag_to_check = check_tag
+        if "--" in tag_to_check:
+            tag_plugin, _, tag_ver = tag_to_check.partition("--")
+            if tag_plugin != plugin_name:
+                print(
+                    f"[FAIL] Git tag '{check_tag}' plugin prefix '{tag_plugin}' does not match plugin name '{plugin_name}'"
+                )
+                return False
+            tag_to_check = tag_ver
+
+        expected_version = tag_to_check[1:] if tag_to_check.startswith("v") else tag_to_check
         if plugin_version != expected_version:
             print(
                 f"[FAIL] Git tag '{check_tag}' (normalized '{expected_version}') does not match manifest version '{plugin_version}'"
