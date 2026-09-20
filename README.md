@@ -38,7 +38,16 @@ claude --plugin-dir .
 To validate the plugin manifests and components locally:
 
 ```bash
+# Validate marketplace catalog manifest
 claude plugin validate --strict .
+
+# Validate plugin manifest and individual components
+claude plugin validate --strict .claude-plugin/plugin.json
+claude plugin validate --strict skills/
+claude plugin validate --strict agents/
+
+# Verify release tag compatibility between plugin.json and marketplace.json
+claude plugin tag --dry-run .
 ```
 
 ## Workflow Architecture
@@ -80,7 +89,11 @@ Phase 4: Impl       Phase 5: Review       Phase 6: Fix
 For software feature development, refactoring, and code tasks:
 
 ```bash
+# Direct slash command (when installed or running in workspace)
 /feature-workflow "<story description, Jira key, or .md path>"
+
+# Canonical plugin-namespaced command
+/claude-workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
 
 ### Running Generic Task Workflow
@@ -88,7 +101,11 @@ For software feature development, refactoring, and code tasks:
 For standalone non-code tasks, documentation, project planning, and research:
 
 ```bash
+# Direct slash command (when installed or running in workspace)
 /generic-task-workflow "<task description, Jira key, or .md path>"
+
+# Canonical plugin-namespaced command
+/claude-workflow:generic-task-workflow "<task description, Jira key, or .md path>"
 ```
 
 ## Subagents Reference

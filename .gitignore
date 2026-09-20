@@ -4,3 +4,4 @@
 .workflows/
 .idea/
 .claude/settings.local.json
+.agent/
