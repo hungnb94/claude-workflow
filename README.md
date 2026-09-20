@@ -1,105 +1,161 @@
 # Claude Workflow
 
-A collection of structured workflows for feature development and generic task execution in Claude Code.
+Six-phase structured agent workflows for feature development and generic tasks in Claude Code.
 
 ## Overview
 
-This project provides two main workflow frameworks:
+Claude Workflow packages two structured workflow frameworks powered by 12 specialized subagents into an official Claude Code Plugin:
 
-1. **Feature Workflow** (`skills/feature-workflow/`) - A comprehensive 6-phase workflow for building new features
-2. **Generic Task Workflow** (`skills/generic-task-workflow/`) - A flexible workflow for general-purpose tasks
+1. **Feature Workflow** (`/feature-workflow`) - A 6-phase engineering workflow for software feature development: requirement specification, industry research, architecture planning, implementation with tests, independent code review, and automated remediation.
+2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
 
-Each workflow follows a systematic approach: Spec → Research → Plan → Implement → Review → Fix.
+Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, backward planning with second-order effect analysis, heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
-## Workflow Structure
+## Installation
 
-### Feature Workflow (6 Phases)
+### Via Claude Code Marketplace (Recommended)
 
-| Phase | File | Description |
-|-------|------|-------------|
-| 1. Spec | `fw-1-spec.md` | Define requirements and acceptance criteria |
-| 2. Research | `fw-2-research.md` | Investigate existing code, patterns, and dependencies |
-| 3. Plan | `fw-3-plan.md` | Create detailed implementation plan |
-| 4. Implement | `fw-4-impl.md` | Execute the implementation |
-| 5. Review | `fw-5-review.md` | Code review and quality checks |
-| 6. Fix | `fw-6-fix.md` | Address review findings and polish |
+Add the marketplace catalog:
 
-### Generic Task Workflow (6 Phases)
+```bash
+claude plugin marketplace add hungnb94/claude-workflow
+```
 
-| Phase | File | Description |
-|-------|------|-------------|
-| 1. Spec | `gtw-1-spec.md` | Define task scope and success criteria |
-| 2. Research | `gtw-2-research.md` | Gather information and context |
-| 3. Plan | `gtw-3-plan.md` | Design approach and steps |
-| 4. Implement | `gtw-4-impl.md` | Execute the task |
-| 5. Review | `gtw-5-review.md` | Verify completion and quality |
-| 6. Fix | `gtw-6-fix.md` | Address any issues found |
+Install the plugin:
 
-## Skills & Agents
+```bash
+claude plugin install claude-workflow@claude-workflow
+```
 
-The project is structured into workflow skills and specialized subagents:
+### Local Development and Testing
 
-- **skills/** - Top-level workflow skills invoked by user (`/feature-workflow`, `/generic-task-workflow`)
-- **agents/** - Specialized subagents executed during workflow phases (`fw-*.md`, `gtw-*.md`)
+To test or develop locally without installing from the marketplace, run Claude Code with the `--plugin-dir` flag:
+
+```bash
+claude --plugin-dir .
+```
+
+To validate the plugin manifests and components locally:
+
+```bash
+claude plugin validate --strict .
+```
+
+## Workflow Architecture
+
+### Six-Phase Sequential Pipeline
+
+```
+Phase 1: Spec       Phase 2: Research     Phase 3: Plan
+[fw-1-spec /        [fw-2-research /      [fw-3-plan /
+ gtw-1-spec]   -->   gtw-2-research]  -->  gtw-3-plan]
+ (Sonnet)            (Sonnet)              (Opus)
+      |                   |                     |
+      v                   v                     v
+ 01-spec.md          02-research.md        03-plan.md
+                                                |
++-----------------------------------------------+
+|
+v
+Phase 4: Impl       Phase 5: Review       Phase 6: Fix
+[fw-4-impl /        [fw-5-review /        [fw-6-fix /
+ gtw-4-impl]   -->   gtw-5-review]    -->  gtw-6-fix]
+ (Sonnet)            (Sonnet, NO Edit)     (Sonnet)
+      |                   |                     |
+      v                   v                     v
+ 04-impl.md          05-review.md          06-fix.md
+```
+
+### Architectural Principles
+
+1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
+2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
+3. **Independent Quality Gate (Least Privilege)**: Phase 5 review agents (`fw-5-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
+4. **Heterogeneous Model Routing**: Phase 3 planning agents use `model: opus` for deep analytical reasoning, Backward Planning, and second-order effect evaluation. All other phases use `model: sonnet` for speed and deterministic execution.
 
 ## Usage
 
-### Running a Feature Workflow
+### Running Feature Workflow
+
+For software feature development, refactoring, and code tasks:
 
 ```bash
-# In Claude Code, run the feature-workflow skill for new feature development
 /feature-workflow "<story description, Jira key, or .md path>"
 ```
 
-### Running a Generic Task Workflow
+### Running Generic Task Workflow
+
+For standalone non-code tasks, documentation, project planning, and research:
 
 ```bash
-# In Claude Code, run the generic-task-workflow skill for standalone non-code tasks
 /generic-task-workflow "<task description, Jira key, or .md path>"
 ```
 
-## Philosophy
+## Subagents Reference
 
-This workflow system applies structured thinking tools:
+### Feature Workflow Subagents
 
-- **Backward Planning** - Start from desired outcome, work backwards to steps
-- **Second/Third-order Effects** - Consider downstream consequences of decisions
-- **Game Theory** - Anticipate stakeholder reactions and system interactions
-- **Blue Ocean Strategy** - Find uncontested approaches vs. competing in crowded space
-- **Kaizen** - Continuous improvement: always seek better methods
+| Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
+|---|---|---|---|---|---|
+| `fw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey scope, define integration points and acceptance criteria |
+| `fw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~30 | Research industry best practices and conduct gap analysis |
+| `fw-3-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Backward planning, trade-off evaluation, and deliverable design |
+| `fw-4-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement code deliverables and verify with tests |
+| `fw-5-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings (No Edit tool) |
+| `fw-6-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings and prepare release notes |
+
+### Generic Task Workflow Subagents
+
+| Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
+|---|---|---|---|---|---|
+| `gtw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~50 | Survey non-code requirements and establish acceptance criteria |
+| `gtw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~50 | Research methodologies and benchmark against standards |
+| `gtw-3-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~50 | Structure deliverables and evaluate trade-offs |
+| `gtw-4-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~60 | Author and generate target deliverables |
+| `gtw-5-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~60 | Independent quality audit (No Edit tool) |
+| `gtw-6-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~50 | Remediate audit findings and prepare final handoff |
+
+*Note: Measured via `claude plugin details`. The total always-on footprint across all skills and subagents is ~808 tokens added to session overhead, well below typical context constraints.*
 
 ## Project Structure
 
 ```
 claude-workflow/
+├── .claude-plugin/
+│   ├── plugin.json              # Plugin manifest (version 1.0.0, author, repo)
+│   └── marketplace.json         # Marketplace catalog distribution manifest
 ├── agents/
-│   ├── fw-1-spec.md      # Feature workflow phase 1: Spec & AC
-│   ├── fw-2-research.md  # Feature workflow phase 2: Best practices research
-│   ├── fw-3-plan.md      # Feature workflow phase 3: Architecture & plan (Opus)
-│   ├── fw-4-impl.md      # Feature workflow phase 4: Implementation & test
-│   ├── fw-5-review.md    # Feature workflow phase 5: Independent review (no Edit)
-│   ├── fw-6-fix.md       # Feature workflow phase 6: Remediation & polish
-│   ├── gtw-1-spec.md     # Generic task workflow phase 1: Spec & boundary
-│   ├── gtw-2-research.md # Generic task workflow phase 2: Industry research
-│   ├── gtw-3-plan.md     # Generic task workflow phase 3: Approach design (Opus)
-│   ├── gtw-4-impl.md     # Generic task workflow phase 4: Deliverables creation
-│   ├── gtw-5-review.md   # Generic task workflow phase 5: Independent review (no Edit)
-│   └── gtw-6-fix.md      # Generic task workflow phase 6: Remediation & handoff
+│   ├── fw-1-spec.md             # BA: Spec and acceptance criteria
+│   ├── fw-2-research.md         # Research: Best practices and gap analysis
+│   ├── fw-3-plan.md             # Architect: Backward planning (Opus)
+│   ├── fw-4-impl.md             # Execution: Implementation and unit tests
+│   ├── fw-5-review.md           # Auditor: Independent review (no Edit)
+│   ├── fw-6-fix.md              # Remediation: Issue resolution
+│   ├── gtw-1-spec.md            # Generic BA: Task scope and boundaries
+│   ├── gtw-2-research.md        # Generic Research: Methodology benchmarks
+│   ├── gtw-3-plan.md            # Generic Architect: Deliverable planning (Opus)
+│   ├── gtw-4-impl.md            # Generic Execution: Content generation
+│   ├── gtw-5-review.md          # Generic Auditor: Quality audit (no Edit)
+│   └── gtw-6-fix.md             # Generic Remediation: Finding remediation
 ├── skills/
 │   ├── feature-workflow/
-│   │   └── SKILL.md      # Feature workflow orchestrator skill
+│   │   └── SKILL.md             # Orchestrator for /feature-workflow
 │   └── generic-task-workflow/
-│       └── SKILL.md      # Generic task workflow orchestrator skill
-└── README.md
+│       └── SKILL.md             # Orchestrator for /generic-task-workflow
+├── .gitignore                   # Ignore rules (.workflows, .idea, OS files)
+└── README.md                    # Documentation
 ```
 
-## Getting Started
+## Thinking Tools
 
-1. Choose the appropriate workflow for your task
-2. Start with the Spec phase to define clear requirements
-3. Progress through each phase sequentially
-4. Use the Review and Fix phases to ensure quality
+The workflow subagents operate on structured analytical frameworks:
 
----
+- **Backward Planning**: Start from the verified end state, work backward to uncover prerequisite dependencies.
+- **Second- and Third-Order Effects**: Evaluate downstream implications and system trade-offs before committing changes.
+- **Game Theory**: Anticipate component interactions and edge-case behaviors under varied conditions.
+- **Blue Ocean Strategy**: Seek high-leverage architectural solutions rather than complicated local workarounds.
+- **Kaizen**: Continuous improvement through progressive review cycles and automated remediation.
 
-*Built for systematic, high-quality software development with Claude Code*
+## License
+
+This project is licensed under the MIT License.
