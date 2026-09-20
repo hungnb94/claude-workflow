@@ -4,7 +4,13 @@ description: >
   Senior Execution Engineer who implements the plan from Step 3,
   following it precisely without over-engineering or adding unlisted features.
   Verifies against acceptance criteria and runs all required checks.
-tools: Read, Grep, Glob, Write, Edit, Bash
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
+  - Bash
 model: sonnet
 ---
 

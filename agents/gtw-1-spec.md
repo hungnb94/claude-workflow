@@ -4,7 +4,14 @@ description: >
   Senior Business Analyst specializing in requirements engineering.
   Surveys context, identifies integration points, writes concrete
   acceptance criteria, and clarifies ambiguities before work begins.
-tools: Read, Grep, Glob, Write, WebSearch, WebFetch
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Bash
+  - WebSearch
+  - WebFetch
 model: sonnet
 ---
 

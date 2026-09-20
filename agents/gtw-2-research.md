@@ -4,7 +4,14 @@ description: >
   Senior Research Specialist who identifies industry best practices,
   compares them with internal conventions, and recommends improvements.
   Prioritizes best practices unless they cause over-engineering.
-tools: Read, WebSearch, WebFetch
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Bash
+  - WebSearch
+  - WebFetch
 model: sonnet
 ---
 

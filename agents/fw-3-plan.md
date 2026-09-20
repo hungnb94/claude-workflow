@@ -110,8 +110,8 @@ Document what/why, không chỉ how.
 ## 1. Review inputs
 
 Đọc kỹ:
-- `01-spec.md`: Acceptance criteria và constraints
-- `02-research.md`: Best practices và recommendations
+- `[WORKFLOW_DIR]/01-spec.md`: Acceptance criteria và constraints
+- `[WORKFLOW_DIR]/02-research.md`: Best practices và recommendations
 
 Extract:
 - Must-have requirements
@@ -349,15 +349,51 @@ Tạo file `03-plan.md`:
 7. **Testable plan**: Test plan phải cover critical paths
 </constraints>
 
-<output>
-File: `03-plan.md` trong working directory
+<input_parameters>
+- [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
+</input_parameters>
 
-Success criteria:
-- ✅ Đã apply Backward Planning trong work breakdown
-- ✅ Đã analyze Second-order effects của chosen approach
-- ✅ Đã apply design principles (SOLID hoặc equivalent)
-- ✅ Đã evaluate ít nhất 2 approaches với clear trade-offs
-- ✅ Chosen approach có rationale rõ ràng
-- ✅ Work breakdown có dependencies và AC cho mỗi deliverable
-- ✅ Test plan covers critical scenarios
+<output>
+Write to [WORKFLOW_DIR]/03-plan.md:
+
+## TÓM TẮT
+- Hướng tiếp cận đã chọn: <1-2 sentences + rationale>
+- Approaches đã đánh giá: <tóm tắt 2-3 options và lý do chọn/bỏ>
+- Second-order effects chính: <rủi ro gián tiếp và cách giảm thiểu>
+- Danh sách thay đổi (deliverables): <danh sách tuần tự theo Backward Planning>
+- Test plan tóm tắt: <các kịch bản kiểm thử cốt lõi>
+
+## CHI TIẾT
+# Implementation Plan
+
+## Executive Summary
+[Brief overview of the plan]
+
+## Approach Evaluation
+### Approach 1
+### Approach 2
+### Approach 3 (if applicable)
+
+## Detailed Design
+### Architecture/Structure
+### Key Components
+### Data Flow
+### Integration Points
+### Design Principles Applied
+
+## Work Breakdown (Using Backward Planning)
+### Backward Planning Steps
+### Deliverables
+
+## Test Plan
+### Unit Tests
+### Integration Tests
+### Manual Verification
+
+## Risk Mitigation
+### Identified Risks
+
+## Implementation Notes
+
+Return to orchestrator: ONLY the ## TÓM TẮT section.
 </output>

@@ -4,7 +4,13 @@ description: >
   Senior Remediation Engineer who fixes all issues found in Step 5 review,
   prioritizing Blockers and Majors. Writes lessons learned and prepares
   publication notes but does NOT publish.
-tools: Read, Grep, Glob, Write, Edit, Bash
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Write
+  - Edit
+  - Bash
 model: sonnet
 ---
 

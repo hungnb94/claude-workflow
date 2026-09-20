@@ -1,6 +1,6 @@
 ---
 name: generic-task-workflow
-description: Quy trình 6 bước chạy bằng subagent cho một nhiệm vụ KHÔNG phải viết/sửa code — deliverable chính là nội dung hoặc kế hoạch (viết tài liệu, nghiên cứu thị trường, lập kế hoạch dự án, soạn báo cáo, thiết kế quy trình vận hành...). Chốt spec, research best practice phù hợp loại nhiệm vụ, lập kế hoạch phần việc/deliverable cần tạo, tạo deliverable thật, review độc lập, rồi tự động sửa toàn bộ lỗi Blocker/Major/Minor tìm được và chuẩn bị công bố/gửi. Dùng khi người dùng gõ /generic-task-workflow, hoặc yêu cầu rõ ràng kiểu "chạy quy trình 6 bước cho việc lập kế hoạch/viết báo cáo/nghiên cứu này". KHÔNG dùng khi deliverable chính là code/script — nhường cho skill feature-story-workflow; KHÔNG dùng để điều tra/khắc phục sự cố đã xảy ra (thiếu bước reproduce + root cause riêng); KHÔNG dùng cho nhiệm vụ chỉ 1 bước nhỏ, không cần research/plan.
+description: Quy trình 6 bước chạy bằng subagent cho một nhiệm vụ KHÔNG phải viết/sửa code — deliverable chính là nội dung hoặc kế hoạch (viết tài liệu, nghiên cứu thị trường, lập kế hoạch dự án, soạn báo cáo, thiết kế quy trình vận hành...). Chốt spec, research best practice phù hợp loại nhiệm vụ, lập kế hoạch phần việc/deliverable cần tạo, tạo deliverable thật, review độc lập, rồi tự động sửa toàn bộ lỗi Blocker/Major/Minor tìm được và chuẩn bị công bố/gửi. Dùng khi người dùng gõ /generic-task-workflow, hoặc yêu cầu rõ ràng kiểu "chạy quy trình 6 bước cho việc lập kế hoạch/viết báo cáo/nghiên cứu này". KHÔNG dùng khi deliverable chính là code/script — nhường cho skill feature-workflow; KHÔNG dùng để điều tra/khắc phục sự cố đã xảy ra (thiếu bước reproduce + root cause riêng); KHÔNG dùng cho nhiệm vụ chỉ 1 bước nhỏ, không cần research/plan.
 ---
 
 # Generic Task Workflow (6 bước, chạy bằng subagent)
@@ -33,7 +33,7 @@ không được sửa**. Bước 6 thì ngược lại: nó cần đọc đúng 
 Kiểm tra 4 điều này **trước** khi tạo thư mục hay spawn gì:
 
 - **Nhiệm vụ chính là viết/sửa code** (deliverable chính là code, script, hay thay đổi trong một
-  codebase): quy trình này không phù hợp — dùng skill `feature-story-workflow` thay. Nói rõ và gợi ý
+  codebase): quy trình này không phù hợp — dùng skill `feature-workflow` thay. Nói rõ và gợi ý
   chuyển skill.
 - **Việc đã xảy ra cần điều tra/khắc phục** (có sự cố/kết quả sai đang tồn tại, cần tìm nguyên nhân):
   quy trình này thiếu bước reproduce và tìm root cause. Nói rõ và đề nghị làm theo luồng điều tra sự cố
@@ -56,15 +56,15 @@ Kiểm tra 4 điều này **trước** khi tạo thư mục hay spawn gì:
   `[TASK]` thật truyền cho Bước 1; đừng bắt Bước 1 tự mở link.
 - `[WORKFLOW_DIR]` = `<repo hoặc thư mục làm việc hiện tại>/.workflows/[TASK_SLUG]/` — luôn truyền
   **đường dẫn tuyệt đối** cho subagent, vì subagent có working dir riêng.
-- `[PROMPTS_DIR]`: resolve một lần bằng
-  `echo "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/generic-task-workflow/prompts"` rồi truyền đường
-  dẫn tuyệt đối đó cho subagent.
-
 Không truyền "phạm vi nhiệm vụ" cho bất kỳ bước nào. Bước 1 tự khảo sát và ghi ra `Điểm tích hợp`
 (tài liệu/dữ liệu/hệ thống liên quan tới loại nhiệm vụ); Bước 2 đọc mục đó để research best practice
 phù hợp loại nhiệm vụ; Bước 3 đọc spec + research để chọn hướng; Bước 4 đọc danh sách phần việc/
 deliverable cần tạo; Bước 5 lấy chính deliverable cuối cùng làm phạm vi; Bước 6 lấy chính danh sách
 phát hiện (Blocker/Major/Minor) trong `05-review.md` làm phạm vi.
+
+**Lưu ý:** Khi spawn subagent,
+chỉ cần truyền `WORKFLOW_DIR` và `TASK` (chỉ Bước 1). Subagent sẽ tự đọc hướng dẫn từ chính definition
+file của nó — **không cần file prompt riêng biệt**.
 
 ## Cấu trúc output
 
@@ -97,7 +97,7 @@ Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools 
 
 | Bước | `subagent_type` | Model | Tools | Vì sao |
 |---|---|---|---|---|
-| 1 Chốt spec | `gtw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash | Senior Business Analyst - khảo sát scope, viết AC |
+| 1 Chốt spec | `gtw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Business Analyst - khảo sát scope, viết AC |
 | 2 Research | `gtw-2-research` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Research Specialist - tìm best practices, gap analysis |
 | 3 Kế hoạch | `gtw-3-plan` | **Opus** | Read, Grep, Glob, Write, Bash | Senior Solution Architect - cần reasoning phức tạp cho Backward Planning và second-order effects |
 | 4 Thực hiện | `gtw-4-impl` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Execution Engineer - tạo deliverables, verify |
@@ -117,18 +117,15 @@ Các bước tuần tự — không spawn song song, vì bước sau ăn output 
 
 ## Mẫu lời gọi Agent
 
-Mỗi bước gửi một prompt ngắn, nội dung chi tiết nằm trong file prompt:
+Mỗi bước gửi một prompt ngắn. Hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
 
 ```
 Bạn là subagent thực hiện BƯỚC <N>/6 của quy trình làm nhiệm vụ.
-Đọc file <PROMPTS_DIR>/<0N-tên>.md và làm theo đúng hướng dẫn trong đó, không thêm không bớt.
+Làm theo hướng dẫn trong definition của bạn (agent gtw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
 - TASK: <chỉ Bước 1: nội dung nhiệm vụ đã lấy được>
 ```
-
-File prompt theo bước: `01-spec.md`, `02-research.md`, `03-plan.md`, `04-impl.md`, `05-review.md`,
-`06-fix.md`.
 
 ## Các cổng người duyệt
 
@@ -145,7 +142,7 @@ vào `02-research.md` **trước** khi chạy Bước 3. Bình thường (không
 **Sau Bước 5 — không hỏi người dùng, tự động chạy tiếp Bước 6.** Bước 5 chỉ review, không sửa gì — nên
 chỉ dừng lại khi thật sự không đọc được deliverable (lỗi công cụ, không phải lỗi trong deliverable).
 Mục đích của Bước 6 là loại bỏ việc người dùng phải quay lại yêu cầu "sửa mấy cái lỗi đó đi": Bước 6
-sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `06-fix.md` prompt) mà không cần
+sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem definition của gtw-6-fix) mà không cần
 hỏi. Nếu `05-review.md` báo tổng Blocker = Major = Minor = 0: bỏ qua Bước 6 (không có gì để sửa), coi
 Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dưới.
 
@@ -168,4 +165,4 @@ Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dư
   hoạch (mỗi phần deliverable có đúng một mục đích, không lặp lại thông tin ở nhiều nơi, không thêm
   phần không ai yêu cầu, đúng cấu trúc lập luận), hoặc SOLID đầy đủ (Single Responsibility, Open/Closed,
   Liskov Substitution, Interface Segregation, Dependency Inversion) khi `01-spec.md` xác nhận nhiệm vụ
-  có phần kiến trúc/code thật — chi tiết nằm trong từng file prompt tương ứng.
+  có phần kiến trúc/code thật — chi tiết nằm trong definition của từng subagent.
