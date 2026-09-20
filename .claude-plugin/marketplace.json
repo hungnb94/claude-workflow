@@ -1,0 +1,34 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-workflow",
+  "owner": {
+    "name": "Hung Nguyen",
+    "email": "hungnb94@gmail.com"
+  },
+  "description": "Six-phase structured agent workflows for story development and generic tasks",
+  "plugins": [
+    {
+      "name": "claude-workflow",
+      "source": {
+        "source": "github",
+        "repo": "hungnb94/claude-workflow"
+      },
+      "description": "Six-phase structured agent workflows for story development and generic tasks",
+      "version": "1.0.0",
+      "author": {
+        "name": "Hung Nguyen",
+        "email": "hungnb94@gmail.com"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/hungnb94/claude-workflow",
+      "repository": "https://github.com/hungnb94/claude-workflow",
+      "keywords": [
+        "workflow",
+        "agent",
+        "subagent",
+        "orchestration",
+        "quality"
+      ]
+    }
+  ]
+}

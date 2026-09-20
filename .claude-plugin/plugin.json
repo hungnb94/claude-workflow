@@ -1,0 +1,19 @@
+{
+  "name": "claude-workflow",
+  "version": "1.0.0",
+  "description": "Six-phase structured agent workflows for story development and generic tasks",
+  "author": {
+    "name": "Hung Nguyen",
+    "email": "hungnb94@gmail.com"
+  },
+  "homepage": "https://github.com/hungnb94/claude-workflow",
+  "repository": "https://github.com/hungnb94/claude-workflow",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "agent",
+    "subagent",
+    "orchestration",
+    "quality"
+  ]
+}
