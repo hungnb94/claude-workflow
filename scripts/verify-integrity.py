@@ -128,20 +128,27 @@ def check_version_sync(repo_root: Path, check_tag: str = None) -> bool:
         print("[FAIL] Missing 'version' field in plugin.json")
         return False
 
+    plugin_name = plugin_data.get("name")
+    if not plugin_name:
+        print("[FAIL] Missing 'name' field in plugin.json")
+        return False
+
     plugins_list = marketplace_data.get("plugins", [])
     if not plugins_list:
         print("[FAIL] Missing or empty 'plugins' array in marketplace.json")
         return False
 
     marketplace_version = None
-    plugin_name = plugin_data.get("name", "claude-workflow")
     for entry in plugins_list:
         if entry.get("name") == plugin_name:
             marketplace_version = entry.get("version")
             break
 
     if marketplace_version is None:
-        marketplace_version = plugins_list[0].get("version")
+        print(
+            f"[FAIL] Plugin '{plugin_name}' declared in plugin.json not found in marketplace.json"
+        )
+        return False
 
     if plugin_version != marketplace_version:
         print(

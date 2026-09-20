@@ -26,7 +26,7 @@ claude plugin marketplace add hungnb94/claude-workflow
 Install the plugin:
 
 ```bash
-claude plugin install claude-workflow@claude-workflow
+claude plugin install workflow@claude-workflow
 ```
 
 ### Local Development and Testing
@@ -110,7 +110,7 @@ For software feature development, refactoring, and code tasks:
 /feature-workflow "<story description, Jira key, or .md path>"
 
 # Canonical plugin-namespaced command
-/claude-workflow:feature-workflow "<story description, Jira key, or .md path>"
+/workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
 
 ### Running Generic Task Workflow
@@ -122,7 +122,7 @@ For standalone non-code tasks, documentation, project planning, and research:
 /generic-task-workflow "<task description, Jira key, or .md path>"
 
 # Canonical plugin-namespaced command
-/claude-workflow:generic-task-workflow "<task description, Jira key, or .md path>"
+/workflow:generic-task-workflow "<task description, Jira key, or .md path>"
 ```
 
 ## Subagents Reference
