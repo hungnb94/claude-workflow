@@ -55,6 +55,7 @@ Fix all Blocker and Major issues from Step 5. Fix Minor issues if local change. 
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing all prior step files
 </input_parameters>
 
@@ -62,6 +63,7 @@ Fix all Blocker and Major issues from Step 5. Fix Minor issues if local change. 
 Write to [WORKFLOW_DIR]/06-fix.md:
 
 ## TÓM TẮT
+
 - Blockers fixed: <count>
 - Majors fixed: <count>
 - Minors fixed/skipped: <X fixed, Y skipped>
@@ -69,23 +71,30 @@ Write to [WORKFLOW_DIR]/06-fix.md:
 - Ready for publication: <YES | NO + what's blocking>
 
 ## CHI TIẾT
+
 ### Fixes Applied
+
 <for each issue from 05-review.md:>
 **[Blocker|Major|Minor] - <original finding>**
+
 - Status: Fixed | Skipped
 - Changes: <files modified, summary of fix>
 - Verification: <how confirmed it's resolved>
 
 ### Skipped Minors
+
 <which minors skipped + why (requires design decision, out of scope, etc.)>
 
 ### Acceptance Criteria Verification
+
 <for each AC: re-verified met + evidence>
 
 ### Lessons Learned
+
 <what went wrong, root cause, how to prevent in future tasks>
 
 ### Publication Checklist
+
 - [ ] Where to publish: <location, URL, ticket, etc.>
 - [ ] Who to notify: <stakeholders, reviewers, teams>
 - [ ] Announcement text: <draft message>

@@ -62,6 +62,7 @@ Define the task boundary: what we're delivering, what success looks like, what w
 </constraints>
 
 <input_parameters>
+
 - [TASK]: the original request
 - [WORKFLOW_DIR]: absolute path to write output
 </input_parameters>
@@ -70,6 +71,7 @@ Define the task boundary: what we're delivering, what success looks like, what w
 Write to [WORKFLOW_DIR]/01-spec.md:
 
 ## TÓM TẮT
+
 - Nhiệm vụ: <1-2 sentences>
 - Acceptance criteria: <bulleted list, verifiable>
 - Non-goals: <list>
@@ -80,6 +82,7 @@ Write to [WORKFLOW_DIR]/01-spec.md:
 - Câu hỏi cần làm rõ: <list, or "không có">
 
 ## CHI TIẾT
+
 <survey results: conventions found, similar docs/plans in use, reusable parts, early-detected risks>
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

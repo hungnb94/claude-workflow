@@ -26,35 +26,36 @@ Lý do tách subagent: mỗi bước nhận đúng lượng ngữ cảnh nó c�
 trước. Đặc biệt quan trọng ở Bước 5 — subagent review không được thấy kế hoạch/quá trình thực hiện, nó
 phải suy ra chất lượng thật của deliverable từ chính deliverable, và **chỉ được tìm + phân loại lỗi,
 không được sửa**. Bước 6 thì ngược lại: nó cần đọc đúng cái Bước 5 đã ghi (toàn bộ Blocker/Major/Minor
+
 + đề xuất hướng sửa) để sửa đúng chỗ, không cần "mù" như Bước 5.
 
 ## Cổng chặn trước khi chạy
 
 Kiểm tra 4 điều này **trước** khi tạo thư mục hay spawn gì:
 
-- **Nhiệm vụ chính là viết/sửa code** (deliverable chính là code, script, hay thay đổi trong một
++ **Nhiệm vụ chính là viết/sửa code** (deliverable chính là code, script, hay thay đổi trong một
   codebase): quy trình này không phù hợp — dùng skill `feature-workflow` thay. Nói rõ và gợi ý
   chuyển skill.
-- **Việc đã xảy ra cần điều tra/khắc phục** (có sự cố/kết quả sai đang tồn tại, cần tìm nguyên nhân):
++ **Việc đã xảy ra cần điều tra/khắc phục** (có sự cố/kết quả sai đang tồn tại, cần tìm nguyên nhân):
   quy trình này thiếu bước reproduce và tìm root cause. Nói rõ và đề nghị làm theo luồng điều tra sự cố
   thường (reproduce → root cause → khắc phục → xác minh).
-- **Nhiệm vụ quá nhỏ, 1 bước** (không có nhiều phần deliverable phụ thuộc nhau, không cần research hay
++ **Nhiệm vụ quá nhỏ, 1 bước** (không có nhiều phần deliverable phụ thuộc nhau, không cần research hay
   lập kế hoạch): làm trực tiếp, không cần 6 bước. Nói rõ vì sao quy trình này thừa cho việc nhỏ này.
-- **Nhiệm vụ quá lớn** (dự kiến ra quá nhiều phần deliverable độc lập, hoặc Bước 1 ra hơn ~10 tiêu chí
++ **Nhiệm vụ quá lớn** (dự kiến ra quá nhiều phần deliverable độc lập, hoặc Bước 1 ra hơn ~10 tiêu chí
   hoàn thành): đề nghị chẻ thành nhiều nhiệm vụ nhỏ, chạy quy trình riêng cho từng nhiệm vụ.
 
 ## Tham số & khởi tạo
 
-- `[TASK]` = `$ARGUMENTS` — mô tả người dùng gõ, đường dẫn file `.md`, Jira key, hoặc URL Jira.
++ `[TASK]` = `$ARGUMENTS` — mô tả người dùng gõ, đường dẫn file `.md`, Jira key, hoặc URL Jira.
   Nếu rỗng: hỏi người dùng nhiệm vụ là gì rồi mới chạy.
-- `[TASK_SLUG]`:
++ `[TASK_SLUG]`:
   1. Tìm Jira key bằng regex `[A-Z][A-Z0-9]+-[0-9]+` ở **bất kỳ đâu** trong `[TASK]`, kể cả trong URL.
   Có key thì slug **chính là key**, không nối thêm mô tả.
   2. Không có key: kebab-case tối đa 4 từ (`nghien-cuu-thi-truong`).
   Slug ngắn để đường dẫn gõ được bằng tay.
-- Nhận diện được Jira key → dùng skill `acli` lấy title + description của ticket. Nội dung đó là
++ Nhận diện được Jira key → dùng skill `acli` lấy title + description của ticket. Nội dung đó là
   `[TASK]` thật truyền cho Bước 1; đừng bắt Bước 1 tự mở link.
-- `[WORKFLOW_DIR]` = `<repo hoặc thư mục làm việc hiện tại>/.workflows/[TASK_SLUG]/` — luôn truyền
++ `[WORKFLOW_DIR]` = `<repo hoặc thư mục làm việc hiện tại>/.workflows/[TASK_SLUG]/` — luôn truyền
   **đường dẫn tuyệt đối** cho subagent, vì subagent có working dir riêng.
 Không truyền "phạm vi nhiệm vụ" cho bất kỳ bước nào. Bước 1 tự khảo sát và ghi ra `Điểm tích hợp`
 (tài liệu/dữ liệu/hệ thống liên quan tới loại nhiệm vụ); Bước 2 đọc mục đó để research best practice
@@ -68,7 +69,7 @@ file của nó — **không cần file prompt riêng biệt**.
 
 ## Cấu trúc output
 
-```
+```text
 .workflows/<TASK_SLUG>/
   01-spec.md      <- Bước 1: phạm vi nhiệm vụ + acceptance criteria + ràng buộc
   02-research.md  <- Bước 2: best practice phù hợp loại nhiệm vụ, đối chiếu convention nội bộ
@@ -85,10 +86,10 @@ Không xoá file cũ — đây là audit trail, số thứ tự cho biết đang
 
 Đầu mỗi lần gọi: `ls [WORKFLOW_DIR]` (im lặng nếu chưa tồn tại).
 
-- Chưa có gì → chạy từ Bước 1.
-- Đã có `01..0N` → dùng `AskUserQuestion`: *tiếp tục từ Bước N+1* / *chạy lại Bước N* / *bắt đầu nhiệm
++ Chưa có gì → chạy từ Bước 1.
++ Đã có `01..0N` → dùng `AskUserQuestion`: *tiếp tục từ Bước N+1* / *chạy lại Bước N* / *bắt đầu nhiệm
   vụ mới (slug khác)*. Không bao giờ ghi đè im lặng.
-- Chạy lại một bước thì ghi đè đúng file của bước đó và **không** xoá file các bước sau; nói rõ với
++ Chạy lại một bước thì ghi đè đúng file của bước đó và **không** xoá file các bước sau; nói rõ với
   người dùng rằng các file sau đã cũ so với bước vừa chạy lại.
 
 ## Routing subagent
@@ -105,10 +106,11 @@ Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools 
 | 6 Sửa lỗi | `gtw-6-fix` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Remediation Engineer - sửa toàn bộ Blocker/Major/Minor |
 
 **Lợi ích của custom agents:**
-- **Model selection**: Opus cho Bước 3 (reasoning phức tạp), Sonnet cho các bước khác (execution hiệu quả)
-- **Tool isolation**: Bước 5 bị cấm Edit để đảm bảo review độc lập, không vô tình sửa deliverable
-- **Role clarity**: Mỗi agent có senior role rõ ràng, signals expertise level cho subagent
-- **Context isolation**: Mỗi agent chạy trong context riêng, đặc biệt Bước 5 không thấy plan/impl notes
+
++ **Model selection**: Opus cho Bước 3 (reasoning phức tạp), Sonnet cho các bước khác (execution hiệu quả)
++ **Tool isolation**: Bước 5 bị cấm Edit để đảm bảo review độc lập, không vô tình sửa deliverable
++ **Role clarity**: Mỗi agent có senior role rõ ràng, signals expertise level cho subagent
++ **Context isolation**: Mỗi agent chạy trong context riêng, đặc biệt Bước 5 không thấy plan/impl notes
 
 **Không dùng `subagent_type: "fork"` cho bất kỳ bước nào.** Fork thừa hưởng context của bạn, phá vỡ
 đúng cái mà quy trình này mua: Bước 5 phải "mù" ý định của tác giả.
@@ -119,7 +121,7 @@ Các bước tuần tự — không spawn song song, vì bước sau ăn output 
 
 Mỗi bước gửi một prompt ngắn. Hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
 
-```
+```text
 Bạn là subagent thực hiện BƯỚC <N>/6 của quy trình làm nhiệm vụ.
 Làm theo hướng dẫn trong definition của bạn (agent gtw-<N>-<tên>).
 Tham số:
@@ -151,14 +153,14 @@ Bước 5 là bước cuối, đi thẳng tới phần báo cáo cuối như dư
 
 ## Nguyên tắc xuyên suốt
 
-- **Không nhảy bước.** Thiếu file của bước trước thì không chạy được bước sau.
-- **Thiếu thông tin thì dừng, không đoán.** Ghi câu hỏi vào `## TÓM TẮT` rồi trả về cho người dùng. Áp
++ **Không nhảy bước.** Thiếu file của bước trước thì không chạy được bước sau.
++ **Thiếu thông tin thì dừng, không đoán.** Ghi câu hỏi vào `## TÓM TẮT` rồi trả về cho người dùng. Áp
   dụng cho mọi bước kể cả Bước 6 — "tự động sửa" không có nghĩa là đoán khi thật sự không chắc, chỉ có
   nghĩa là không cần hỏi người dùng *trước khi thử*.
-- **Chỉ Bước 4 và Bước 6 được sửa deliverable.** Bước 1, 2, 3 và 5 chỉ đọc/khảo sát và ghi file `.md` —
++ **Chỉ Bước 4 và Bước 6 được sửa deliverable.** Bước 1, 2, 3 và 5 chỉ đọc/khảo sát và ghi file `.md` —
   Bước 5 review và phân loại lỗi nhưng không được dùng `Edit`/`Write` lên deliverable, chỉ ghi ra
   `05-review.md`.
-- **Best practice phù hợp loại nhiệm vụ ưu tiên hơn convention nội bộ, nhưng không phải cái cớ
++ **Best practice phù hợp loại nhiệm vụ ưu tiên hơn convention nội bộ, nhưng không phải cái cớ
   over-engineering.** Bước 2 (research) xếp mỗi khuyến nghị vào nhóm trùng / mâu thuẫn-nên-đổi /
   mâu thuẫn-nên-giữ theo đúng tiêu chí này; Bước 3 (chọn hướng), Bước 4 (tạo deliverable), Bước 5
   (review) và Bước 6 (sửa) đều phải dùng tiêu chí tương đương SOLID khi nhiệm vụ thuần nội dung/kế

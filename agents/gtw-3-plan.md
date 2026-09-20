@@ -72,6 +72,7 @@ You MUST apply these thinking tools:
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
 </input_parameters>
 
@@ -79,25 +80,32 @@ You MUST apply these thinking tools:
 Write to [WORKFLOW_DIR]/03-plan.md:
 
 ## TÓM TẮT
+
 - Chosen approach: <1-2 sentences>
 - Deliverable breakdown: <list of increments>
 - Key trade-offs: <what we gain vs what we give up>
 - Verification plan: <how to confirm each AC>
 
 ## CHI TIẾT
+
 ### Candidate Approaches
+
 <2-3 options, each with Backward Planning trace and second-order effects analysis>
 
 ### Decision Rationale
+
 <why chosen approach, how it satisfies SOLID/equivalent principles>
 
 ### Implementation Plan
+
 <step-by-step breakdown with verification points>
 
 ### Test/Verification Plan
+
 <for each AC: how to verify it's met>
 
 ### Risks & Mitigation
+
 <what could go wrong, how to handle it>
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

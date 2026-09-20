@@ -50,6 +50,7 @@ Create deliverables per Step 3 plan, verify against Step 1 acceptance criteria a
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md, 03-plan.md
 </input_parameters>
 
@@ -57,6 +58,7 @@ Create deliverables per Step 3 plan, verify against Step 1 acceptance criteria a
 Write to [WORKFLOW_DIR]/04-impl.md:
 
 ## TÓM TẮT
+
 - Deliverables created: <list with file paths>
 - Acceptance criteria status: <each AC with ✓ met or ✗ not met + why>
 - Best practices applied: <checklist from 02-research.md>
@@ -64,6 +66,7 @@ Write to [WORKFLOW_DIR]/04-impl.md:
 - Issues encountered: <any gaps in plan, unmet AC, deviations from plan>
 
 ## CHI TIẾT
+
 <implementation notes, decisions made within plan's scope, verification output>
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

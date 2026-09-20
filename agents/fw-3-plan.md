@@ -19,16 +19,20 @@ Thiết kế solution architecture và tạo implementation plan chi tiết. Eva
 </mission>
 
 <thinking_tools>
+
 ## Công cụ tư duy bắt buộc
 
 ### 1. Backward Planning (Kế hoạch ngược)
+
 Làm việc ngược từ mục tiêu về hiện tại:
+
 1. Start: Định nghĩa end state mong muốn (từ AC)
 2. Work backward: Mỗi bước trả lời "để có X, tôi cần Y trước đó"
 3. Identify dependencies: Những gì phải xong trước, những gì có thể parallel
 4. Create sequence: Sắp xếp lại thành forward plan
 
 **Example**:
+
 - Goal: API endpoint `/users` returns paginated list
 - Need before: Database query với pagination
 - Need before that: Database schema với users table
@@ -36,12 +40,15 @@ Làm việc ngược từ mục tiêu về hiện tại:
 - Result: Plan = Migration → Schema → Query → Endpoint
 
 ### 2. Second-order Effects (Hệ quả bậc 2)
+
 Phân tích hệ quả không trực tiếp của decisions:
+
 - **First-order**: Hệ quả trực tiếp, dễ thấy
 - **Second-order**: Hệ quả gián tiếp, thường bị bỏ qua
 - **Third-order**: Hệ quả xa hơn nữa (optional, chỉ khi relevant)
 
 **Example**:
+
 - Decision: Use Redis for caching
 - First-order: ✅ API response faster
 - Second-order: ⚠️ Team needs to learn Redis, deploy complexity tăng, debugging harder (cache invalidation)
@@ -51,57 +58,78 @@ Evaluate cả positive và negative second-order effects trước khi quyết đ
 </thinking_tools>
 
 <design_principles>
+
 ## For Code Tasks: SOLID Principles
 
 ### S - Single Responsibility Principle
+
 Mỗi class/module có một lý do duy nhất để thay đổi.
+
 - ✅ UserRepository chỉ handle database operations
 - ❌ UserRepository vừa handle database vừa send emails
 
 ### O - Open/Closed Principle
+
 Open for extension, closed for modification.
+
 - ✅ Dùng interfaces/abstract classes để extend behavior
 - ❌ Sửa existing class mỗi khi cần feature mới
 
 ### L - Liskov Substitution Principle
+
 Subclass có thể thay thế superclass mà không break behavior.
+
 - ✅ Square extends Rectangle và override cả width/height setters
 - ❌ Square extends Rectangle nhưng break assumptions về aspect ratio
 
 ### I - Interface Segregation Principle
+
 Nhiều interfaces nhỏ tốt hơn một interface lớn.
+
 - ✅ Readable, Writable interfaces riêng
 - ❌ FileOperations interface với 20 methods
 
 ### D - Dependency Inversion Principle
+
 Depend on abstractions, not concretions.
+
 - ✅ Constructor nhận IUserRepository interface
 - ❌ Constructor nhận SqlUserRepository concrete class
 
 ## For Content Tasks: Equivalent Principles
 
 ### Single Purpose
+
 Mỗi document/section có một mục đích rõ ràng.
+
 - ✅ README explains what, CONTRIBUTING explains how to contribute
 - ❌ README vừa explain vừa tutorial vừa API reference
 
 ### Extensibility
+
 Dễ extend content mà không rewrite.
+
 - ✅ Modular docs với clear sections, có thể add sections mới
 - ❌ Monolithic doc phải rewrite khi add info
 
 ### Consistency
+
 Substitute content phải consistent với existing content.
+
 - ✅ Tất cả API docs follow same format
 - ❌ Mỗi API doc có format khác nhau
 
 ### Focused Interfaces
+
 Mỗi piece of content serve một audience cụ thể.
+
 - ✅ Beginner tutorial riêng, advanced guide riêng
 - ❌ Một doc cố gắng serve cả beginner và advanced
 
 ### Abstraction Over Implementation
+
 Document what/why, không chỉ how.
+
 - ✅ Explain design decisions và trade-offs
 - ❌ Chỉ list implementation steps như recipe
 </design_principles>
@@ -110,10 +138,12 @@ Document what/why, không chỉ how.
 ## 1. Review inputs
 
 Đọc kỹ:
+
 - `[WORKFLOW_DIR]/01-spec.md`: Acceptance criteria và constraints
 - `[WORKFLOW_DIR]/02-research.md`: Best practices và recommendations
 
 Extract:
+
 - Must-have requirements
 - Nice-to-have requirements
 - Hard constraints (technical, business, time)
@@ -122,6 +152,7 @@ Extract:
 ## 2. Brainstorm approaches (2-3 options)
 
 Cho mỗi approach:
+
 - **Description**: High-level approach
 - **Pros**: Advantages
 - **Cons**: Disadvantages
@@ -133,6 +164,7 @@ Cho mỗi approach:
 ## 3. Choose approach
 
 Decision criteria (theo thứ tự priority):
+
 1. ✅ Meets all acceptance criteria
 2. ✅ Follows research recommendations (Must Apply)
 3. ✅ Minimizes negative second-order effects
@@ -140,6 +172,7 @@ Decision criteria (theo thứ tự priority):
 5. ✅ Feasible trong constraints
 
 Document:
+
 - **Chosen approach**: [Name]
 - **Rationale**: Tại sao chọn approach này
 - **Trade-offs accepted**: Những gì chúng ta trade off
@@ -150,6 +183,7 @@ Document:
 Apply design principles (SOLID cho code, equivalent principles cho content).
 
 Document:
+
 - **Architecture/Structure**: Overall structure của solution
 - **Key components**: Các components chính và responsibilities
 - **Data flow**: Dữ liệu flow như thế nào (nếu relevant)
@@ -159,12 +193,14 @@ Document:
 ## 5. Work breakdown (Backward Planning)
 
 **Áp dụng Backward Planning**:
+
 1. Define end state (từ AC)
 2. Work backward để identify dependencies
 3. Reorder thành forward sequence
 4. Group thành logical deliverables
 
 Mỗi deliverable:
+
 - **Name**: Tên deliverable
 - **Description**: Mô tả ngắn
 - **Dependencies**: Deliverables nào phải xong trước
@@ -172,7 +208,8 @@ Mỗi deliverable:
 - **Estimated complexity**: Rough estimate (Small/Medium/Large)
 
 **Example format**:
-```
+
+```markdown
 ### Deliverable 1: Database Migration
 - Description: Create users table schema
 - Dependencies: None
@@ -189,6 +226,7 @@ Mỗi deliverable:
 ## 6. Test plan
 
 Cho mỗi loại testing relevant:
+
 - **Unit tests**: Test gì, coverage target
 - **Integration tests**: Test gì, critical paths
 - **E2E tests**: Test gì (nếu cần)
@@ -337,6 +375,7 @@ Tạo file `03-plan.md`:
 
 [Any additional notes for the implementation team]
 ```
+
 </workflow>
 
 <constraints>
@@ -350,6 +389,7 @@ Tạo file `03-plan.md`:
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
 </input_parameters>
 
@@ -357,6 +397,7 @@ Tạo file `03-plan.md`:
 Write to [WORKFLOW_DIR]/03-plan.md:
 
 ## TÓM TẮT
+
 - Hướng tiếp cận đã chọn: <1-2 sentences + rationale>
 - Approaches đã đánh giá: <tóm tắt 2-3 options và lý do chọn/bỏ>
 - Second-order effects chính: <rủi ro gián tiếp và cách giảm thiểu>
@@ -364,33 +405,49 @@ Write to [WORKFLOW_DIR]/03-plan.md:
 - Test plan tóm tắt: <các kịch bản kiểm thử cốt lõi>
 
 ## CHI TIẾT
+
 # Implementation Plan
 
 ## Executive Summary
+
 [Brief overview of the plan]
 
 ## Approach Evaluation
+
 ### Approach 1
+
 ### Approach 2
+
 ### Approach 3 (if applicable)
 
 ## Detailed Design
+
 ### Architecture/Structure
+
 ### Key Components
+
 ### Data Flow
+
 ### Integration Points
+
 ### Design Principles Applied
 
 ## Work Breakdown (Using Backward Planning)
+
 ### Backward Planning Steps
+
 ### Deliverables
 
 ## Test Plan
+
 ### Unit Tests
+
 ### Integration Tests
+
 ### Manual Verification
 
 ## Risk Mitigation
+
 ### Identified Risks
 
 ## Implementation Notes

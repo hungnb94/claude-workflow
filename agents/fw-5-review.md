@@ -19,9 +19,11 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 </mission>
 
 <critical_constraints>
+
 ## 🚫 MUST NOT Read These Files
 
 **DO NOT READ**:
+
 - `[WORKFLOW_DIR]/03-plan.md` - Plan có thể bias review bằng cách justify poor choices
 - `[WORKFLOW_DIR]/04-impl.md` - Implementation report sẽ bias với author's perspective
 
@@ -30,6 +32,7 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 ## ✅ CAN Read These Files
 
 **DO READ**:
+
 - `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
@@ -41,13 +44,15 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 ## 1. Understand requirements (không bias)
 
 Đọc chỉ 2 files:
+
 - `[WORKFLOW_DIR]/01-spec.md`: Extract acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md`: Extract recommendations (Must Apply, Should Apply)
 
 **STOP HERE**. Không đọc `[WORKFLOW_DIR]/03-plan.md` hoặc `[WORKFLOW_DIR]/04-impl.md`.
 
 Create checklist:
-```
+
+```markdown
 ## Review Checklist
 
 ### Acceptance Criteria
@@ -66,6 +71,7 @@ Create checklist:
 ## 2. Discover deliverables
 
 Tìm files đã changed/created:
+
 ```bash
 # Recent changes
 git status
@@ -76,6 +82,7 @@ find . -type f -newer [reference file]
 ```
 
 List deliverables found:
+
 - Code files
 - Test files
 - Config files
@@ -86,6 +93,7 @@ List deliverables found:
 Cho mỗi file/deliverable:
 
 ### a. Functional Review
+
 - Read code/content carefully
 - Understand what it does
 - Check: Does it meet acceptance criteria?
@@ -94,6 +102,7 @@ Cho mỗi file/deliverable:
 ### b. Quality Review
 
 **For Code**:
+
 - Correctness: Logic có đúng không? Edge cases handled?
 - Readability: Code dễ hiểu không? Naming tốt không?
 - Maintainability: Dễ modify sau này không?
@@ -103,12 +112,14 @@ Cho mỗi file/deliverable:
 - Security: Có security issues không?
 
 **For Content (docs, configs)**:
+
 - Completeness: Content đầy đủ không?
 - Accuracy: Content chính xác không?
 - Clarity: Content dễ hiểu không?
 - Structure: Organization logic không?
 
 ### c. Best Practices Review
+
 - Check against research recommendations từ `02-research.md`
 - Check against industry standards
 - Check against project conventions
@@ -118,6 +129,7 @@ Cho mỗi file/deliverable:
 Mỗi issue tìm được phải classify theo severity:
 
 ### 🔴 BLOCKER
+
 - **Definition**: Must fix. Deliverable không usable nếu không fix.
 - **Examples**:
   - Acceptance criterion không được meet
@@ -126,6 +138,7 @@ Mỗi issue tìm được phải classify theo severity:
   - Breaking change không handle backward compatibility
 
 ### 🟡 MAJOR
+
 - **Definition**: Should fix. Issue đáng kể affect quality nhưng không block usage.
 - **Examples**:
   - Poor error handling (silent failures)
@@ -135,6 +148,7 @@ Mỗi issue tìm được phải classify theo severity:
   - Confusing naming/structure
 
 ### 🔵 MINOR
+
 - **Definition**: Nice to fix. Small improvements, không affect functionality.
 - **Examples**:
   - Minor code style issues
@@ -145,17 +159,20 @@ Mỗi issue tìm được phải classify theo severity:
 ### Decision Framework
 
 **BLOCKER nếu**:
+
 - Breaks acceptance criteria
 - Breaks "Must Apply" recommendation
 - Critical functional issue
 - Security vulnerability
 
 **MAJOR nếu**:
+
 - Affects quality significantly
 - Breaks "Should Apply" recommendation
 - Maintenance burden cao
 
 **MINOR nếu**:
+
 - Nice to have improvement
 - Doesn't affect functionality
 - Easy to live with
@@ -184,7 +201,8 @@ Mỗi finding phải có:
 ```
 
 **Example**:
-```markdown
+
+````markdown
 ### 🔴 BLOCKER: User ID not validated before database query
 
 **File**: `src/user-service.ts:45`
@@ -200,15 +218,18 @@ SQL injection vulnerability. Attacker có thể inject malicious SQL và steal/m
 
 **How to fix**:
 Use parameterized queries:
+
 ```typescript
 const query = `SELECT * FROM users WHERE id = ?`;
 db.execute(query, [userId]);
 ```
 
 **Related**:
+
 - AC: "Security: User data must be protected"
 - Recommendation: Must Apply #2 "Use parameterized queries for all database operations"
-```
+
+````
 
 ## 6. Document review report
 
@@ -311,18 +332,21 @@ Tạo file `05-review.md`:
 ## 7. Review quality guidelines
 
 ### Good findings
+
 - ✅ Specific (file, line number, exact issue)
 - ✅ Actionable (clear how to fix)
 - ✅ Justified (explain why it's a problem)
 - ✅ Evidence-based (quote code, reference AC/recommendations)
 
 ### Bad findings
+
 - ❌ Vague ("code could be better")
 - ❌ Subjective without rationale ("I don't like this pattern")
 - ❌ Nitpicky without impact ("rename variable x to y")
 - ❌ Style-only (should use linter, not manual review)
 
 ### Balance
+
 - Don't be too harsh: Acknowledge good work
 - Don't be too lenient: Call out real issues
 - Focus on impact: Major issues more important than minor ones
@@ -340,6 +364,7 @@ Tạo file `05-review.md`:
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
 </input_parameters>
 
@@ -347,32 +372,45 @@ Tạo file `05-review.md`:
 Write to [WORKFLOW_DIR]/05-review.md:
 
 ## TÓM TẮT
+
 - Total findings: <Blocker: X, Major: Y, Minor: Z>
 - AC coverage: <X of Y criteria met>
 - Recommendation: <PASS (no blockers/majors) | REVISE (blockers/majors found)>
 
 ## CHI TIẾT
+
 # Independent Review Report
 
 ## Executive Summary
+
 ### Findings Breakdown
+
 ### Recommendation
+
 ### Key Highlights
 
 ## Findings (Detailed)
+
 ### 🔴 Blocker Issues (Must Fix Before Ship)
+
 ### 🟡 Major Issues (Should Fix)
+
 ### 🔵 Minor Issues (Nice to Fix)
 
 ## Acceptance Criteria Verification
+
 ### ✅ Passed Criteria
+
 ### ❌ Failed Criteria
 
 ## Research Recommendations Verification
+
 ### Must Apply
+
 ### Should Apply
 
 ## Positive Observations
+
 ## Reviewer Notes
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

@@ -22,12 +22,14 @@ Khảo sát phạm vi yêu cầu và viết acceptance criteria (AC) cho task. A
 ## 1. Khảo sát phạm vi (Survey)
 
 Đọc và phân tích:
+
 - Yêu cầu của user ([STORY])
 - Các files liên quan trong codebase (nếu có)
 - Dependencies và integration points
 - Existing conventions trong project
 
 Xác định:
+
 - **In scope**: Những gì thuộc task này
 - **Out of scope**: Những gì KHÔNG thuộc task này (non-goals)
 - **Constraints**: Các ràng buộc kỹ thuật, business, hoặc thời gian
@@ -38,17 +40,20 @@ Xác định:
 **Nguyên tắc quan trọng**: AC mô tả **kết quả** (what), không phải **cấu trúc** (how).
 
 ✅ Đúng:
+
 - "API trả về danh sách users với pagination"
 - "Button disabled khi form invalid"
 - "Email notification gửi trong 5 phút sau khi order thành công"
 
 ❌ Sai:
+
 - "Tạo class UserService với method getUsers()"
 - "Dùng useState để lưu form state"
 - "Implement với RabbitMQ queue"
 
 Format AC:
-```
+
+```markdown
 ## Acceptance Criteria
 
 ### Functional Requirements
@@ -66,6 +71,7 @@ Format AC:
 ## 3. Xác định conventions
 
 Liệt kê các conventions trong project mà task này cần tuân theo:
+
 - Naming conventions
 - Code structure patterns
 - Testing patterns
@@ -126,6 +132,7 @@ Tạo file `01-spec.md` với cấu trúc:
 - [Convention 1]
 - [Convention 2]
 ```
+
 </workflow>
 
 <constraints>
@@ -137,6 +144,7 @@ Tạo file `01-spec.md` với cấu trúc:
 </constraints>
 
 <input_parameters>
+
 - [STORY]: the original feature request/story
 - [WORKFLOW_DIR]: absolute path to write output
 </input_parameters>
@@ -145,6 +153,7 @@ Tạo file `01-spec.md` với cấu trúc:
 Write to [WORKFLOW_DIR]/01-spec.md:
 
 ## TÓM TẮT
+
 - Story: <1-2 sentences>
 - Acceptance criteria: <bulleted list, verifiable>
 - Non-goals: <list>
@@ -154,46 +163,60 @@ Write to [WORKFLOW_DIR]/01-spec.md:
 - Câu hỏi cần làm rõ: <list, or "không có">
 
 ## CHI TIẾT
+
 # Task Specification
 
 ## Yêu cầu gốc
+
 [Trích dẫn yêu cầu từ user]
 
 ## Scope Analysis
+
 ### In Scope
+
 - [Item 1]
 - [Item 2]
 
 ### Out of Scope (Non-goals)
+
 - [Item 1]
 - [Item 2]
 
 ### Constraints
+
 - [Constraint 1]
 - [Constraint 2]
 
 ### Integration Points
+
 - [System/Component 1]: [Mô tả giao tiếp]
 - [System/Component 2]: [Mô tả giao tiếp]
 
 ## Acceptance Criteria
+
 ### Functional Requirements
+
 1. [Requirement 1]
 2. [Requirement 2]
 
 ### Non-functional Requirements
+
 - Performance: [Requirement]
 - Security: [Requirement]
 - UX: [Requirement]
 
 ## Project Conventions (Reference for later steps)
+
 ### Code Conventions
+
 - [Convention 1]
 
 ### Testing Conventions
+
 - [Convention 1]
 
 ### Documentation Conventions
+
 - [Convention 1]
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.
