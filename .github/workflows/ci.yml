@@ -1,0 +1,134 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  static-analysis:
+    name: Static Analysis and Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          npm install -g markdownlint-cli
+          pip install pyyaml
+
+      - name: Lint Markdown documentation
+        run: markdownlint -c .markdownlint.json "**/*.md" --ignore ".workflows/**" --ignore "node_modules/**"
+
+      - name: Verify JSON syntax
+        run: |
+          python3 -c '
+          from pathlib import Path
+          import json, sys
+          p = Path(".")
+          files = [f for f in p.rglob("*.json") if ".workflows" not in f.parts and "node_modules" not in f.parts and ".git" not in f.parts]
+          errors = []
+          for fp in files:
+              try:
+                  with open(fp, "r", encoding="utf-8") as f:
+                      json.load(f)
+              except Exception as e:
+                  errors.append((str(fp), str(e)))
+          if errors:
+              for fp, err in errors:
+                  print(f"[FAIL] JSON syntax error in {fp}: {err}")
+              sys.exit(1)
+          print(f"[PASS] All {len(files)} JSON files have valid syntax.")
+          '
+
+      - name: Verify YAML syntax
+        run: |
+          python3 -c '
+          from pathlib import Path
+          import sys, yaml
+          p = Path(".")
+          files = [f for f in p.rglob("*") if f.suffix in [".yml", ".yaml"] and ".workflows" not in f.parts and "node_modules" not in f.parts and ".git" not in f.parts]
+          errors = []
+          for fp in files:
+              try:
+                  with open(fp, "r", encoding="utf-8") as f:
+                      yaml.safe_load(f)
+              except Exception as e:
+                  errors.append((str(fp), str(e)))
+          if errors:
+              for fp, err in errors:
+                  print(f"[FAIL] YAML syntax error in {fp}: {err}")
+              sys.exit(1)
+          print(f"[PASS] All {len(files)} YAML files have valid syntax.")
+          '
+
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@f613c4a64e50d792e0b31ec34bbcbba12263c6a6 # v2.3.0
+        with:
+          args: --exclude '.*atlassian\.net.*' --exclude-all-private --no-progress README.md "skills/**/*.md" "agents/**/*.md"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  claude-validation:
+    name: Claude Plugin CLI Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate marketplace catalog manifest
+        run: claude plugin validate --strict .
+
+      - name: Validate plugin manifest
+        run: claude plugin validate --strict .claude-plugin/plugin.json
+
+      - name: Validate skills components
+        run: claude plugin validate --strict skills/
+
+      - name: Validate agents components
+        run: claude plugin validate --strict agents/
+
+  integrity-audit:
+    name: Semantic Integrity Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.11'
+
+      - name: Run semantic integrity checks
+        run: python3 scripts/verify-integrity.py
+
+      - name: Run unit tests
+        run: python3 -m unittest discover tests

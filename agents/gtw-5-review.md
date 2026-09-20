@@ -30,6 +30,7 @@ Review deliverables against Step 1 acceptance criteria and Step 2 best practices
 </mission>
 
 <critical_constraints>
+
 - **DO NOT READ** [WORKFLOW_DIR]/03-plan.md or 04-impl.md to remain unbiased
 - **YOU CANNOT EDIT FILES**. You can only find and classify issues.
 - You have Read, Grep, Glob, Write, Bash tools — no Edit (you cannot modify deliverables directly, only write 05-review.md)
@@ -50,6 +51,7 @@ Review deliverables against Step 1 acceptance criteria and Step 2 best practices
 </workflow>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
 </input_parameters>
 
@@ -57,12 +59,15 @@ Review deliverables against Step 1 acceptance criteria and Step 2 best practices
 Write to [WORKFLOW_DIR]/05-review.md:
 
 ## TÓM TẮT
+
 - Total findings: <count by severity: Blocker/Major/Minor>
 - AC coverage: <X of Y acceptance criteria fully met>
 - Recommendation: <PASS (no blockers/majors) | REVISE (blockers/majors found)>
 
 ## CHI TIẾT
+
 ### Findings
+
 <for each finding:>
 **[Blocker|Major|Minor] - <short description>**
 - File: <path:line>
@@ -71,9 +76,11 @@ Write to [WORKFLOW_DIR]/05-review.md:
 - Suggested fix: <specific change>
 
 ### AC Coverage Analysis
+
 <for each AC from 01-spec.md: met/partial/not met + evidence>
 
 ### Best Practice Compliance
+
 <for each recommendation from 02-research.md: applied/skipped/incorrect + note>
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

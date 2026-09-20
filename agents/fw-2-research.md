@@ -24,11 +24,13 @@ Nghiên cứu best practices cho loại task này, so sánh với internal conve
 ## 1. Xác định loại task và research scope
 
 Đọc `[WORKFLOW_DIR]/01-spec.md` để hiểu:
+
 - Task type (API development, UI component, data processing, etc.)
 - Technical domain (backend, frontend, mobile, infrastructure, etc.)
 - Key requirements và constraints
 
 Xác định research questions:
+
 - Best practices cho task type này là gì?
 - Top practitioners/companies làm như thế nào?
 - Có industry standards hoặc style guides nào không?
@@ -36,14 +38,18 @@ Xác định research questions:
 ## 2. Two-tier research
 
 ### Tier 1: Industry Average
+
 Tìm hiểu cách majority của industry làm task này:
+
 - Official documentation của major frameworks/libraries
 - Popular tutorials và courses
 - Common patterns trong open-source projects
 - Stack Overflow consensus
 
 ### Tier 2: Top-tier Experts
+
 Tìm hiểu cách top practitioners làm:
+
 - Engineering blogs của top tech companies (Google, Meta, Netflix, Stripe, etc.)
 - Conference talks từ industry leaders
 - Open-source projects của recognized experts
@@ -56,6 +62,7 @@ Tìm hiểu cách top practitioners làm:
 Đọc conventions đã list trong `[WORKFLOW_DIR]/01-spec.md` và so sánh với research findings:
 
 Classify mỗi convention:
+
 - ✅ **MATCH**: Convention align với best practices → keep
 - ⚠️ **CONFLICT_SHOULD_CHANGE**: Convention conflict với best practices và nên thay đổi
 - 🔵 **CONFLICT_SHOULD_KEEP**: Convention conflict nhưng có lý do tốt để giữ
@@ -63,11 +70,13 @@ Classify mỗi convention:
 ### Decision Framework
 
 **When to CONFLICT_SHOULD_CHANGE**:
+
 - Best practice có clear benefits (performance, maintainability, security)
 - Cost of change là reasonable
 - Không có context-specific reasons để giữ convention cũ
 
 **When to CONFLICT_SHOULD_KEEP**:
+
 - Best practice sẽ cause over-engineering cho use case này
 - Project có constraints đặc biệt (legacy code, team size, timeline)
 - Convention cũ có documented reasons vẫn còn valid
@@ -138,6 +147,7 @@ Tạo file `02-research.md` với:
 ### Optional
 1. [Recommendation 4] - Priority: Low
 ```
+
 </workflow>
 
 <constraints>
@@ -150,6 +160,7 @@ Tạo file `02-research.md` với:
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md
 </input_parameters>
 
@@ -157,6 +168,7 @@ Tạo file `02-research.md` với:
 Write to [WORKFLOW_DIR]/02-research.md:
 
 ## TÓM TẮT
+
 - Loại tác vụ: <architecture / component / algorithm / integration>
 - Best practice nổi bật: <top 2-3 practices>
 - Gap analysis: <conventions aligned vs conflict>
@@ -164,26 +176,37 @@ Write to [WORKFLOW_DIR]/02-research.md:
 - Câu hỏi cần làm rõ: <list if serious conflict needing user decision, or "không có">
 
 ## CHI TIẾT
+
 # Research Findings
 
 ## Task Type Analysis
+
 [Mô tả task type và research scope]
 
 ## Best Practices Research
+
 ### Industry Average (Tier 1)
+
 - [Practice + Source + Rationale]
 
 ### Top-tier Experts (Tier 2)
+
 - [Practice + Company/Expert + Source + Rationale]
 
 ## Comparison với Internal Conventions
+
 ### ✅ Aligned Conventions (Keep)
+
 ### ⚠️ Conflicting Conventions (Recommend Change)
+
 ### 🔵 Conflicting Conventions (Keep Despite Conflict)
 
 ## Summary Recommendations
+
 ### Must Apply
+
 ### Should Apply
+
 ### Optional
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

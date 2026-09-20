@@ -23,12 +23,14 @@ Fix tất cả Blocker và Major issues từ review report. Evaluate Minor issue
 ## 1. Read review report
 
 Đọc `[WORKFLOW_DIR]/05-review.md` để:
+
 - Extract tất cả findings
 - Understand severity của mỗi finding
 - Understand fix suggestions
 
 Tạo fix plan:
-```
+
+```markdown
 ## Fix Plan
 
 ### 🔴 Blockers (Must Fix All)
@@ -49,23 +51,27 @@ Tạo fix plan:
 Cho mỗi Blocker finding:
 
 ### a. Understand the issue
+
 - Read finding carefully
 - Locate exact file và line
 - Understand why it's a blocker
 - Review fix suggestion
 
 ### b. Implement fix
+
 - Apply fix suggested trong review report
 - If fix suggestion không feasible, find alternative that addresses the issue
 - Ensure fix actually resolves the issue
 - Don't introduce new issues
 
 ### c. Verify fix
+
 - Verify issue resolved
 - Run relevant tests
 - Check không break other things
 
 ### d. Document fix
+
 ```markdown
 ### Fixed: [Finding title]
 - **Original issue**: [Brief description]
@@ -81,19 +87,22 @@ Same process như Blockers. Tất cả Major issues phải được fix.
 
 Cho mỗi Minor finding, decide: Fix or Skip?
 
-### Fix if:
+### Fix if
+
 - ✅ Local change (affects ít files, low risk)
 - ✅ Quick fix (< 5 minutes)
 - ✅ Clear improvement with no downsides
 - ✅ Fix suggestion straightforward
 
-### Skip if:
+### Skip if
+
 - ❌ Requires design decision (should discuss with team first)
 - ❌ Touches many files (high risk for minor benefit)
 - ❌ Requires significant refactoring
 - ❌ Opinion-based without clear benefit
 
 **Document decision**:
+
 ```markdown
 ### Minor: [Finding title]
 - **Decision**: ✅ Fixed / 🔵 Skipped
@@ -106,6 +115,7 @@ Cho mỗi Minor finding, decide: Fix or Skip?
 Sau khi fix xong:
 
 ### a. Run all tests
+
 ```bash
 # Unit tests
 [test command]
@@ -121,6 +131,7 @@ Sau khi fix xong:
 ```
 
 Document results:
+
 ```markdown
 ## Test Results After Fixes
 
@@ -143,6 +154,7 @@ Document results:
 ### b. Re-verify Acceptance Criteria
 
 Verify lại tất cả AC từ `01-spec.md`:
+
 ```markdown
 ## Acceptance Criteria Re-verification
 
@@ -200,6 +212,7 @@ Reflect on issues found và process:
 ```
 
 **Focus on systemic issues**, không chỉ individual mistakes:
+
 - If nhiều Blockers về security → need better security checklist trong Step 4
 - If nhiều Major về testing → need clearer test coverage requirements trong Step 3
 - If Minor về style → need better linter setup
@@ -414,27 +427,33 @@ See checklist below for steps to publish deliverables.
   ```
   
 - [ ] Push to feature branch:
+
   ```bash
   git push origin [branch-name]
   ```
   
 - [ ] Create Pull Request:
   - **Title**: [Suggested title]
-  - **Description**: 
+  - **Description**:
+
     ```
     [Suggested PR description with links to spec, plan, summary]
     ```
+
   - **Reviewers**: [Suggested reviewers]
 
 #### For Artifacts
+
 - [ ] [Specific publication steps]
 
 ### Post-publication
+
 - [ ] Monitor for issues (first 24h)
 - [ ] Collect feedback
 - [ ] Update related documentation
 
 ### Rollback Plan
+
 - **Command**: `[rollback command]`
 - **Time**: ~[X] minutes
 - **Impact**: [Description]
@@ -449,7 +468,9 @@ See checklist below for steps to publish deliverables.
 4. (Optional) Save lessons learned to team wiki
 
 **Note**: Deliverables are ready but NOT yet published. User action required to publish.
+
 ```
+
 </workflow>
 
 <constraints>
@@ -464,6 +485,7 @@ See checklist below for steps to publish deliverables.
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing all prior step files
 </input_parameters>
 
@@ -471,6 +493,7 @@ See checklist below for steps to publish deliverables.
 Write to [WORKFLOW_DIR]/06-fix.md:
 
 ## TÓM TẮT
+
 - Blockers fixed: <count>
 - Majors fixed: <count>
 - Minors fixed/skipped: <X fixed, Y skipped>
@@ -479,18 +502,27 @@ Write to [WORKFLOW_DIR]/06-fix.md:
 - Ready to ship: <YES | NO + what's blocking>
 
 ## CHI TIẾT
+
 # Remediation and Ship Preparation Report
 
 ## Fixes Applied
+
 ### Blockers Fixed
+
 ### Major Issues Fixed
+
 ### Minor Issues Addressed
 
 ## Skipped Minors (With Rationale)
+
 ## Acceptance Criteria Re-verification
+
 ## Test and Quality Verification Results
+
 ## Lessons Learned
+
 ## Ship Preparation Checklist
+
 - [ ] Code formatted and clean
 - [ ] No uncommitted scratch files
 - [ ] Tests and typechecks pass

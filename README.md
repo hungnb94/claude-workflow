@@ -1,5 +1,7 @@
 # Claude Workflow
 
+[![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
+
 Six-phase structured agent workflows for feature development and generic tasks in Claude Code.
 
 ## Overview
@@ -48,13 +50,28 @@ claude plugin validate --strict agents/
 
 # Verify release tag compatibility between plugin.json and marketplace.json
 claude plugin tag --dry-run .
+
+# Run zero-dependency semantic and structural integrity audit
+python3 scripts/verify-integrity.py
+
+# Run unit tests
+python3 -m unittest discover tests
+
+# Validate JSON syntax across repository
+python3 -c "import json, pathlib; [json.load(open(f, 'r', encoding='utf-8')) for f in pathlib.Path('.').rglob('*.json') if '.workflows' not in f.parts and 'node_modules' not in f.parts and '.git' not in f.parts]; print('All JSON files valid')"
+
+# Validate YAML syntax across repository (requires pyyaml: pip install pyyaml)
+python3 -c "import yaml, pathlib; [yaml.safe_load(open(f, 'r', encoding='utf-8')) for f in pathlib.Path('.').rglob('*') if f.suffix in ('.yml', '.yaml') and '.workflows' not in f.parts and 'node_modules' not in f.parts and '.git' not in f.parts]; print('All YAML files valid')"
+
+# Lint Markdown documentation
+npx -y markdownlint-cli -c .markdownlint.json "**/*.md" --ignore ".workflows/**" --ignore "node_modules/**"
 ```
 
 ## Workflow Architecture
 
 ### Six-Phase Sequential Pipeline
 
-```
+```text
 Phase 1: Spec       Phase 2: Research     Phase 3: Plan
 [fw-1-spec /        [fw-2-research /      [fw-3-plan /
  gtw-1-spec]   -->   gtw-2-research]  -->  gtw-3-plan]
@@ -136,7 +153,7 @@ For standalone non-code tasks, documentation, project planning, and research:
 
 ## Project Structure
 
-```
+```text
 claude-workflow/
 ├── .claude-plugin/
 │   ├── plugin.json              # Plugin manifest (version 1.0.0, author, repo)

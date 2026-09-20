@@ -53,6 +53,7 @@ Research industry best practices for this task type, compare with internal conve
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md
 </input_parameters>
 
@@ -60,22 +61,28 @@ Research industry best practices for this task type, compare with internal conve
 Write to [WORKFLOW_DIR]/02-research.md:
 
 ## TÓM TẮT
+
 - Best practices identified: <count, categorized by tier A/B>
 - Recommendations: <high-level list of practices to adopt>
 - Conflicts resolved: <convention changes recommended, with brief rationale>
 - Keep as-is: <conventions that should stay despite different best practice>
 
 ## CHI TIẾT
+
 ### Tier A: Industry Average
+
 <standard practices with sources>
 
 ### Tier B: Top Practitioners
+
 <what elite teams do differently, with sources>
 
 ### Gap Analysis
+
 <for each convention from 01-spec.md: match/conflict-should-change/conflict-should-keep + rationale>
 
 ### Recommendations
+
 <actionable practices for Step 3 to incorporate, prioritized>
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.

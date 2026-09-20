@@ -54,7 +54,7 @@ file của nó — **không cần file prompt riêng biệt**.
 
 ## Cấu trúc output
 
-```
+```text
 .workflows/<STORY_SLUG>/
   01-spec.md      <- Bước 1: phạm vi + acceptance criteria + ràng buộc
   02-research.md  <- Bước 2: best practice ngành theo loại project, đối chiếu convention nội bộ
@@ -89,6 +89,7 @@ Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools 
 | 6 Sửa lỗi | `fw-6-fix` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Remediation Engineer - sửa toàn bộ Blocker/Major/Minor |
 
 **Lợi ích của custom agents:**
+
 - **Model selection**: Opus cho Bước 3 (reasoning phức tạp), Sonnet cho các bước khác (execution hiệu quả)
 - **Tool isolation**: Bước 5 bị cấm Edit để đảm bảo review độc lập, không vô tình sửa code
 - **Role clarity**: Mỗi agent có senior role rõ ràng, signals expertise level cho subagent
@@ -102,7 +103,7 @@ Các bước tuần tự — không spawn song song, vì bước sau ăn output 
 
 Mỗi bước gửi một prompt ngắn. Hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
 
-```
+```text
 Bạn là subagent thực hiện BƯỚC <N>/6 của quy trình làm story.
 Làm theo hướng dẫn trong definition của bạn (agent fw-<N>-<tên>).
 Tham số:

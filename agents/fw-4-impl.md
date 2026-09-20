@@ -23,16 +23,19 @@ Implement tất cả deliverables theo `03-plan.md`. Follow plan exactly, không
 ## 1. Review plan và setup
 
 Đọc `[WORKFLOW_DIR]/03-plan.md` để hiểu:
+
 - Chosen approach và rationale
 - Work breakdown với dependencies
 - Test plan
 - Design principles applied
 
 Đọc lại `[WORKFLOW_DIR]/01-spec.md` và `[WORKFLOW_DIR]/02-research.md` để refresh:
+
 - Acceptance criteria (để verify sau)
 - Research recommendations (Must Apply, Should Apply)
 
 Setup checklist:
+
 - [ ] Hiểu rõ tất cả deliverables
 - [ ] Hiểu dependencies giữa deliverables
 - [ ] Biết AC để verify cho mỗi deliverable
@@ -45,6 +48,7 @@ Follow work breakdown sequence trong `[WORKFLOW_DIR]/03-plan.md`. Respect depend
 **Cho mỗi deliverable**:
 
 ### a. Implementation
+
 - Follow design đã outlined trong plan
 - Apply design principles (SOLID hoặc equivalent) như đã document
 - Follow project conventions (từ `01-spec.md`)
@@ -52,6 +56,7 @@ Follow work breakdown sequence trong `[WORKFLOW_DIR]/03-plan.md`. Respect depend
 - **NO over-engineering**: Chỉ implement đúng requirements, không add "nice to have" features
 
 ### b. Code quality (for code tasks)
+
 - Code phải clean, readable
 - Comments cho complex logic
 - Follow naming conventions của project
@@ -59,7 +64,9 @@ Follow work breakdown sequence trong `[WORKFLOW_DIR]/03-plan.md`. Respect depend
 - No commented-out code trong final deliverable
 
 ### c. Verify deliverable AC
+
 Sau khi implement mỗi deliverable, verify acceptance criteria của deliverable đó (từ work breakdown):
+
 - ✅ Criterion 1: [Pass/Fail + evidence]
 - ✅ Criterion 2: [Pass/Fail + evidence]
 
@@ -69,7 +76,8 @@ Nếu có criterion fail → fix ngay trước khi move on.
 
 Follow test plan từ `03-plan.md`:
 
-### Unit Tests
+### Unit Testing
+
 - Write tests theo scope defined trong test plan
 - Aim for coverage target (nếu có)
 - Test key scenarios listed
@@ -77,11 +85,13 @@ Follow test plan từ `03-plan.md`:
 - Verify: All tests pass
 
 ### Integration Tests (if applicable)
+
 - Write tests cho critical paths
 - Run tests
 - Verify: All tests pass
 
 ### Lint & Type Check
+
 - Run linter: `[lint command từ project]`
 - Fix all lint errors
 - Run type checker (if TypeScript/typed language): `[typecheck command]`
@@ -93,7 +103,7 @@ Follow test plan từ `03-plan.md`:
 
 Sau khi tất cả deliverables done, verify toàn bộ solution against acceptance criteria từ `01-spec.md`:
 
-```
+```markdown
 ## Acceptance Criteria Verification
 
 ### Functional Requirements
@@ -117,7 +127,7 @@ Nếu có AC fail → fix trước khi kết thúc.
 
 Verify rằng đã apply research recommendations:
 
-```
+```markdown
 ## Research Recommendations Verification
 
 ### Must Apply
@@ -138,7 +148,7 @@ Verify rằng đã apply research recommendations:
 
 Tạo file `04-impl.md`:
 
-```markdown
+````markdown
 # Implementation Report
 
 ## Summary
@@ -166,8 +176,10 @@ Tạo file `04-impl.md`:
 - **Command**: `[test command]`
 - **Result**: ✅ All pass ([X] tests, [Y]% coverage)
 - **Output**: 
-```
+```text
+
 [Relevant test output]
+
 ```
 
 ### Integration Tests
@@ -218,22 +230,25 @@ Tạo file `04-impl.md`:
 ## Notes for Reviewer
 
 [Any notes that would help reviewer understand the implementation, edge cases handled, assumptions made, etc.]
-```
+````
 
 ## 7. Edge cases và adaptations
 
 ### When to adapt vs follow plan
 
 **Follow plan exactly when**:
+
 - Plan is clear và feasible
 - No new information discovered
 
 **Adapt when** (document changes in impl report):
+
 - Discover technical constraint không anticipated trong plan
 - Discover better approach while implementing (nhưng still meets AC)
 - Plan có error hoặc oversight
 
 **Rules for adaptation**:
+
 1. Document why adapting
 2. Ensure adaptation still meets all AC
 3. Ensure adaptation still follows research recommendations
@@ -241,6 +256,7 @@ Tạo file `04-impl.md`:
 5. Never drop requirements để make implementation easier
 
 ### Common pitfalls to avoid
+
 - ❌ Over-engineering: Adding abstractions không cần thiết
 - ❌ Feature creep: Adding features không có trong AC
 - ❌ Premature optimization: Optimize trước khi có evidence của problem
@@ -260,6 +276,7 @@ Tạo file `04-impl.md`:
 </constraints>
 
 <input_parameters>
+
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md, and 03-plan.md
 </input_parameters>
 
@@ -267,6 +284,7 @@ Tạo file `04-impl.md`:
 Write to [WORKFLOW_DIR]/04-impl.md:
 
 ## TÓM TẮT
+
 - Trạng thái triển khai: <COMPLETED | IN_PROGRESS | BLOCKED>
 - Thay đổi đã thực hiện: <tóm tắt files/modules đã tạo hoặc sửa>
 - Kết quả kiểm thử: <unit/integration/typecheck/lint: pass/fail count>
@@ -274,24 +292,33 @@ Write to [WORKFLOW_DIR]/04-impl.md:
 - Mục bị chặn / chưa giải quyết: <list, or "không có">
 
 ## CHI TIẾT
+
 # Implementation Report
 
 ## Summary of Changes
+
 ### Deliverables Completed
+
 ### Files Modified/Created
 
 ## Acceptance Criteria Verification
+
 <for each AC: status + evidence>
 
 ## Research Recommendations Verification
+
 <for each Must Apply: status + how implemented>
 
 ## Test Results
+
 ### Unit Tests
+
 ### Integration Tests
+
 ### Quality Checks (Lint, Typecheck)
 
 ## Deviations from Plan
+
 <any deviations + technical rationale, or "none">
 
 Return to orchestrator: ONLY the ## TÓM TẮT section.
