@@ -128,20 +128,27 @@ def check_version_sync(repo_root: Path, check_tag: str = None) -> bool:
         print("[FAIL] Missing 'version' field in plugin.json")
         return False
 
+    plugin_name = plugin_data.get("name")
+    if not plugin_name:
+        print("[FAIL] Missing 'name' field in plugin.json")
+        return False
+
     plugins_list = marketplace_data.get("plugins", [])
     if not plugins_list:
         print("[FAIL] Missing or empty 'plugins' array in marketplace.json")
         return False
 
     marketplace_version = None
-    plugin_name = plugin_data.get("name", "claude-workflow")
     for entry in plugins_list:
-        if entry.get("name") == plugin_name:
+        if isinstance(entry, dict) and entry.get("name") == plugin_name:
             marketplace_version = entry.get("version")
             break
 
     if marketplace_version is None:
-        marketplace_version = plugins_list[0].get("version")
+        print(
+            f"[FAIL] Plugin '{plugin_name}' declared in plugin.json not found in marketplace.json"
+        )
+        return False
 
     if plugin_version != marketplace_version:
         print(
@@ -152,7 +159,17 @@ def check_version_sync(repo_root: Path, check_tag: str = None) -> bool:
     print(f"[PASS] Version synchronized: {plugin_version} (plugin.json == marketplace.json)")
 
     if check_tag:
-        expected_version = check_tag.lstrip("v")
+        tag_to_check = check_tag
+        if "--" in tag_to_check:
+            tag_plugin, _, tag_ver = tag_to_check.partition("--")
+            if tag_plugin != plugin_name:
+                print(
+                    f"[FAIL] Git tag '{check_tag}' plugin prefix '{tag_plugin}' does not match plugin name '{plugin_name}'"
+                )
+                return False
+            tag_to_check = tag_ver
+
+        expected_version = tag_to_check[1:] if tag_to_check.startswith("v") else tag_to_check
         if plugin_version != expected_version:
             print(
                 f"[FAIL] Git tag '{check_tag}' (normalized '{expected_version}') does not match manifest version '{plugin_version}'"

@@ -161,7 +161,7 @@ def get_base_version(repo_root: Path) -> str:
     # 1. Inspect git tags
     try:
         result = subprocess.run(
-            ["git", "tag", "-l", "v*.*.*"],
+            ["git", "tag", "-l"],
             cwd=str(repo_root),
             capture_output=True,
             text=True,
@@ -171,7 +171,7 @@ def get_base_version(repo_root: Path) -> str:
             tags = [t.strip() for t in result.stdout.strip().splitlines() if t.strip()]
             tag_versions = []
             for tag in tags:
-                m = re.match(r"^v(\d+\.\d+\.\d+)$", tag)
+                m = re.match(r"^(?:[a-zA-Z0-9_-]+--)?v(\d+\.\d+\.\d+)$", tag)
                 if m:
                     ver_tuple = parse_semver(m.group(1))
                     if ver_tuple:
@@ -274,7 +274,7 @@ def update_manifests(repo_root: Path, new_version: str) -> None:
     if not plugins:
         raise ValueError(f"Missing or empty 'plugins' array in {marketplace_path}")
 
-    plugin_name = plugin_data.get("name", "claude-workflow")
+    plugin_name = plugin_data.get("name", "workflow")
     updated = False
     for item in plugins:
         if item.get("name") == plugin_name:

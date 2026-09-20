@@ -40,7 +40,7 @@ class TestBumpVersion(unittest.TestCase):
         plugin_dir.mkdir(parents=True)
 
         self.plugin_json_data = {
-            "name": "claude-workflow",
+            "name": "workflow",
             "version": "1.0.0",
             "description": "Six-phase structured agent workflows",
             "author": {
@@ -57,7 +57,7 @@ class TestBumpVersion(unittest.TestCase):
             "name": "claude-workflow",
             "plugins": [
                 {
-                    "name": "claude-workflow",
+                    "name": "workflow",
                     "source": {
                         "source": "github",
                         "repo": "hungnb94/claude-workflow"
@@ -285,6 +285,19 @@ class TestBumpVersion(unittest.TestCase):
         base = bv.get_base_version(self.repo_root)
         self.assertEqual(base, "2.5.0")
 
+    def test_get_base_version_prefixed_tags(self):
+        # Support prefixed tags like workflow--v2.1.0
+        subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "add", "."], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "tag", "v1.0.0"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "workflow--v2.1.0"], cwd=str(self.repo_root), check=True)
+
+        base = bv.get_base_version(self.repo_root)
+        self.assertEqual(base, "2.1.0")
+
     def test_get_base_version_ignores_non_semver_tags(self):
         subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
         subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
@@ -310,14 +323,14 @@ class TestBumpVersion(unittest.TestCase):
         plugin_file = self.repo_root / ".claude-plugin" / "plugin.json"
         p_data = json.loads(plugin_file.read_text(encoding="utf-8"))
         self.assertEqual(p_data["version"], "2.3.4")
-        self.assertEqual(p_data["name"], "claude-workflow")
+        self.assertEqual(p_data["name"], "workflow")
         self.assertEqual(p_data["author"]["name"], "Hung Nguyen")
 
         # Check marketplace.json
         mp_file = self.repo_root / ".claude-plugin" / "marketplace.json"
         m_data = json.loads(mp_file.read_text(encoding="utf-8"))
         self.assertEqual(m_data["plugins"][0]["version"], "2.3.4")
-        self.assertEqual(m_data["plugins"][0]["name"], "claude-workflow")
+        self.assertEqual(m_data["plugins"][0]["name"], "workflow")
         self.assertEqual(m_data["plugins"][0]["source"]["source"], "github")
 
         # Check formatting: trailing newline and 2-space indent
