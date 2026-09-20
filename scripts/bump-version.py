@@ -31,24 +31,51 @@ CONVENTIONAL_COMMIT_REGEX = re.compile(
 BREAKING_CHANGE_BODY_REGEX = re.compile(r"\bBREAKING[ -]CHANGE:\s*")
 
 
+def parse_semver(v_str: str):
+    """
+    Parse SemVer string 'X.Y.Z' into (X, Y, Z) tuple of ints.
+    Returns None if the string is not valid SemVer 2.0.0.
+    """
+    if not v_str:
+        return None
+    m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", str(v_str).strip())
+    if m:
+        return tuple(map(int, m.groups()))
+    return None
+
+
 def parse_labels_arg(labels_raw) -> list:
     """
     Parse labels from a JSON string, comma-separated string, or list.
-    Returns a list of stripped label strings.
+    Returns a list of stripped label strings, filtering out null/none values.
     """
     if not labels_raw:
         return []
     if isinstance(labels_raw, list):
-        return [str(item).strip() for item in labels_raw if str(item).strip()]
+        return [
+            str(item).strip()
+            for item in labels_raw
+            if str(item).strip() and str(item).strip().lower() not in ("null", "none")
+        ]
     raw = str(labels_raw).strip()
+    if raw.lower() in ("null", "none", "[]", ""):
+        return []
     if raw.startswith("[") and raw.endswith("]"):
         try:
             parsed = json.loads(raw)
             if isinstance(parsed, list):
-                return [str(item).strip() for item in parsed if str(item).strip()]
+                return [
+                    str(item).strip()
+                    for item in parsed
+                    if str(item).strip() and str(item).strip().lower() not in ("null", "none")
+                ]
         except Exception:
             pass
-    return [item.strip() for item in raw.split(",") if item.strip()]
+    return [
+        item.strip()
+        for item in raw.split(",")
+        if item.strip() and item.strip().lower() not in ("null", "none")
+    ]
 
 
 def parse_conventional_commit(
@@ -125,12 +152,16 @@ def parse_conventional_commit(
 
 def get_base_version(repo_root: Path) -> str:
     """
-    Resolve base version from the latest semantic git tag (v*.*.*).
-    Falls back to .claude-plugin/plugin.json if no valid git tags exist.
+    Resolve base version from the latest semantic git tag (v*.*.*) and/or
+    .claude-plugin/plugin.json, taking the highest SemVer version as a floor
+    to prevent regressions if manifests were bumped ahead of git tags.
     """
+    candidates = []
+
+    # 1. Inspect git tags
     try:
         result = subprocess.run(
-            ["git", "tag", "-l", "--sort=-v:refname", "v*.*.*"],
+            ["git", "tag", "-l", "v*.*.*"],
             cwd=str(repo_root),
             capture_output=True,
             text=True,
@@ -138,26 +169,42 @@ def get_base_version(repo_root: Path) -> str:
         )
         if result.returncode == 0 and result.stdout.strip():
             tags = [t.strip() for t in result.stdout.strip().splitlines() if t.strip()]
+            tag_versions = []
             for tag in tags:
                 m = re.match(r"^v(\d+\.\d+\.\d+)$", tag)
                 if m:
-                    return m.group(1)
+                    ver_tuple = parse_semver(m.group(1))
+                    if ver_tuple:
+                        tag_versions.append((ver_tuple, m.group(1)))
+            if tag_versions:
+                max_tag = max(tag_versions, key=lambda item: item[0])
+                candidates.append(max_tag)
     except Exception:
         pass
 
-    # Fallback: Read version from .claude-plugin/plugin.json
+    # 2. Inspect .claude-plugin/plugin.json
     plugin_json_path = repo_root / ".claude-plugin" / "plugin.json"
+    manifest_error = None
     if plugin_json_path.exists():
         try:
             with open(plugin_json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             version = data.get("version")
-            if version and re.match(r"^\d+\.\d+\.\d+$", str(version)):
-                return str(version)
+            if version:
+                ver_tuple = parse_semver(str(version))
+                if ver_tuple:
+                    candidates.append((ver_tuple, str(version)))
         except Exception as e:
-            raise ValueError(
-                f"Failed to read fallback version from {plugin_json_path}: {e}"
-            )
+            manifest_error = e
+
+    if candidates:
+        best_candidate = max(candidates, key=lambda item: item[0])
+        return best_candidate[1]
+
+    if manifest_error:
+        raise ValueError(
+            f"Failed to read fallback version from {plugin_json_path}: {manifest_error}"
+        )
 
     raise ValueError(
         f"Unable to determine base version: no valid git tags and no valid version in {plugin_json_path}"
@@ -172,13 +219,13 @@ def calculate_next_version(base_version: str, bump_type: str) -> str:
     - patch: X.Y.Z+1
     - skip: returns base_version
     """
-    m = re.match(r"^(\d+)\.(\d+)\.(\d+)$", base_version.strip())
-    if not m:
+    ver_tuple = parse_semver(base_version)
+    if not ver_tuple:
         raise ValueError(
             f"Base version '{base_version}' is not valid SemVer 2.0.0 (expected X.Y.Z)"
         )
 
-    major, minor, patch = map(int, m.groups())
+    major, minor, patch = ver_tuple
 
     if bump_type == "major":
         return f"{major + 1}.0.0"
@@ -271,26 +318,26 @@ def main(argv=None) -> int:
         "--pr-title",
         type=str,
         default="",
-        help="Pull Request title conforming to Conventional Commits",
+        help="Pull Request title conforming to Conventional Commits (or PR_TITLE env var)",
     )
     parser.add_argument(
         "--pr-body",
         type=str,
         default="",
-        help="Pull Request description body",
+        help="Pull Request description body (or PR_BODY env var)",
     )
     parser.add_argument(
         "--labels",
         type=str,
         default="",
-        help="Comma-separated or JSON list of PR labels",
+        help="Comma-separated or JSON list of PR labels (or PR_LABELS env var)",
     )
     parser.add_argument(
         "--bump-type",
         type=str,
         choices=["major", "minor", "patch", "skip"],
         default=None,
-        help="Manual version bump override",
+        help="Manual version bump override (or BUMP_TYPE_OVERRIDE env var)",
     )
     parser.add_argument(
         "--repo-root",
@@ -317,8 +364,21 @@ def main(argv=None) -> int:
 
     args = parser.parse_args(argv)
 
-    if not args.bump_type and not args.pr_title:
-        print("[ERROR] Either --pr-title or --bump-type must be provided.", file=sys.stderr)
+    # Resolve inputs with environment variables fallback
+    env_bump = (
+        os.environ.get("BUMP_TYPE_OVERRIDE", "").strip()
+        or os.environ.get("BUMP_TYPE", "").strip()
+    )
+    bump_type_override = args.bump_type or (env_bump if env_bump else None)
+    pr_title = (args.pr_title or os.environ.get("PR_TITLE", "")).strip()
+    pr_body = args.pr_body or os.environ.get("PR_BODY", "")
+    labels = args.labels or os.environ.get("PR_LABELS", "")
+
+    if not bump_type_override and not pr_title:
+        print(
+            "[ERROR] Either --pr-title (or PR_TITLE env) or --bump-type (or BUMP_TYPE_OVERRIDE env) must be provided.",
+            file=sys.stderr,
+        )
         return 1
 
     repo_root = (
@@ -329,10 +389,10 @@ def main(argv=None) -> int:
 
     try:
         bump_type, reason = parse_conventional_commit(
-            title=args.pr_title,
-            body=args.pr_body,
-            labels=args.labels,
-            bump_override=args.bump_type,
+            title=pr_title,
+            body=pr_body,
+            labels=labels,
+            bump_override=bump_type_override,
         )
     except Exception as e:
         print(f"[ERROR] Failed to parse PR metadata: {e}", file=sys.stderr)

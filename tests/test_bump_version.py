@@ -174,6 +174,13 @@ class TestBumpVersion(unittest.TestCase):
         self.assertEqual(bv.parse_labels_arg("a, b, c"), ["a", "b", "c"])
         self.assertEqual(bv.parse_labels_arg('["skip-release", "enhancement"]'), ["skip-release", "enhancement"])
         self.assertEqual(bv.parse_labels_arg(["label1", "label2"]), ["label1", "label2"])
+        # Null and empty representation filtering
+        self.assertEqual(bv.parse_labels_arg("null"), [])
+        self.assertEqual(bv.parse_labels_arg("none"), [])
+        self.assertEqual(bv.parse_labels_arg("[]"), [])
+        self.assertEqual(bv.parse_labels_arg('["null", "skip-release", "none", ""]'), ["skip-release"])
+        self.assertEqual(bv.parse_labels_arg("null, skip-release, none, "), ["skip-release"])
+        self.assertEqual(bv.parse_labels_arg(["null", "feature", "none"]), ["feature"])
 
     def test_parse_conventional_commit_invalid_title(self):
         with self.assertRaises(ValueError):
@@ -243,6 +250,54 @@ class TestBumpVersion(unittest.TestCase):
 
         base = bv.get_base_version(self.repo_root)
         self.assertEqual(base, "1.2.0")
+
+    def test_get_base_version_floor_manifest_higher(self):
+        # When manifest is bumped ahead of git tags (e.g. 2.0.0 vs tags at 1.2.0),
+        # manifest version acts as floor to prevent regression
+        subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "add", "."], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "tag", "v1.0.0"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "v1.2.0"], cwd=str(self.repo_root), check=True)
+
+        # Manifest has 2.0.0
+        plugin_file = self.repo_root / ".claude-plugin" / "plugin.json"
+        p_data = json.loads(plugin_file.read_text(encoding="utf-8"))
+        p_data["version"] = "2.0.0"
+        plugin_file.write_text(json.dumps(p_data, indent=2) + "\n", encoding="utf-8")
+
+        base = bv.get_base_version(self.repo_root)
+        self.assertEqual(base, "2.0.0")
+
+    def test_get_base_version_floor_tags_higher(self):
+        # When git tags are ahead of manifest (e.g. tags at 2.5.0 vs manifest at 1.0.0),
+        # tags take precedence
+        subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "add", "."], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "tag", "v1.0.0"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "v2.5.0"], cwd=str(self.repo_root), check=True)
+
+        base = bv.get_base_version(self.repo_root)
+        self.assertEqual(base, "2.5.0")
+
+    def test_get_base_version_ignores_non_semver_tags(self):
+        subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "add", "."], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=str(self.repo_root), check=True, capture_output=True)
+        subprocess.run(["git", "tag", "v1.0.0"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "v1.2.0-beta"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "random-tag"], cwd=str(self.repo_root), check=True)
+        subprocess.run(["git", "tag", "v999"], cwd=str(self.repo_root), check=True)
+
+        base = bv.get_base_version(self.repo_root)
+        self.assertEqual(base, "1.0.0")
 
     # -------------------------------------------------------------------------
     # Manifest Update Tests
@@ -364,6 +419,58 @@ class TestBumpVersion(unittest.TestCase):
     def test_cli_no_args_error(self):
         exit_code = bv.main(["--repo-root", str(self.repo_root)])
         self.assertEqual(exit_code, 1)
+
+    def test_cli_env_variables_fallback(self):
+        # Verify that PR_TITLE, PR_BODY, PR_LABELS env vars are read when CLI args are absent
+        env_vars = {
+            "PR_TITLE": "feat: feature from environment",
+            "PR_BODY": "Added via environment variable",
+            "PR_LABELS": '["feature"]',
+        }
+        from unittest.mock import patch
+        with patch.dict(os.environ, env_vars):
+            exit_code = bv.main([
+                "--repo-root", str(self.repo_root),
+                "--write-manifests",
+            ])
+            self.assertEqual(exit_code, 0)
+
+        p_data = json.loads((self.repo_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(p_data["version"], "1.1.0")
+
+    def test_cli_env_flag_like_pr_body(self):
+        # Verify that flag-like characters in PR_BODY (e.g. '--write-manifests', '---')
+        # do not cause CLI parsing failures when passed via environment variables
+        env_vars = {
+            "PR_TITLE": "fix: resolve edge case",
+            "PR_BODY": "--write-manifests\n--dry-run\n--help\n--repo-root /tmp",
+            "PR_LABELS": "null",
+        }
+        from unittest.mock import patch
+        with patch.dict(os.environ, env_vars):
+            exit_code = bv.main([
+                "--repo-root", str(self.repo_root),
+                "--write-manifests",
+            ])
+            self.assertEqual(exit_code, 0)
+
+        p_data = json.loads((self.repo_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(p_data["version"], "1.0.1")
+
+    def test_cli_env_bump_type_override(self):
+        env_vars = {
+            "BUMP_TYPE_OVERRIDE": "major",
+        }
+        from unittest.mock import patch
+        with patch.dict(os.environ, env_vars):
+            exit_code = bv.main([
+                "--repo-root", str(self.repo_root),
+                "--write-manifests",
+            ])
+            self.assertEqual(exit_code, 0)
+
+        p_data = json.loads((self.repo_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(p_data["version"], "2.0.0")
 
     # -------------------------------------------------------------------------
     # Integration with verify-integrity.py

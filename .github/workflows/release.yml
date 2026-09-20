@@ -51,20 +51,7 @@ jobs:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
           BUMP_TYPE_OVERRIDE: ${{ inputs.bump_type }}
         run: |
-          ARGS=("--write-manifests")
-          if [ -n "$BUMP_TYPE_OVERRIDE" ]; then
-            ARGS+=("--bump-type" "$BUMP_TYPE_OVERRIDE")
-          fi
-          if [ -n "$PR_TITLE" ]; then
-            ARGS+=("--pr-title" "$PR_TITLE")
-          fi
-          if [ -n "$PR_BODY" ]; then
-            ARGS+=("--pr-body" "$PR_BODY")
-          fi
-          if [ -n "$PR_LABELS" ]; then
-            ARGS+=("--labels" "$PR_LABELS")
-          fi
-          python3 scripts/bump-version.py "${ARGS[@]}"
+          python3 scripts/bump-version.py --write-manifests
 
       - name: Run pre-release integrity gate
         if: steps.bump.outputs.should_release == 'true'
@@ -77,14 +64,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
-          git commit -m "chore(release): v${{ steps.bump.outputs.next_version }} [skip ci]"
-          git pull --rebase origin main
-          git push origin main
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): v${{ steps.bump.outputs.next_version }} [skip ci]"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "Manifest files are already up-to-date; skipping commit."
+          fi
 
       - name: Create and push git tag
         if: steps.bump.outputs.should_release == 'true'
         run: |
-          git tag "v${{ steps.bump.outputs.next_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ steps.bump.outputs.next_version }}" -m "Release v${{ steps.bump.outputs.next_version }}"
           git push origin "v${{ steps.bump.outputs.next_version }}"
 
       - name: Publish GitHub Release
