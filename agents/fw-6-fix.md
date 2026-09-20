@@ -268,7 +268,7 @@ Chuẩn bị checklist cho user để publish/submit deliverables:
 
 Tạo file `06-fix.md`:
 
-```markdown
+````markdown
 # Remediation Report
 
 ## Summary
@@ -469,7 +469,7 @@ See checklist below for steps to publish deliverables.
 
 **Note**: Deliverables are ready but NOT yet published. User action required to publish.
 
-```
+````
 
 </workflow>
 
