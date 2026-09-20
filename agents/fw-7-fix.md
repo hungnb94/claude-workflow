@@ -1,5 +1,5 @@
 ---
-name: fw-6-fix
+name: fw-7-fix
 description: Senior Remediation Engineer - Fix issues found in review and prepare for publication
 tools:
   - Read
@@ -22,7 +22,7 @@ Fix tất cả Blocker và Major issues từ review report. Evaluate Minor issue
 <workflow>
 ## 1. Read review report
 
-Đọc `[WORKFLOW_DIR]/05-review.md` để:
+Đọc `[WORKFLOW_DIR]/06-review.md` để:
 
 - Extract tất cả findings
 - Understand severity của mỗi finding
@@ -63,6 +63,7 @@ Cho mỗi Blocker finding:
 - If fix suggestion không feasible, find alternative that addresses the issue
 - Ensure fix actually resolves the issue
 - Don't introduce new issues
+- Với finding về best practice: đối chiếu `[WORKFLOW_DIR]/03-role-model.md` để lấy pattern đúng, nhưng vẫn theo thứ tự thẩm quyền `01-spec.md` > `04-plan.md` > convention repo > bản mẫu. Bản mẫu không cho phép refactor ngoài phạm vi finding.
 
 ### c. Verify fix
 
@@ -238,7 +239,7 @@ Chuẩn bị checklist cho user để publish/submit deliverables:
 - [ ] Push to feature branch: `git push origin [branch-name]`
 - [ ] Create Pull Request với:
   - Title: [Suggested PR title]
-  - Description: [Link to 01-spec.md, 03-plan.md, summary of changes]
+  - Description: [Link to 01-spec.md, 04-plan.md, summary of changes]
 - [ ] Request review from: [Suggested reviewers based on files changed]
 
 #### For Artifacts (Documents, Configs, etc.)
@@ -266,7 +267,7 @@ Chuẩn bị checklist cho user để publish/submit deliverables:
 
 ## 8. Write remediation report
 
-Tạo file `06-fix.md`:
+Tạo file `07-fix.md`:
 
 ````markdown
 # Remediation Report
@@ -486,11 +487,11 @@ See checklist below for steps to publish deliverables.
 
 <input_parameters>
 
-- [WORKFLOW_DIR]: absolute path containing all prior step files
+- [WORKFLOW_DIR]: absolute path containing all prior step files, including 03-role-model.md
 </input_parameters>
 
 <output>
-Write to [WORKFLOW_DIR]/06-fix.md:
+Write to [WORKFLOW_DIR]/07-fix.md:
 
 ## TÓM TẮT
 
