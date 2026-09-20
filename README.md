@@ -151,6 +151,34 @@ For standalone non-code tasks, documentation, project planning, and research:
 
 *Note: Measured via `claude plugin details`. The total always-on footprint across all skills and subagents is ~808 tokens added to session overhead, well below typical context constraints.*
 
+## Automated Release Lifecycle
+
+Claude Workflow implements zero-touch continuous delivery. Every Pull Request merged into the `main` branch triggers an automated release pipeline (`.github/workflows/release.yml`) that analyzes Conventional Commits metadata, increments the semantic version, synchronizes manifests, passes pre-release integrity gates, and publishes a GitHub Release.
+
+### Semantic Version Determination
+
+The release pipeline inspects the merged PR title, description body, and GitHub labels to calculate the next Semantic Version 2.0.0 (`X.Y.Z`):
+
+| PR Convention / Marker | Version Bump | Resulting SemVer | Example PR Title |
+|---|---|---|---|
+| `!` after type/scope, or `BREAKING CHANGE:` in body | Major | `X+1.0.0` | `feat!: redesign subagent communication protocol` |
+| `feat` or `feat(...)` | Minor | `X.Y+1.0` | `feat(skills): add automated verification skill` |
+| `fix`, `perf`, `refactor`, `revert` | Patch | `X.Y.Z+1` | `fix: resolve manifest version synchronization bug` |
+| `docs`, `chore`, `ci`, `test`, `style`, `build` | Skip | No release | `docs: update installation instructions` |
+| `skip-release` or `no-release` PR label | Skip | No release | Any title with label `skip-release` |
+
+### Pipeline Workflow Steps
+
+1. **Serialized Concurrency**: Release runs are strictly serialized (`concurrency: group: release, cancel-in-progress: false`) to eliminate race conditions when multiple PRs merge in close succession.
+2. **Version Bump & Manifest Sync**: `scripts/bump-version.py` determines the next version and updates `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
+3. **Pre-Release Integrity Gate**: `scripts/verify-integrity.py --check-tag "v$NEXT_VERSION"` verifies manifest synchronization, subagent reference integrity, tool permissions, and description token budgets before publishing.
+4. **Recursive Loop Prevention**: Manifest commits include `[skip ci]` to prevent triggering infinite CI cycles.
+5. **Git Tag & GitHub Release**: Creates tag `v$NEXT_VERSION` and generates release notes automatically linking merged PRs and authors.
+
+### Skipping Releases
+
+To merge a PR without triggering a version bump or release (for example, maintenance PRs or internal documentation updates), apply the `skip-release` or `no-release` label to the Pull Request prior to merging.
+
 ## Project Structure
 
 ```text
@@ -171,11 +199,17 @@ claude-workflow/
 │   ├── gtw-4-impl.md            # Generic Execution: Content generation
 │   ├── gtw-5-review.md          # Generic Auditor: Quality audit (no Edit)
 │   └── gtw-6-fix.md             # Generic Remediation: Finding remediation
+├── scripts/
+│   ├── bump-version.py          # Semantic version calculation and manifest sync
+│   └── verify-integrity.py      # Pre-release integrity check and gatekeeper
 ├── skills/
 │   ├── feature-workflow/
 │   │   └── SKILL.md             # Orchestrator for /feature-workflow
 │   └── generic-task-workflow/
 │       └── SKILL.md             # Orchestrator for /generic-task-workflow
+├── tests/
+│   ├── test_bump_version.py     # Unit tests for version calculation
+│   └── test_verify_integrity.py # Unit tests for integrity gate
 ├── .gitignore                   # Ignore rules (.workflows, .idea, OS files)
 └── README.md                    # Documentation
 ```

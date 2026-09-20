@@ -1,21 +1,41 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Manual version bump override'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
-  publish-release:
-    name: Publish GitHub Release
+  release:
+    name: Automated Release on PR Merge
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Python
@@ -23,17 +43,69 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run pre-release gate and integrity check
+      - name: Determine version bump and update manifests
+        id: bump
         env:
-          TAG_NAME: ${{ github.ref_name }}
-        run: python3 scripts/verify-integrity.py --check-tag "$TAG_NAME"
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          BUMP_TYPE_OVERRIDE: ${{ inputs.bump_type }}
+        run: |
+          ARGS=("--write-manifests")
+          if [ -n "$BUMP_TYPE_OVERRIDE" ]; then
+            ARGS+=("--bump-type" "$BUMP_TYPE_OVERRIDE")
+          fi
+          if [ -n "$PR_TITLE" ]; then
+            ARGS+=("--pr-title" "$PR_TITLE")
+          fi
+          if [ -n "$PR_BODY" ]; then
+            ARGS+=("--pr-body" "$PR_BODY")
+          fi
+          if [ -n "$PR_LABELS" ]; then
+            ARGS+=("--labels" "$PR_LABELS")
+          fi
+          python3 scripts/bump-version.py "${ARGS[@]}"
 
-      - name: Create GitHub Release
+      - name: Run pre-release integrity gate
+        if: steps.bump.outputs.should_release == 'true'
+        run: |
+          python3 scripts/verify-integrity.py --check-tag "v${{ steps.bump.outputs.next_version }}"
+
+      - name: Commit and push updated manifests
+        if: steps.bump.outputs.should_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+          git commit -m "chore(release): v${{ steps.bump.outputs.next_version }} [skip ci]"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Create and push git tag
+        if: steps.bump.outputs.should_release == 'true'
+        run: |
+          git tag "v${{ steps.bump.outputs.next_version }}"
+          git push origin "v${{ steps.bump.outputs.next_version }}"
+
+      - name: Publish GitHub Release
+        if: steps.bump.outputs.should_release == 'true'
         uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Release ${{ github.ref_name }}
+          tag_name: v${{ steps.bump.outputs.next_version }}
+          name: Release v${{ steps.bump.outputs.next_version }}
           generate_release_notes: true
           draft: false
           prerelease: false
+
+      - name: Generate release summary
+        if: always()
+        run: |
+          echo "## Release Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Merged**: ${{ github.event.pull_request.merged || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bump Type**: ${{ steps.bump.outputs.bump_type || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Base Version**: ${{ steps.bump.outputs.base_version || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next Version**: ${{ steps.bump.outputs.next_version || 'None' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Released**: ${{ steps.bump.outputs.should_release || 'false' }}" >> $GITHUB_STEP_SUMMARY
