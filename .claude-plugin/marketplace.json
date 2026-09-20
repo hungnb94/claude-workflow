@@ -8,7 +8,7 @@
   "description": "Six-phase structured agent workflows for story development and generic tasks",
   "plugins": [
     {
-      "name": "claude-workflow",
+      "name": "workflow",
       "source": {
         "source": "github",
         "repo": "hungnb94/claude-workflow"

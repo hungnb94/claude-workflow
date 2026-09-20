@@ -1,5 +1,5 @@
 {
-  "name": "claude-workflow",
+  "name": "workflow",
   "version": "1.0.0",
   "description": "Six-phase structured agent workflows for story development and generic tasks",
   "author": {
