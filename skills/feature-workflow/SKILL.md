@@ -109,8 +109,6 @@ Tham số:
 - STORY: <chỉ Bước 1: nội dung story đã lấy được>
 ```
 
-File prompt theo bước: `01-spec.md`, `02-research.md`, `03-plan.md`, `04-impl.md`, `05-review.md`, `06-fix.md`.
-
 ## Các cổng người duyệt
 
 **Sau Bước 1** — nếu `Câu hỏi cần làm rõ` khác "không có": dùng `AskUserQuestion` (một câu hỏi cho mỗi điểm mơ hồ, tối đa 4). Ghi câu trả lời bổ sung vào `01-spec.md` **trước** khi chạy Bước 2.
