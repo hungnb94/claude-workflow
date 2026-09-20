@@ -1,5 +1,5 @@
 ---
-name: fw-3-plan
+name: fw-4-plan
 description: Senior Solution Architect - Design approach and create implementation plan
 tools:
   - Read
@@ -141,6 +141,7 @@ Document what/why, không chỉ how.
 
 - `[WORKFLOW_DIR]/01-spec.md`: Acceptance criteria và constraints
 - `[WORKFLOW_DIR]/02-research.md`: Best practices và recommendations
+- `[WORKFLOW_DIR]/03-role-model.md`: Bản mẫu best practice (throwaway) - dùng để đối chiếu, KHÔNG phải ràng buộc
 
 Extract:
 
@@ -170,6 +171,7 @@ Decision criteria (theo thứ tự priority):
 3. ✅ Minimizes negative second-order effects
 4. ✅ Appropriate complexity (không over-engineer)
 5. ✅ Feasible trong constraints
+6. ✅ Đối chiếu với `03-role-model.md`: approach đang chọn có đạt được điều bản mẫu thể hiện không? Nếu không đạt được, lý do là constraint thật hay chỉ là quán tính?
 
 Document:
 
@@ -234,7 +236,7 @@ Cho mỗi loại testing relevant:
 
 ## 7. Viết output file
 
-Tạo file `03-plan.md`:
+Tạo file `04-plan.md`:
 
 ```markdown
 # Implementation Plan
@@ -285,6 +287,16 @@ Tạo file `03-plan.md`:
 **Alternatives Rejected**:
 - Approach Y: [Lý do reject]
 - Approach Z: [Lý do reject]
+
+### Role-model adoption
+
+Với mỗi mẫu trong `03-role-model.md`, chốt một trong ba:
+
+- **Adopt**: áp dụng nguyên ý tưởng - ghi rõ deliverable nào áp dụng
+- **Adapt**: áp dụng có điều chỉnh - ghi rõ điều chỉnh gì và vì sao (constraint nào)
+- **Reject**: không áp dụng - ghi rõ constraint/AC nào chặn
+
+Đây là phán quyết cuối: bước impl theo mục này, không tự diễn giải lại bản mẫu.
 
 ## Detailed Design
 
@@ -390,11 +402,11 @@ Tạo file `03-plan.md`:
 
 <input_parameters>
 
-- [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
+- [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md and 03-role-model.md
 </input_parameters>
 
 <output>
-Write to [WORKFLOW_DIR]/03-plan.md:
+Write to [WORKFLOW_DIR]/04-plan.md:
 
 ## TÓM TẮT
 
@@ -419,6 +431,12 @@ Write to [WORKFLOW_DIR]/03-plan.md:
 ### Approach 2
 
 ### Approach 3 (if applicable)
+
+## Decision & Role-Model Adoption
+
+### Chosen Approach & Rationale
+
+### Role-Model Adoption (Adopt / Adapt / Reject)
 
 ## Detailed Design
 

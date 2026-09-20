@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Six-phase structured agent workflows for feature development and generic tasks in Claude Code.
+Structured agent workflows for feature development and generic tasks in Claude Code.
 
 ## Overview
 
-Claude Workflow packages two structured workflow frameworks powered by 12 specialized subagents into an official Claude Code Plugin:
+Claude Workflow packages two structured workflow frameworks powered by 13 specialized subagents into an official Claude Code Plugin:
 
-1. **Feature Workflow** (`/feature-workflow`) - A 6-phase engineering workflow for software feature development: requirement specification, industry research, architecture planning, implementation with tests, independent code review, and automated remediation.
+1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, backward planning with second-order effect analysis, heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
@@ -69,35 +69,37 @@ npx -y markdownlint-cli -c .markdownlint.json "**/*.md" --ignore ".workflows/**"
 
 ## Workflow Architecture
 
-### Six-Phase Sequential Pipeline
+### Seven-Phase Feature Workflow Pipeline
 
 ```text
-Phase 1: Spec       Phase 2: Research     Phase 3: Plan
-[fw-1-spec /        [fw-2-research /      [fw-3-plan /
- gtw-1-spec]   -->   gtw-2-research]  -->  gtw-3-plan]
- (Sonnet)            (Sonnet)              (Opus)
-      |                   |                     |
-      v                   v                     v
- 01-spec.md          02-research.md        03-plan.md
-                                                |
-+-----------------------------------------------+
+Phase 1: Spec    Phase 2: Research   Phase 3: Role-model   Phase 4: Plan
+[fw-1-spec]      [fw-2-research]     [fw-3-role-model]     [fw-4-plan]
+ (Sonnet)   -->   (Sonnet)      -->   (Opus, NO Edit)  -->  (Opus)
+      |                |                     |                   |
+      v                v                     v                   v
+ 01-spec.md      02-research.md      03-role-model.md      04-plan.md
+                                                                  |
++-----------------------------------------------------------------+
 |
 v
-Phase 4: Impl       Phase 5: Review       Phase 6: Fix
-[fw-4-impl /        [fw-5-review /        [fw-6-fix /
- gtw-4-impl]   -->   gtw-5-review]    -->  gtw-6-fix]
- (Sonnet)            (Sonnet, NO Edit)     (Sonnet)
-      |                   |                     |
-      v                   v                     v
- 04-impl.md          05-review.md          06-fix.md
+Phase 5: Impl    Phase 6: Review     Phase 7: Fix
+[fw-5-impl] -->  [fw-6-review]  -->  [fw-7-fix]
+ (Sonnet)         (Sonnet, NO Edit)   (Sonnet)
+      |                |                   |
+      v                v                   v
+ 05-impl.md      06-review.md         07-fix.md
 ```
+
+*Generic Task Workflow (`/generic-task-workflow`) keeps the original six-phase pipeline
+(`gtw-1-spec` → `gtw-2-research` → `gtw-3-plan` → `gtw-4-impl` → `gtw-5-review` → `gtw-6-fix`,
+writing `01-spec.md` .. `06-fix.md`) — it has no role-model phase.*
 
 ### Architectural Principles
 
 1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
-3. **Independent Quality Gate (Least Privilege)**: Phase 5 review agents (`fw-5-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
-4. **Heterogeneous Model Routing**: Phase 3 planning agents use `model: opus` for deep analytical reasoning, Backward Planning, and second-order effect evaluation. All other phases use `model: sonnet` for speed and deterministic execution.
+3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
+4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents use `model: opus` — Phase 3 for reference-implementation quality, Phase 4 for deep analytical reasoning, Backward Planning, and second-order effect evaluation. All other phases use `model: sonnet` for speed and deterministic execution.
 
 ## Usage
 
@@ -133,10 +135,11 @@ For standalone non-code tasks, documentation, project planning, and research:
 |---|---|---|---|---|---|
 | `fw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey scope, define integration points and acceptance criteria |
 | `fw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~30 | Research industry best practices and conduct gap analysis |
-| `fw-3-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Backward planning, trade-off evaluation, and deliverable design |
-| `fw-4-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement code deliverables and verify with tests |
-| `fw-5-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings (No Edit tool) |
-| `fw-6-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings and prepare release notes |
+| `fw-3-role-model` | Reference Implementer | Opus | Read, Grep, Glob, Write, Bash | ~15 | Write throwaway best-practice reference snippets (no real source edits) |
+| `fw-4-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Backward planning, trade-off evaluation, and deliverable design |
+| `fw-5-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement code deliverables and verify with tests |
+| `fw-6-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings (No Edit tool) |
+| `fw-7-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings and prepare release notes |
 
 ### Generic Task Workflow Subagents
 
@@ -189,10 +192,11 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 ├── agents/
 │   ├── fw-1-spec.md             # BA: Spec and acceptance criteria
 │   ├── fw-2-research.md         # Research: Best practices and gap analysis
-│   ├── fw-3-plan.md             # Architect: Backward planning (Opus)
-│   ├── fw-4-impl.md             # Execution: Implementation and unit tests
-│   ├── fw-5-review.md           # Auditor: Independent review (no Edit)
-│   ├── fw-6-fix.md              # Remediation: Issue resolution
+│   ├── fw-3-role-model.md       # Reference: Throwaway best-practice sample (Opus)
+│   ├── fw-4-plan.md             # Architect: Backward planning (Opus)
+│   ├── fw-5-impl.md             # Execution: Implementation and unit tests
+│   ├── fw-6-review.md           # Auditor: Independent review (no Edit)
+│   ├── fw-7-fix.md              # Remediation: Issue resolution
 │   ├── gtw-1-spec.md            # Generic BA: Task scope and boundaries
 │   ├── gtw-2-research.md        # Generic Research: Methodology benchmarks
 │   ├── gtw-3-plan.md            # Generic Architect: Deliverable planning (Opus)

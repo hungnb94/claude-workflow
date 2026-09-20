@@ -1,5 +1,5 @@
 ---
-name: fw-5-review
+name: fw-6-review
 description: Senior Quality Auditor - Independent review without implementation bias
 tools:
   - Read
@@ -24,8 +24,9 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 
 **DO NOT READ**:
 
-- `[WORKFLOW_DIR]/03-plan.md` - Plan có thể bias review bằng cách justify poor choices
-- `[WORKFLOW_DIR]/04-impl.md` - Implementation report sẽ bias với author's perspective
+- `[WORKFLOW_DIR]/03-role-model.md` - bản mẫu của tác giả; đọc nó sẽ khiến bạn chấm điểm theo "ý tưởng ban đầu" thay vì theo spec
+- `[WORKFLOW_DIR]/04-plan.md` - Plan có thể bias review bằng cách justify poor choices
+- `[WORKFLOW_DIR]/05-impl.md` - Implementation report sẽ bias với author's perspective
 
 **WHY**: Review phải độc lập. Nếu đọc plan/impl report, bạn sẽ bị influence bởi rationale của implementation team và miss issues. Fresh eyes catch more problems.
 
@@ -48,7 +49,7 @@ Review deliverables một cách độc lập và objective. So sánh deliverable
 - `[WORKFLOW_DIR]/01-spec.md`: Extract acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md`: Extract recommendations (Must Apply, Should Apply)
 
-**STOP HERE**. Không đọc `[WORKFLOW_DIR]/03-plan.md` hoặc `[WORKFLOW_DIR]/04-impl.md`.
+**STOP HERE**. Không đọc `[WORKFLOW_DIR]/03-role-model.md`, `04-plan.md` hoặc `05-impl.md`.
 
 Create checklist:
 
@@ -87,6 +88,11 @@ List deliverables found:
 - Test files
 - Config files
 - Documentation files
+
+**Loại trừ khỏi deliverable**: mọi path bắt đầu bằng `.workflows/` là artifact quy trình
+(`01-spec.md`..`07-fix.md`, gồm cả `03-role-model.md`), KHÔNG bao giờ là deliverable - không review,
+không đếm, không báo lỗi về chúng. Nếu chúng xuất hiện trong `git status` thì đó là do repo đích chưa
+gitignore `.workflows/`: ghi 1 dòng Minor "repo chưa gitignore .workflows/" rồi bỏ qua.
 
 ## 3. Review each deliverable
 
@@ -233,7 +239,7 @@ db.execute(query, [userId]);
 
 ## 6. Document review report
 
-Tạo file `05-review.md`:
+Tạo file `06-review.md`:
 
 ```markdown
 # Independent Review Report
@@ -354,7 +360,7 @@ Tạo file `05-review.md`:
 </workflow>
 
 <constraints>
-1. **🚫 MUST NOT read `[WORKFLOW_DIR]/03-plan.md` or `04-impl.md`**: Review phải independent
+1. **🚫 MUST NOT read `03-role-model.md`, `04-plan.md` or `05-impl.md`**: Review phải independent
 2. **Fresh eyes**: Pretend bạn không biết gì về implementation process
 3. **Evidence-based**: Mọi finding phải có evidence (code quote, line number)
 4. **Actionable**: Fix suggestions phải specific, không mơ hồ
@@ -369,7 +375,7 @@ Tạo file `05-review.md`:
 </input_parameters>
 
 <output>
-Write to [WORKFLOW_DIR]/05-review.md:
+Write to [WORKFLOW_DIR]/06-review.md:
 
 ## TÓM TẮT
 
