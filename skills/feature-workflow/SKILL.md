@@ -102,7 +102,7 @@ Các bước tuần tự — không spawn song song, vì bước sau ăn output 
 Mỗi bước gửi một prompt ngắn. Hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
 
 ```
-Bạn là subagent thực hiện BƯỚC <N>/5 của quy trình làm story.
+Bạn là subagent thực hiện BƯỚC <N>/6 của quy trình làm story.
 Làm theo hướng dẫn trong definition của bạn (agent fw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
