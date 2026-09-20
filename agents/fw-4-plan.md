@@ -432,6 +432,12 @@ Write to [WORKFLOW_DIR]/04-plan.md:
 
 ### Approach 3 (if applicable)
 
+## Decision & Role-Model Adoption
+
+### Chosen Approach & Rationale
+
+### Role-Model Adoption (Adopt / Adapt / Reject)
+
 ## Detailed Design
 
 ### Architecture/Structure

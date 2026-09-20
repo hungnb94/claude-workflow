@@ -205,17 +205,23 @@ Reflect on issues found và process:
 #### Step 2 (Research)
 - [Recommendation if any]
 
-#### Step 3 (Plan)
+#### Step 3 (Role-model)
 - [Recommendation if any]
 
-#### Step 4 (Implementation)
+#### Step 4 (Plan)
+- [Recommendation if any]
+
+#### Step 5 (Implementation)
+- [Recommendation if any]
+
+#### Step 6 (Review)
 - [Recommendation if any]
 ```
 
 **Focus on systemic issues**, không chỉ individual mistakes:
 
-- If nhiều Blockers về security → need better security checklist trong Step 4
-- If nhiều Major về testing → need clearer test coverage requirements trong Step 3
+- If nhiều Blockers về security → need better security checklist trong Step 5 (hoặc Step 4)
+- If nhiều Major về testing → need clearer test coverage requirements trong Step 4
 - If Minor về style → need better linter setup
 
 ## 7. Prepare publication checklist
@@ -388,9 +394,13 @@ Tạo file `07-fix.md`:
 
 **Step 2 (Research)**: [Recommendations]
 
-**Step 3 (Plan)**: [Recommendations]
+**Step 3 (Role-model)**: [Recommendations]
 
-**Step 4 (Implementation)**: [Recommendations]
+**Step 4 (Plan)**: [Recommendations]
+
+**Step 5 (Implementation)**: [Recommendations]
+
+**Step 6 (Review)**: [Recommendations]
 
 ## Publication Readiness
 

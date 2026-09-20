@@ -248,9 +248,9 @@ Tạo file `05-impl.md`:
 ### Files Deleted
 - `path/to/deleted/file1.ext` (if any)
 
-## Notes for Reviewer
+## Implementation Notes
 
-[Any notes that would help reviewer understand the implementation, edge cases handled, assumptions made, etc.]
+[Any implementation notes, edge cases handled, assumptions made, etc.]
 ````
 
 ## 7. Edge cases và adaptations
