@@ -5,53 +5,47 @@ description: Quy trình 7 bước chạy bằng subagent cho một story/tính n
 
 # Feature / Story Workflow (7 bước, chạy bằng subagent)
 
-Quy trình để làm một story như senior engineer: chốt phạm vi trước khi viết code, research best
-practice ngành cho đúng loại tác vụ trước khi chọn hướng, có một bản mẫu best practice viết trước khi
-code thật để đối chiếu, mọi thay đổi có test, code được review bởi một agent khác với agent đã viết
-nó, và toàn bộ phát hiện (Blocker/Major/Minor) từ review đó được một subagent riêng tự sửa nốt —
-không cần người dùng phải yêu cầu lại lần hai.
+Làm story như senior engineer: chốt phạm vi trước khi code, research best practice trước khi chọn
+hướng, viết bản mẫu best practice để đối chiếu, mọi thay đổi có test, code được agent khác review, và
+mọi phát hiện (Blocker/Major/Minor) được subagent riêng tự sửa nốt - không cần hỏi lại lần hai.
 
 **Câu mở đầu bắt buộc:** "Tôi đang dùng skill feature-workflow, gồm 7 bước."
 
 ## Vai trò của bạn: orchestrator
 
-Bạn **không** trực tiếp khảo sát code, không viết code, không review. Bạn:
+Bạn **không** khảo sát/viết/review code. Bạn: xác định story, tạo `[WORKFLOW_DIR]`; spawn tuần tự 7
+subagent đúng thứ tự; sau mỗi bước chỉ đọc `## TÓM TẮT` (không đọc `## CHI TIẾT` - dành cho bước
+sau/audit) để quyết định đi tiếp hay dừng hỏi; báo cáo ngắn gọn sau mỗi bước.
 
-1. Xác định story, tạo `[WORKFLOW_DIR]`.
-2. Spawn tuần tự 7 subagent, mỗi bước một subagent, đúng thứ tự.
-3. Sau mỗi bước: đọc **chỉ** phần `## TÓM TẮT` của file output, quyết định đi tiếp / dừng hỏi người dùng. Đừng đọc `## CHI TIẾT` — nó dành cho bước sau và cho người audit.
-4. Báo cáo lại cho người dùng ngắn gọn sau mỗi bước.
-
-Lý do tách subagent: mỗi bước nhận đúng lượng ngữ cảnh nó cần và không thừa hưởng định kiến của bước trước. Đặc biệt quan trọng ở Bước 6 — subagent review không được thấy kế hoạch/impl, nó phải suy ra hành vi thật của code, và **chỉ được tìm + phân loại lỗi, không được sửa**. Bước 6 cũng không được thấy `03-role-model.md`. Bước 7 thì ngược lại: nó cần đọc đúng cái Bước 6 đã ghi (toàn bộ Blocker/Major/Minor + đề xuất hướng sửa) để sửa đúng chỗ, không cần "mù" như Bước 6.
+Mỗi bước chạy subagent riêng, không thừa hưởng định kiến bước trước. Quan trọng nhất ở Bước 6: không
+thấy kế hoạch/impl/role-model, phải tự suy ra hành vi thật của code, **chỉ tìm + phân loại lỗi, không
+sửa**. Bước 7 ngược lại - đọc đúng cái Bước 6 ghi để sửa đúng chỗ, không cần "mù" như Bước 6.
 
 ## Cổng chặn trước khi chạy
 
 Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 
-- **Bug đã xảy ra** (có lỗi/crash/hành vi sai đang tồn tại): quy trình này thiếu bước reproduce và tìm root cause. Nói rõ và đề nghị làm theo luồng bug thường (reproduce → root cause → fix → test).
-- **Story quá nhỏ, 1 bước** (chỉ sửa 1-2 dòng, đổi text/config đơn giản): làm trực tiếp, không cần 7 bước. Nói rõ vì sao quy trình này thừa cho việc nhỏ này.
-- **Story quá lớn** (dự kiến chạm quá nhiều module, hoặc Bước 1 ra hơn ~10 acceptance criteria): đề nghị chẻ thành nhiều story nhỏ, chạy quy trình riêng cho từng story.
+- **Bug đã xảy ra**: quy trình thiếu bước reproduce/root cause - nói rõ, đề nghị luồng bug thường
+  (reproduce → root cause → fix → test).
+- **Story quá nhỏ, 1 bước** (sửa 1-2 dòng, đổi text/config): làm trực tiếp, nói rõ vì sao thừa.
+- **Story quá lớn** (chạm quá nhiều module, hoặc Bước 1 ra >~10 AC): đề nghị chẻ nhiều story nhỏ,
+  chạy quy trình riêng từng story.
 
 ## Tham số & khởi tạo
 
-- `[STORY]` = `$ARGUMENTS` — mô tả người dùng gõ, đường dẫn file `.md`, Jira key, hoặc URL Jira.
-  Nếu rỗng: hỏi người dùng story là gì rồi mới chạy.
-- `[STORY_SLUG]`:
-  1. Tìm Jira key bằng regex `[A-Z][A-Z0-9]+-[0-9]+` ở **bất kỳ đâu** trong `[STORY]`, kể cả trong URL.
-  `https://biorithm.atlassian.net/browse/FEMDEV-2586` → slug là `FEMDEV-2586`.
-  Có key thì slug **chính là key**, không nối thêm mô tả.
-  2. Không có key: kebab-case tối đa 4 từ (`them-bo-loc-ngay`).
-  Slug ngắn để đường dẫn gõ được bằng tay và khớp tên branch `feature/<KEY>-<slug>`.
-- Nhận diện được Jira key → dùng skill `acli` lấy title + description của ticket. Nội dung đó là `[STORY]` thật truyền cho Bước 1; đừng bắt Bước 1 tự mở link.
-- `[WORKFLOW_DIR]` = `<repo root>/.workflows/[STORY_SLUG]/` — luôn truyền **đường dẫn tuyệt đối** cho subagent, vì subagent có working dir riêng.
-Không truyền "phạm vi code" cho bất kỳ bước nào. Bước 1 tự khảo sát và ghi ra `Điểm tích hợp`;
-Bước 2 đọc mục đó để research best practice; Bước 3 viết bản mẫu role-model từ research; Bước 4 đọc
-spec + research + role-model để chọn hướng; Bước 5 đọc danh sách thay đổi; Bước 6 lấy chính diff làm
-phạm vi; Bước 7 lấy danh sách phát hiện trong `06-review.md` làm phạm vi.
-
-**Lưu ý:** Khi spawn subagent,
-chỉ cần truyền `WORKFLOW_DIR` và `STORY` (chỉ Bước 1). Subagent sẽ tự đọc hướng dẫn từ chính definition
-file của nó — **không cần file prompt riêng biệt**.
+- `[STORY]` = `$ARGUMENTS` - mô tả người dùng gõ, đường dẫn file `.md`, Jira key, hoặc URL Jira. Rỗng
+  thì hỏi story là gì rồi mới chạy.
+- `[STORY_SLUG]`: (1) tìm Jira key bằng regex `[A-Z][A-Z0-9]+-[0-9]+` ở **bất kỳ đâu** trong
+  `[STORY]`, kể cả URL (`.../browse/FEMDEV-2586` → slug `FEMDEV-2586`) - có key thì slug **chính là
+  key**; (2) không có key: kebab-case tối đa 4 từ (`them-bo-loc-ngay`), khớp tên branch
+  `feature/<KEY>-<slug>`.
+- Có Jira key → dùng skill `acli` lấy title + description ticket làm `[STORY]` thật cho Bước 1; đừng
+  bắt Bước 1 tự mở link.
+- `[WORKFLOW_DIR]` = `<repo root>/.workflows/[STORY_SLUG]/` - luôn truyền **đường dẫn tuyệt đối**.
+- Không truyền "phạm vi code" cho bước nào - mỗi bước tự lấy phạm vi từ output bước trước (Bước 1
+  khảo sát ghi `Điểm tích hợp`; Bước 6 lấy diff; Bước 7 lấy phát hiện trong `06-review.md`).
+- Spawn subagent chỉ truyền `WORKFLOW_DIR` và `STORY` (chỉ Bước 1) - subagent tự đọc hướng dẫn từ
+  definition của mình.
 
 ## Cấu trúc output
 
@@ -66,49 +60,45 @@ file của nó — **không cần file prompt riêng biệt**.
   07-fix.md          <- Bước 7: sửa toàn bộ Blocker/Major/Minor + ghi chú ship
 ```
 
-`.workflows/` phải nằm trong `.gitignore` của repo đích; nếu chưa có, nhắc người dùng thêm **trước
-Bước 6** để artifact quy trình không lẫn vào vùng Bước 6 dò deliverable.
+`.workflows/` phải nằm trong `.gitignore` repo đích; chưa có thì nhắc thêm **trước Bước 6** để
+artifact quy trình không lẫn vào vùng Bước 6 dò lỗi.
 
-Mỗi file luôn có `## TÓM TẮT` (ngắn, là input của bước sau) và `## CHI TIẾT` (để audit).
-Không xoá file cũ — đây là audit trail, số thứ tự cho biết đang ở bước nào.
+Mỗi file có `## TÓM TẮT` (input bước sau) và `## CHI TIẾT` (audit). Không xoá file cũ - đây là audit
+trail.
 
 ## Resume / chạy lại
 
-Đầu mỗi lần gọi: `ls [WORKFLOW_DIR]` (im lặng nếu chưa tồn tại).
+Đầu mỗi lần gọi: `ls [WORKFLOW_DIR]` (im lặng nếu chưa có).
 
 - Chưa có gì → chạy từ Bước 1.
-- Đã có `01..0N` → dùng `AskUserQuestion`: *tiếp tục từ Bước N+1* / *chạy lại Bước N* / *bắt đầu story mới (slug khác)*. Không bao giờ ghi đè im lặng.
-- Chạy lại một bước thì ghi đè đúng file của bước đó và **không** xoá file các bước sau; nói rõ với người dùng rằng các file sau đã cũ so với bước vừa chạy lại.
-- Thư mục có `03-plan.md` mà không có `03-role-model.md` → đó là layout cũ (6 bước). Nói rõ với người dùng và hỏi: *chạy tiếp theo layout cũ bằng tay* / *chạy lại từ Bước 3 theo layout 7 bước (các file 03..06 cũ giữ nguyên làm audit trail, không xoá)*.
+- Có `01..0N` → `AskUserQuestion`: *tiếp tục từ N+1* / *chạy lại Bước N* / *story mới (slug khác)*.
+  Không bao giờ ghi đè im lặng.
+- Chạy lại một bước: ghi đè đúng file bước đó, **không** xoá file bước sau; nói rõ file sau đã cũ so
+  với bước vừa chạy lại.
+- Có `03-plan.md` không có `03-role-model.md` → layout cũ (6 bước): hỏi *chạy tiếp layout cũ bằng
+  tay* / *chạy lại từ Bước 3 theo layout 7 bước (file 03..06 cũ giữ audit trail, không xoá)*.
 
 ## Routing subagent
 
-Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools phù hợp, và model đã chọn:
+Mỗi bước dùng custom agent chuyên biệt: role senior/expert, tools phù hợp, model theo độ khó (Opus
+Bước 3/4, Sonnet còn lại), context riêng (Bước 6 không thấy plan/impl/role-model).
 
 | Bước | `subagent_type` | Model | Tools | Vì sao |
 |---|---|---|---|---|
 | 1 Chốt spec | `fw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash | Senior Business Analyst - khảo sát scope, viết AC |
-| 2 Research | `fw-2-research` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Research Specialist - tìm best practices kèm ví dụ tốt/xấu cụ thể, gap analysis |
-| 3 Mẫu role-model | `fw-3-role-model` | **Opus** | Read, Grep, Glob, Write, Bash (**KHÔNG có Edit**) | Reference Implementer - viết code mẫu throwaway đúng best practice, cố tình không bám convention repo; chất lượng bản mẫu quyết định chất lượng Bước 5 |
+| 2 Research | `fw-2-research` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Research Specialist - best practices kèm ví dụ tốt/xấu, gap analysis |
+| 3 Mẫu role-model | `fw-3-role-model` | **Opus** | Read, Grep, Glob, Write, Bash (**KHÔNG có Edit**) | Reference Implementer - code mẫu throwaway đúng best practice, cố tình không bám convention repo; chất lượng bản mẫu quyết định chất lượng Bước 5 |
 | 4 Kế hoạch | `fw-4-plan` | **Opus** | Read, Grep, Glob, Write, Bash | Senior Solution Architect - second-order effects (bắt buộc), Backward Planning (tuỳ chọn), chốt adopt/adapt/reject bản mẫu |
 | 5 Triển khai | `fw-5-impl` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Execution Engineer - code và test deliverables |
-| 6 Review | `fw-6-review` | Sonnet | **Read, Grep, Glob, Write, Bash ONLY** | Senior Quality Auditor - review độc lập, **KHÔNG có Edit** để đảm bảo chỉ tìm lỗi, không sửa code |
+| 6 Review | `fw-6-review` | Sonnet | **Read, Grep, Glob, Write, Bash ONLY** | Senior Quality Auditor - review độc lập, **KHÔNG có Edit**, chỉ tìm lỗi không sửa |
 | 7 Sửa lỗi | `fw-7-fix` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Remediation Engineer - sửa toàn bộ Blocker/Major/Minor |
 
-**Lợi ích của custom agents:**
-
-- **Model selection**: Opus cho Bước 3 (chất lượng bản mẫu) và Bước 4 (reasoning kiến trúc), Sonnet cho các bước khác (execution hiệu quả)
-- **Tool isolation**: Bước 6 bị cấm Edit để đảm bảo review độc lập, không vô tình sửa code
-- **Role clarity**: Mỗi agent có senior role rõ ràng, signals expertise level cho subagent
-- **Context isolation**: Mỗi agent chạy trong context riêng, đặc biệt Bước 6 không thấy plan/impl/role-model
-
-**Không dùng `subagent_type: "fork"` cho bất kỳ bước nào.** Fork thừa hưởng context của bạn, phá vỡ đúng cái mà quy trình này mua: Bước 6 phải "mù" ý định của tác giả.
-
-Các bước tuần tự — không spawn song song, vì bước sau ăn output bước trước.
+**Không dùng `subagent_type: "fork"`.** Fork thừa hưởng context của bạn, phá vỡ yêu cầu Bước 6 phải
+"mù" ý định tác giả. Chạy tuần tự - không spawn song song, vì bước sau ăn output bước trước.
 
 ## Mẫu lời gọi Agent
 
-Mỗi bước gửi một prompt ngắn. Hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
+Mỗi bước gửi 1 prompt ngắn - hướng dẫn chi tiết đã có sẵn trong definition của từng subagent:
 
 ```text
 Bạn là subagent thực hiện BƯỚC <N>/7 của quy trình làm story.
@@ -120,40 +110,41 @@ Tham số:
 
 ## Các cổng người duyệt
 
-**Sau Bước 1** — nếu `Câu hỏi cần làm rõ` khác "không có": dùng `AskUserQuestion` (một câu hỏi cho mỗi điểm mơ hồ, tối đa 4). Ghi câu trả lời bổ sung vào `01-spec.md` **trước** khi chạy Bước 2.
+**Sau Bước 1** - `Câu hỏi cần làm rõ` khác "không có": `AskUserQuestion` (1 câu/điểm mơ hồ, tối đa
+4), ghi trả lời vào `01-spec.md` **trước** Bước 2.
 
-**Sau Bước 2** — nếu `Câu hỏi cần làm rõ` khác "không có" (mâu thuẫn nghiêm trọng giữa best practice và convention nội bộ, ảnh hưởng quyết định sản phẩm/kiến trúc): dùng `AskUserQuestion`. Ghi câu trả lời vào `02-research.md` **trước** khi chạy Bước 3. Bình thường thì auto chạy tiếp.
+**Sau Bước 2** - `Câu hỏi cần làm rõ` khác "không có" (mâu thuẫn nghiêm trọng best practice vs
+convention, ảnh hưởng quyết định sản phẩm/kiến trúc): `AskUserQuestion`, ghi trả lời vào
+`02-research.md` **trước** Bước 3. Bình thường auto chạy tiếp.
 
-**Sau Bước 3 — không có cổng, chạy thẳng Bước 4.** Bản mẫu là throwaway; sai sót của nó sẽ bị Bước 4 lọc ở mục "Role-model adoption" trước khi ảnh hưởng tới code thật. Chỉ dừng nếu Bước 3 báo `Câu hỏi cần làm rõ`.
+**Sau Bước 3 - không có cổng, chạy thẳng Bước 4.** Bản mẫu throwaway; sai sót bị Bước 4 lọc ở
+"Role-model adoption". Chỉ dừng nếu Bước 3 báo `Câu hỏi cần làm rõ`.
 
-**Sau Bước 5** — có mục bị chặn hoặc test đỏ mà subagent không tự giải được: dừng, báo người dùng trước khi review.
+**Sau Bước 5** - có mục bị chặn hoặc test đỏ chưa tự giải được: dừng, báo người dùng trước khi review.
 
-**Sau Bước 6 — không hỏi người dùng, tự động chạy tiếp Bước 7.** Bước 6 chỉ review, không sửa gì —
-nên chỉ dừng lại khi thật sự không đọc được diff (lỗi công cụ, không phải lỗi trong code). Mục đích
-của Bước 7 là loại bỏ việc người dùng phải quay lại yêu cầu "sửa mấy cái lỗi đó đi": Bước 7 sửa
-toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem definition của fw-7-fix) mà không cần hỏi.
-Nếu `06-review.md` báo tổng Blocker = Major = Minor = 0: bỏ qua Bước 7 (không có gì để sửa), coi
-Bước 6 là bước cuối, đi thẳng tới phần báo cáo cuối như dưới.
+**Sau Bước 6 - không hỏi người dùng, tự động chạy tiếp Bước 7.** Chỉ dừng khi thật sự không đọc được
+diff (lỗi công cụ, không phải lỗi code). Mục đích Bước 7: khỏi phải quay lại yêu cầu "sửa mấy cái lỗi
+đó đi" - sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `fw-7-fix`) không cần hỏi.
+`06-review.md` báo Blocker=Major=Minor=0: bỏ qua Bước 7, coi Bước 6 là bước cuối.
 
-**Sau Bước 7 (hoặc sau Bước 6 nếu không có gì để sửa)** — cổng cuối: trình `## TÓM TẮT`, nhắc rõ **chưa commit / chưa merge / chưa push gì**.
+**Sau Bước 7 (hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, nhắc **chưa
+commit / chưa merge / chưa push gì**.
 
 ## Nguyên tắc xuyên suốt
 
-- **Không nhảy bước.** Thiếu file của bước trước thì không chạy được bước sau.
-- **Thiếu thông tin thì dừng, không đoán.** Ghi câu hỏi vào `## TÓM TẮT` rồi trả về cho người dùng. Áp dụng cho mọi bước kể cả Bước 7 — "tự động sửa" không có nghĩa là đoán khi thật sự không chắc, chỉ có nghĩa là không cần hỏi người dùng *trước khi thử*.
-- **Chỉ Bước 5 và Bước 7 được sửa code thật.** "Code thật" = file nằm trong source tree của repo đích.
-  Bước 1, 2, 4 và 6 chỉ đọc code thật và ghi file `.md` trong `.workflows/<SLUG>/` — Bước 6 review và phân
-  loại lỗi nhưng không được dùng `Edit`/`Write` lên code, chỉ ghi ra `06-review.md`. **Bước 3 được phép viết
-  code mẫu, nhưng chỉ dưới dạng code block bên trong `03-role-model.md`** — không tạo/sửa bất kỳ file nào
-  trong source tree. Đây đúng nghĩa "Spike Solution" của Extreme Programming: code để học, vứt đi sau khi
-  dùng, không bao giờ merge vào sản phẩm.
-- **Role-model draft không phải deliverable.** Bước 4 chốt adopt/adapt/reject; Bước 5 và Bước 7 dùng nó làm
-  tài liệu đối chiếu, không copy nguyên văn. Khi xung đột, thứ tự thẩm quyền là `01-spec.md` > `04-plan.md` >
-  convention thật của repo đích > `03-role-model.md`. Bước 6 không được đọc nó và không bao giờ coi file
-  trong `.workflows/` là deliverable.
-- **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cái cớ over-engineering.**
-  Bước 2 (research) xếp mỗi khuyến nghị vào nhóm trùng / mâu thuẫn-nên-đổi / mâu thuẫn-nên-giữ theo
-  đúng tiêu chí này; Bước 4 (chọn hướng), Bước 5 (viết code), Bước 6 (review, đánh giá SOLID/over-
-  engineering là Major) và Bước 7 (sửa) đều phải áp dụng SOLID (Single Responsibility, Open/Closed,
-  Liskov Substitution, Interface Segregation, Dependency Inversion) và loại bỏ abstraction/interface/
-  config thừa so với nhu cầu thật của story — chi tiết nằm trong definition của từng subagent.
+- **Không nhảy bước.** Thiếu file bước trước thì không chạy được bước sau.
+- **Thiếu thông tin thì dừng, không đoán.** Ghi câu hỏi vào `## TÓM TẮT` rồi trả người dùng - kể cả
+  Bước 7 ("tự động sửa" không có nghĩa đoán khi không chắc, chỉ là không cần hỏi *trước khi thử*).
+- **Chỉ Bước 5 và Bước 7 được sửa code thật** (file trong source tree). Bước 1/2/4/6 chỉ đọc code
+  thật và ghi `.md` trong `.workflows/<SLUG>/` - Bước 6 review/phân loại lỗi nhưng không `Edit`/
+  `Write` lên code. **Bước 3 viết code mẫu chỉ dưới dạng code block trong `03-role-model.md`** -
+  không tạo/sửa file trong source tree, đúng nghĩa "Spike Solution" (Extreme Programming): code để
+  học, vứt đi sau khi dùng, không merge.
+- **Role-model draft không phải deliverable.** Bước 4 chốt adopt/adapt/reject; Bước 5/7 dùng làm tài
+  liệu đối chiếu, không copy nguyên văn. Xung đột theo thứ tự thẩm quyền `01-spec.md` > `04-plan.md`
+  > convention thật của repo đích > `03-role-model.md`. Bước 6 không đọc nó.
+- **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cớ over-engineering.** Bước 2
+  xếp khuyến nghị vào nhóm trùng/nên-đổi/nên-giữ theo tiêu chí này; Bước 4/5/6 (over-engineering là
+  Major)/7 đều áp dụng SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface
+  Segregation, Dependency Inversion), loại bỏ abstraction/config thừa - chi tiết trong definition
+  từng subagent.
