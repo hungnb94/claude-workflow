@@ -160,7 +160,7 @@ Learnings.
 | Artifact/Docs | Nơi publish (path/hệ thống) + ai/team cần được báo |
 | API/Service | Cập nhật API docs/changelog + báo consumer bị ảnh hưởng |
 
-*(Chỉ điền dòng tương ứng loại deliverable thực tế của story; không cần điền cả 3.)*
+> Chỉ điền dòng tương ứng loại deliverable thực tế của story; không cần điền cả 3.
 
 ### Post-publication
 
