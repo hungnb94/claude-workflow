@@ -90,7 +90,7 @@ Mỗi bước dùng custom agent chuyên biệt với role senior/expert, tools 
 | 1 Chốt spec | `fw-1-spec` | Sonnet | Read, Grep, Glob, Write, Bash | Senior Business Analyst - khảo sát scope, viết AC |
 | 2 Research | `fw-2-research` | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | Senior Research Specialist - tìm best practices kèm ví dụ tốt/xấu cụ thể, gap analysis |
 | 3 Mẫu role-model | `fw-3-role-model` | **Opus** | Read, Grep, Glob, Write, Bash (**KHÔNG có Edit**) | Reference Implementer - viết code mẫu throwaway đúng best practice, cố tình không bám convention repo; chất lượng bản mẫu quyết định chất lượng Bước 5 |
-| 4 Kế hoạch | `fw-4-plan` | **Opus** | Read, Grep, Glob, Write, Bash | Senior Solution Architect - Backward Planning, second-order effects, chốt adopt/adapt/reject bản mẫu |
+| 4 Kế hoạch | `fw-4-plan` | **Opus** | Read, Grep, Glob, Write, Bash | Senior Solution Architect - second-order effects (bắt buộc), Backward Planning (tuỳ chọn), chốt adopt/adapt/reject bản mẫu |
 | 5 Triển khai | `fw-5-impl` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Execution Engineer - code và test deliverables |
 | 6 Review | `fw-6-review` | Sonnet | **Read, Grep, Glob, Write, Bash ONLY** | Senior Quality Auditor - review độc lập, **KHÔNG có Edit** để đảm bảo chỉ tìm lỗi, không sửa code |
 | 7 Sửa lỗi | `fw-7-fix` | Sonnet | Read, Grep, Glob, Write, Edit, Bash | Senior Remediation Engineer - sửa toàn bộ Blocker/Major/Minor |
