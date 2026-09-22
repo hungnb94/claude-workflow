@@ -100,6 +100,7 @@ writing `01-spec.md` .. `06-fix.md`) — it has no role-model phase.*
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
 3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
 4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents use `model: opus` — Phase 3 for reference-implementation quality, Phase 4 for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning. All other phases use `model: sonnet` for speed and deterministic execution.
+5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables, registry patterns, strategies, or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice).
 
 ## Usage
 

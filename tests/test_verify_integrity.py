@@ -211,6 +211,51 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertTrue(vi.check_review_tool_isolation(ROOT_DIR))
         self.assertTrue(vi.check_token_budgets(ROOT_DIR, max_words=40))
 
+    def test_feature_workflow_ocp_guardrails(self):
+        """Verify that OCP and extensibility guardrails are properly defined across all agents and docs."""
+        # 1. AC 1: SKILL.md and README.md define OCP and extensibility principles
+        skill_content = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("Open/Closed Principle (OCP)", skill_content)
+        self.assertIn("data-driven dispatch", skill_content)
+
+        readme_content = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Open/Closed Principle & Extensibility", readme_content)
+
+        # 2. AC 2: fw-2-research instructs researching OCP patterns & anti-patterns
+        fw2_content = (ROOT_DIR / "agents" / "fw-2-research.md").read_text(encoding="utf-8")
+        self.assertIn("Open/Closed Principle (OCP)", fw2_content)
+        self.assertIn("anti-pattern", fw2_content)
+
+        # 3. AC 3: fw-3-role-model requires OCP reference implementations & contrasting anti-patterns
+        fw3_content = (ROOT_DIR / "agents" / "fw-3-role-model.md").read_text(encoding="utf-8")
+        self.assertIn("Open/Closed Principle", fw3_content)
+        self.assertIn("anti-pattern", fw3_content)
+
+        # 4. AC 4: fw-4-plan instructs identifying extension points & OCP evaluation
+        fw4_content = (ROOT_DIR / "agents" / "fw-4-plan.md").read_text(encoding="utf-8")
+        self.assertIn("extension points", fw4_content)
+        self.assertIn("Open/Closed", fw4_content)
+
+        # 5. AC 5: fw-5-impl forbids patching conditionals & prioritizes data-driven lookups
+        fw5_content = (ROOT_DIR / "agents" / "fw-5-impl.md").read_text(encoding="utf-8")
+        self.assertIn("Open/Closed Principle (OCP)", fw5_content)
+        self.assertIn("hướng dữ liệu", fw5_content)
+
+        # 6. AC 6: fw-6-review includes Extensibility Audit rubric with Blocker/Major
+        fw6_content = (ROOT_DIR / "agents" / "fw-6-review.md").read_text(encoding="utf-8")
+        self.assertIn("Extensibility Audit", fw6_content)
+        self.assertIn("Blocker", fw6_content)
+        self.assertIn("Major", fw6_content)
+
+        # 7. AC 7: fw-7-fix enforces root-cause remediation without branching hotfixes
+        fw7_content = (ROOT_DIR / "agents" / "fw-7-fix.md").read_text(encoding="utf-8")
+        self.assertIn("Root-cause Remediation", fw7_content)
+        self.assertIn("hotfixing", fw7_content)
+
+        # 8. AC 9: fw-6-review strictly adheres to least privilege (no Edit tool)
+        fw6_tools = vi.parse_frontmatter(fw6_content).get("tools", [])
+        self.assertNotIn("Edit", fw6_tools)
+
 
 if __name__ == "__main__":
     unittest.main()
