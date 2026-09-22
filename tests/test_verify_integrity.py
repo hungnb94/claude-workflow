@@ -221,6 +221,11 @@ class TestVerifyIntegrity(unittest.TestCase):
         readme_content = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
         self.assertIn("Open/Closed Principle & Extensibility", readme_content)
 
+        # 1b. fw-1-spec surveys extension points and variation axes
+        fw1_content = (ROOT_DIR / "agents" / "fw-1-spec.md").read_text(encoding="utf-8")
+        self.assertIn("extension points", fw1_content)
+        self.assertIn("trục biến thiên", fw1_content)
+
         # 2. AC 2: fw-2-research instructs researching OCP patterns & anti-patterns
         fw2_content = (ROOT_DIR / "agents" / "fw-2-research.md").read_text(encoding="utf-8")
         self.assertIn("Open/Closed Principle (OCP)", fw2_content)
@@ -235,6 +240,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         fw4_content = (ROOT_DIR / "agents" / "fw-4-plan.md").read_text(encoding="utf-8")
         self.assertIn("extension points", fw4_content)
         self.assertIn("Open/Closed", fw4_content)
+        self.assertIn("### Extension Points & OCP Evaluation", fw4_content)
 
         # 5. AC 5: fw-5-impl forbids patching conditionals & prioritizes data-driven lookups
         fw5_content = (ROOT_DIR / "agents" / "fw-5-impl.md").read_text(encoding="utf-8")

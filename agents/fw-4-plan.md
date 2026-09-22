@@ -165,6 +165,10 @@ Mỗi component: responsibility + principle applied.
 
 ### Integration Points
 
+### Extension Points & OCP Evaluation
+
+Các trục biến thiên, cơ chế mở rộng (data-driven dispatch/registry/strategy/generalization), và ranh giới chống over-engineering (YAGNI).
+
 ### Design Principles Applied
 
 ## Work Breakdown

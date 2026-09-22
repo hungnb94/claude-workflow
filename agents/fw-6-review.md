@@ -143,7 +143,7 @@ Write to [WORKFLOW_DIR]/06-review.md:
 
 ## Review Scope
 
-Files Reviewed (loại trừ `.workflows/`); Review Checklist (AC/recommendations đã kiểm).
+Files Reviewed (loại trừ `.workflows/`); Review Checklist (AC/recommendations/kiểm toán OCP đã kiểm).
 
 ## Executive Summary
 
