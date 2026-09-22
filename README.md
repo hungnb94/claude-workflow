@@ -100,6 +100,7 @@ writing `01-spec.md` .. `06-fix.md`) — it has no role-model phase.*
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
 3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
 4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents use `model: opus` — Phase 3 for reference-implementation quality, Phase 4 for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning. All other phases use `model: sonnet` for speed and deterministic execution.
+5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables, registry patterns, strategies, or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice).
 
 ## Usage
 
@@ -133,13 +134,13 @@ For standalone non-code tasks, documentation, project planning, and research:
 
 | Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
 |---|---|---|---|---|---|
-| `fw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey scope, define integration points and acceptance criteria |
-| `fw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~30 | Research industry best practices and conduct gap analysis |
-| `fw-3-role-model` | Reference Implementer | Opus | Read, Grep, Glob, Write, Bash | ~15 | Write throwaway best-practice reference snippets (no real source edits) |
-| `fw-4-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Second-order effect analysis, trade-off evaluation, and deliverable design |
-| `fw-5-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement code deliverables and verify with tests |
-| `fw-6-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings (No Edit tool) |
-| `fw-7-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings and prepare release notes |
+| `fw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey scope, identify extension points, and define acceptance criteria |
+| `fw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~30 | Research extensible OCP patterns and benchmark against conventions |
+| `fw-3-role-model` | Reference Implementer | Opus | Read, Grep, Glob, Write, Bash | ~15 | Author throwaway reference implementations demonstrating OCP patterns and anti-patterns |
+| `fw-4-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Design extensible approach, evaluate OCP trade-offs, and plan deliverables |
+| `fw-5-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement extensible deliverables following OCP without patching conditionals |
+| `fw-6-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings, and audit OCP extensibility (No Edit tool) |
+| `fw-7-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings at root cause without branching hotfixes |
 
 ### Generic Task Workflow Subagents
 

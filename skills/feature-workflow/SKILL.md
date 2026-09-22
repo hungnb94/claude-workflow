@@ -143,6 +143,12 @@ commit / chưa merge / chưa push gì**.
 - **Role-model draft không phải deliverable.** Bước 4 chốt adopt/adapt/reject; Bước 5/7 dùng làm tài
   liệu đối chiếu, không copy nguyên văn. Xung đột theo thứ tự thẩm quyền `01-spec.md` > `04-plan.md`
   > convention thật của repo đích > `03-role-model.md`. Bước 6 không đọc nó.
+- **Thiết kế mở rộng theo Open/Closed Principle (OCP) và ranh giới chống over-engineering (YAGNI).**
+  Mã nguồn phải "open for extension, closed for modification": khi thêm trường hợp mới, tuyệt đối không
+  chắp vá logic cũ bằng cách nối thêm các nhánh điều kiện (cascading if-else / switch-case với kiểm tra
+  `==` cụ thể). Thay vào đó, thiết kế điểm mở rộng (extension points) hướng dữ liệu (data-driven dispatch
+  table / dictionary mapping), strategy pattern, registry hoặc generalization. Ranh giới an toàn: không
+  tạo abstract class/factory/dynamic plugin phức tạp khi chỉ cần bảng tra cứu (dict/map) hoặc hàm tổng quát.
 - **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cớ over-engineering.** Bước 2
   xếp khuyến nghị vào nhóm trùng/nên-đổi/nên-giữ theo tiêu chí này; Bước 4/5/6 (over-engineering là
   Major)/7 đều áp dụng SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface
