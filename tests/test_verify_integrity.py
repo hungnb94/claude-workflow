@@ -157,6 +157,53 @@ class TestVerifyIntegrity(unittest.TestCase):
         (self.repo_root / "agents" / "fw-1-spec.md").write_text(bad_agent, encoding="utf-8")
         self.assertFalse(vi.check_agent_references(self.repo_root))
 
+    def test_agent_references_generic_prefix_pass(self):
+        # A skill using an arbitrary prefix (not fw/gtw) must be detected without
+        # hardcoding, so a new workflow's SKILL.md never silently produces
+        # "No subagent references found" simply because its prefix is unknown.
+        (self.repo_root / "skills" / "another-workflow").mkdir(parents=True)
+        rcw_agent = (
+            "---\n"
+            "name: rcw-1-spec\n"
+            "description: Senior Business Analyst - Survey refactor scope\n"
+            "tools:\n"
+            "  - Read\n"
+            "  - Write\n"
+            "model: sonnet\n"
+            "---\n"
+            "Content here\n"
+        )
+        (self.repo_root / "agents" / "rcw-1-spec.md").write_text(rcw_agent, encoding="utf-8")
+        skill_content = (
+            "---\n"
+            "name: another-workflow\n"
+            "description: Sample\n"
+            "---\n"
+            "| Bước | Agent |\n"
+            "| 1 | `rcw-1-spec` |\n"
+        )
+        (self.repo_root / "skills" / "another-workflow" / "SKILL.md").write_text(
+            skill_content, encoding="utf-8"
+        )
+        self.assertTrue(vi.check_agent_references(self.repo_root))
+
+    def test_agent_references_generic_prefix_missing(self):
+        # Referencing a not-yet-created agent under an unknown prefix must FAIL
+        # loudly instead of being silently skipped by a hardcoded prefix regex.
+        (self.repo_root / "skills" / "another-workflow").mkdir(parents=True)
+        skill_content = (
+            "---\n"
+            "name: another-workflow\n"
+            "description: Sample\n"
+            "---\n"
+            "| Bước | Agent |\n"
+            "| 9 | `rcw-9-ghost` |\n"
+        )
+        (self.repo_root / "skills" / "another-workflow" / "SKILL.md").write_text(
+            skill_content, encoding="utf-8"
+        )
+        self.assertFalse(vi.check_agent_references(self.repo_root))
+
     def test_review_tool_isolation_pass(self):
         self.assertTrue(vi.check_review_tool_isolation(self.repo_root))
 
