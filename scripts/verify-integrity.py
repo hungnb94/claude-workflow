@@ -218,9 +218,8 @@ def check_agent_references(repo_root: Path) -> bool:
             all_valid = False
             continue
 
-        # Pattern matches fw-1-spec, gtw-5-review, etc.
         referenced_agents = sorted(
-            set(re.findall(r"\b((?:fw|gtw)-[0-9]+-[a-z0-9-]+)\b", content))
+            set(re.findall(r"`([a-z]+-[0-9]+-[a-z0-9-]+)`", content))
         )
         if not referenced_agents:
             print(f"[WARN] No subagent references found in {skill_rel}")
