@@ -309,6 +309,117 @@ class TestVerifyIntegrity(unittest.TestCase):
         fw6_tools = vi.parse_frontmatter(fw6_content).get("tools", [])
         self.assertNotIn("Edit", fw6_tools)
 
+    def test_refactor_code_workflow_guardrails(self):
+        """Verify refactor-code-workflow embeds the 7 safe-refactor disciplines end-to-end."""
+        skill_content = (ROOT_DIR / "skills" / "refactor-code-workflow" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        fm = vi.parse_frontmatter(skill_content)
+        self.assertEqual(fm.get("name"), "refactor-code-workflow")
+        self.assertIn("Chỉ dùng khi", fm.get("description", ""))
+        self.assertIn("Không tự kích hoạt", fm.get("description", ""))
+
+        # Opening line, guard clauses, Two Hats rationale, no-fork rationale, output layout
+        self.assertIn(
+            "Tôi đang dùng skill refactor-code-workflow, gồm 7 bước.", skill_content
+        )
+        self.assertIn("feature-workflow", skill_content)
+        self.assertIn("reproduce", skill_content)
+        self.assertIn("Two Hats", skill_content)
+        self.assertIn("Branch by Abstraction", skill_content)
+        self.assertIn("Strangler Fig", skill_content)
+        self.assertIn("fork", skill_content)
+        self.assertIn("04-baseline", skill_content)
+        self.assertIn("## TÓM TẮT", skill_content)
+        self.assertIn("## CHI TIẾT", skill_content)
+
+        agent_names = [
+            "rcw-1-spec",
+            "rcw-2-research",
+            "rcw-3-plan",
+            "rcw-4-protect",
+            "rcw-5-refactor",
+            "rcw-6-review",
+            "rcw-7-fix",
+        ]
+        for name in agent_names:
+            self.assertIn(name, skill_content)
+            agent_path = ROOT_DIR / "agents" / f"{name}.md"
+            self.assertTrue(agent_path.exists(), f"missing agent file {name}.md")
+
+        # Model routing: only rcw-3-plan uses opus, rest use sonnet
+        for name in agent_names:
+            content = (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
+            fm_agent = vi.parse_frontmatter(content)
+            expected_model = "opus" if name == "rcw-3-plan" else "sonnet"
+            self.assertEqual(fm_agent.get("model"), expected_model, f"{name} model mismatch")
+
+        # rcw-6-review must not declare Edit tool (least privilege)
+        rcw6_content = (ROOT_DIR / "agents" / "rcw-6-review.md").read_text(encoding="utf-8")
+        rcw6_tools = vi.parse_frontmatter(rcw6_content).get("tools", [])
+        self.assertNotIn("Edit", rcw6_tools)
+
+        # Discipline 1: characterization test / Golden Master before any fix
+        rcw4_content = (ROOT_DIR / "agents" / "rcw-4-protect.md").read_text(encoding="utf-8")
+        self.assertIn("characterization test", rcw4_content)
+        self.assertIn("Golden Master", rcw4_content)
+        self.assertIn("### Baseline Manifest", rcw4_content)
+        self.assertIn("04-baseline", rcw4_content)
+
+        # Discipline 2: seams to cut dependencies without touching code in place
+        rcw3_content = (ROOT_DIR / "agents" / "rcw-3-plan.md").read_text(encoding="utf-8")
+        self.assertIn("### Seams & Dependency Breaking", rcw3_content)
+        self.assertIn("### Micro-step Sequence", rcw3_content)
+        self.assertIn("Branch by Abstraction", rcw3_content)
+        self.assertIn("Strangler Fig", rcw3_content)
+        self.assertIn("Second-order", rcw3_content)
+
+        # Discipline 3/5: smallest scoped change, micro-step with revert on red
+        rcw5_content = (ROOT_DIR / "agents" / "rcw-5-refactor.md").read_text(encoding="utf-8")
+        self.assertIn("micro-step", rcw5_content)
+        self.assertIn("revert", rcw5_content)
+        self.assertIn("04-baseline", rcw5_content)
+        self.assertIn("Two Hats", rcw5_content)
+
+        # Discipline 4: never mix bugfix/refactor/feature (Two Hats) at spec level
+        rcw1_content = (ROOT_DIR / "agents" / "rcw-1-spec.md").read_text(encoding="utf-8")
+        self.assertIn("Vùng thay đổi", rcw1_content)
+        self.assertIn("Hành vi quan sát được", rcw1_content)
+        self.assertIn("seam", rcw1_content)
+        self.assertIn("Phát hiện ngoài phạm vi", rcw1_content)
+
+        # Discipline 6/7 verified via review's Behavior Preservation Audit rubric
+        self.assertIn("Behavior Preservation Audit", rcw6_content)
+        self.assertIn("test loosening", rcw6_content)
+        self.assertIn("Blocker", rcw6_content)
+        self.assertIn("Major", rcw6_content)
+        self.assertIn("diff coverage", rcw6_content)
+        self.assertIn("03-plan.md", rcw6_content)
+        self.assertIn("05-refactor.md", rcw6_content)
+
+        # rcw-7-fix restores oracle instead of loosening tests to hide the fix
+        rcw7_content = (ROOT_DIR / "agents" / "rcw-7-fix.md").read_text(encoding="utf-8")
+        self.assertIn("Root-cause", rcw7_content)
+        self.assertIn("04-baseline", rcw7_content)
+        self.assertIn("restore", rcw7_content)
+        self.assertIn("test loosening", rcw7_content)
+        self.assertIn("refactor:", rcw7_content)
+
+        # No external URLs in any rcw-* agent or the SKILL.md (avoid lychee flakiness)
+        for name in agent_names:
+            content = (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
+            self.assertNotIn("http://", content)
+            self.assertNotIn("https://", content)
+        self.assertNotIn("http://", skill_content)
+        self.assertNotIn("https://", skill_content)
+
+        # README synced: overview, usage, subagents reference
+        readme_content = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("/refactor-code-workflow", readme_content)
+        self.assertIn("/workflow:refactor-code-workflow", readme_content)
+        self.assertIn("rcw-1-spec", readme_content)
+        self.assertIn("rcw-6-review", readme_content)
+
 
 if __name__ == "__main__":
     unittest.main()

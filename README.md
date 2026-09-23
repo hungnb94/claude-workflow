@@ -2,14 +2,15 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development and generic tasks in Claude Code.
+Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code.
 
 ## Overview
 
-Claude Workflow packages two structured workflow frameworks powered by 13 specialized subagents into an official Claude Code Plugin:
+Claude Workflow packages three structured workflow frameworks powered by 20 specialized subagents into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
+3. **Refactor Code Workflow** (`/refactor-code-workflow`) - A 7-phase workflow for behavior-preserving refactoring: scope & observable-behavior survey, refactoring/Golden Master research, seam & micro-step planning, characterization testing, micro-step refactoring, independent Behavior Preservation Audit review, and automated remediation.
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
@@ -94,19 +95,46 @@ Phase 5: Impl    Phase 6: Review     Phase 7: Fix
 (`gtw-1-spec` → `gtw-2-research` → `gtw-3-plan` → `gtw-4-impl` → `gtw-5-review` → `gtw-6-fix`,
 writing `01-spec.md` .. `06-fix.md`) — it has no role-model phase.*
 
+### Seven-Phase Refactor Code Workflow Pipeline
+
+```text
+Phase 1: Spec    Phase 2: Research   Phase 3: Plan         Phase 4: Protect
+[rcw-1-spec]     [rcw-2-research]    [rcw-3-plan]          [rcw-4-protect]
+ (Sonnet)   -->   (Sonnet)      -->   (Opus)          -->   (Sonnet)
+      |                |                     |                   |
+      v                v                     v                   v
+ 01-spec.md      02-research.md      03-plan.md            04-protect.md
+                                                             + 04-baseline/
+                                                                  |
++-----------------------------------------------------------------+
+|
+v
+Phase 5: Refactor  Phase 6: Review          Phase 7: Fix
+[rcw-5-refactor]-->[rcw-6-review]     -->  [rcw-7-fix]
+ (Sonnet)           (Sonnet, NO Edit)        (Sonnet)
+      |                |                         |
+      v                v                         v
+ 05-refactor.md   06-review.md               07-fix.md
+```
+
+`04-baseline/` snapshots every baseline test file verbatim right after Phase 4 - it is the fixed
+oracle that Phase 6's Behavior Preservation Audit diffs against to catch test loosening, and that
+Phase 7 restores from when a violation is found.
+
 ### Architectural Principles
 
 1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
-3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias.
-4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents use `model: opus` — Phase 3 for reference-implementation quality, Phase 4 for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning. All other phases use `model: sonnet` for speed and deterministic execution.
+3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`, `rcw-6-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias. `rcw-6-review` additionally cannot read `03-plan.md`/`05-refactor.md`, so its Behavior Preservation Audit relies only on objective evidence (re-running tests, diffing against the `04-baseline/` oracle) instead of the refactoring author's rationale.
+4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents in Feature Workflow, `gtw-3-plan` in Generic Task Workflow, and `rcw-3-plan` in Refactor Code Workflow use `model: opus` for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning (seam/track/micro-step selection for `rcw-3-plan`). All other phases use `model: sonnet` for speed and deterministic execution.
 5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables, registry patterns, strategies, or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice).
 
 ## Usage
 
 ### Running Feature Workflow
 
-For software feature development, refactoring, and code tasks:
+For software feature development and code tasks that change observable behavior (use Refactor Code
+Workflow instead for behavior-preserving refactoring):
 
 ```bash
 # Direct slash command (when installed or running in workspace)
@@ -126,6 +154,19 @@ For standalone non-code tasks, documentation, project planning, and research:
 
 # Canonical plugin-namespaced command
 /workflow:generic-task-workflow "<task description, Jira key, or .md path>"
+```
+
+### Running Refactor Code Workflow
+
+For deliberate, behavior-preserving refactoring that must not change observable behavior (not for new
+features or bug investigation):
+
+```bash
+# Direct slash command (when installed or running in workspace)
+/refactor-code-workflow "<refactor description, Jira key, or .md path>"
+
+# Canonical plugin-namespaced command
+/workflow:refactor-code-workflow "<refactor description, Jira key, or .md path>"
 ```
 
 ## Subagents Reference
@@ -153,7 +194,21 @@ For standalone non-code tasks, documentation, project planning, and research:
 | `gtw-5-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~60 | Independent quality audit (No Edit tool) |
 | `gtw-6-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~50 | Remediate audit findings and prepare final handoff |
 
-*Note: Measured via `claude plugin details`. The total always-on footprint across all skills and subagents is ~808 tokens added to session overhead, well below typical context constraints.*
+### Refactor Code Workflow Subagents
+
+| Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
+|---|---|---|---|---|---|
+| `rcw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey change area, pin observable behavior, and define behavior-preserving acceptance criteria |
+| `rcw-2-research` | Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~21 | Research refactoring moves, Golden Master technique, and tools already available in target repo |
+| `rcw-3-plan` | Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Choose seams, chart micro-step sequence, and evaluate second-order effects of refactor track |
+| `rcw-4-protect` | Characterization Test Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Pin current behavior with characterization tests before any refactor move begins |
+| `rcw-5-refactor` | Refactoring Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~19 | Execute micro-step sequence, revert immediately on red, never touch baseline oracle |
+| `rcw-6-review` | Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~19 | Independent Behavior Preservation Audit detecting test loosening and unauthorized behavior change (No Edit tool) |
+| `rcw-7-fix` | Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Restore oracle from baseline on test loosening, never fix by loosening tests |
+
+*Note: `fw-*`/`gtw-*` footprint values measured via `claude plugin details`. `rcw-*` values are
+estimated from description word counts (words x ~1.3) since Refactor Code Workflow was added after
+the last live measurement; re-run `claude plugin details` to get an exact total.*
 
 ## Automated Release Lifecycle
 
@@ -203,15 +258,24 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── gtw-3-plan.md            # Generic Architect: Deliverable planning (Opus)
 │   ├── gtw-4-impl.md            # Generic Execution: Content generation
 │   ├── gtw-5-review.md          # Generic Auditor: Quality audit (no Edit)
-│   └── gtw-6-fix.md             # Generic Remediation: Finding remediation
+│   ├── gtw-6-fix.md             # Generic Remediation: Finding remediation
+│   ├── rcw-1-spec.md            # Refactor BA: Change area and behavior boundary
+│   ├── rcw-2-research.md        # Refactor Research: Refactoring moves and Golden Master
+│   ├── rcw-3-plan.md            # Refactor Architect: Seams and micro-step sequence (Opus)
+│   ├── rcw-4-protect.md         # Refactor Protect: Characterization tests and baseline
+│   ├── rcw-5-refactor.md        # Refactor Engineer: Micro-step execution
+│   ├── rcw-6-review.md          # Refactor Auditor: Behavior Preservation Audit (no Edit)
+│   └── rcw-7-fix.md             # Refactor Remediation: Oracle restore and root-cause fix
 ├── scripts/
 │   ├── bump-version.py          # Semantic version calculation and manifest sync
 │   └── verify-integrity.py      # Pre-release integrity check and gatekeeper
 ├── skills/
 │   ├── feature-workflow/
 │   │   └── SKILL.md             # Orchestrator for /feature-workflow
-│   └── generic-task-workflow/
-│       └── SKILL.md             # Orchestrator for /generic-task-workflow
+│   ├── generic-task-workflow/
+│   │   └── SKILL.md             # Orchestrator for /generic-task-workflow
+│   └── refactor-code-workflow/
+│       └── SKILL.md             # Orchestrator for /refactor-code-workflow
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
 │   └── test_verify_integrity.py # Unit tests for integrity gate
