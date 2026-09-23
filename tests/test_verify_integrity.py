@@ -347,27 +347,31 @@ class TestVerifyIntegrity(unittest.TestCase):
             agent_path = ROOT_DIR / "agents" / f"{name}.md"
             self.assertTrue(agent_path.exists(), f"missing agent file {name}.md")
 
+        agent_contents = {
+            name: (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
+            for name in agent_names
+        }
+
         # Model routing: only rcw-3-plan uses opus, rest use sonnet
         for name in agent_names:
-            content = (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
-            fm_agent = vi.parse_frontmatter(content)
+            fm_agent = vi.parse_frontmatter(agent_contents[name])
             expected_model = "opus" if name == "rcw-3-plan" else "sonnet"
             self.assertEqual(fm_agent.get("model"), expected_model, f"{name} model mismatch")
 
         # rcw-6-review must not declare Edit tool (least privilege)
-        rcw6_content = (ROOT_DIR / "agents" / "rcw-6-review.md").read_text(encoding="utf-8")
+        rcw6_content = agent_contents["rcw-6-review"]
         rcw6_tools = vi.parse_frontmatter(rcw6_content).get("tools", [])
         self.assertNotIn("Edit", rcw6_tools)
 
         # Discipline 1: characterization test / Golden Master before any fix
-        rcw4_content = (ROOT_DIR / "agents" / "rcw-4-protect.md").read_text(encoding="utf-8")
+        rcw4_content = agent_contents["rcw-4-protect"]
         self.assertIn("characterization test", rcw4_content)
         self.assertIn("Golden Master", rcw4_content)
         self.assertIn("### Baseline Manifest", rcw4_content)
         self.assertIn("04-baseline", rcw4_content)
 
         # Discipline 2: seams to cut dependencies without touching code in place
-        rcw3_content = (ROOT_DIR / "agents" / "rcw-3-plan.md").read_text(encoding="utf-8")
+        rcw3_content = agent_contents["rcw-3-plan"]
         self.assertIn("### Seams & Dependency Breaking", rcw3_content)
         self.assertIn("### Micro-step Sequence", rcw3_content)
         self.assertIn("Branch by Abstraction", rcw3_content)
@@ -375,14 +379,14 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Second-order", rcw3_content)
 
         # Discipline 3/5: smallest scoped change, micro-step with revert on red
-        rcw5_content = (ROOT_DIR / "agents" / "rcw-5-refactor.md").read_text(encoding="utf-8")
+        rcw5_content = agent_contents["rcw-5-refactor"]
         self.assertIn("micro-step", rcw5_content)
         self.assertIn("revert", rcw5_content)
         self.assertIn("04-baseline", rcw5_content)
         self.assertIn("Two Hats", rcw5_content)
 
         # Discipline 4: never mix bugfix/refactor/feature (Two Hats) at spec level
-        rcw1_content = (ROOT_DIR / "agents" / "rcw-1-spec.md").read_text(encoding="utf-8")
+        rcw1_content = agent_contents["rcw-1-spec"]
         self.assertIn("Vùng thay đổi", rcw1_content)
         self.assertIn("Hành vi quan sát được", rcw1_content)
         self.assertIn("seam", rcw1_content)
@@ -398,7 +402,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("05-refactor.md", rcw6_content)
 
         # rcw-7-fix restores oracle instead of loosening tests to hide the fix
-        rcw7_content = (ROOT_DIR / "agents" / "rcw-7-fix.md").read_text(encoding="utf-8")
+        rcw7_content = agent_contents["rcw-7-fix"]
         self.assertIn("Root-cause", rcw7_content)
         self.assertIn("04-baseline", rcw7_content)
         self.assertIn("restore", rcw7_content)
@@ -407,9 +411,8 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         # No external URLs in any rcw-* agent or the SKILL.md (avoid lychee flakiness)
         for name in agent_names:
-            content = (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
-            self.assertNotIn("http://", content)
-            self.assertNotIn("https://", content)
+            self.assertNotIn("http://", agent_contents[name])
+            self.assertNotIn("https://", agent_contents[name])
         self.assertNotIn("http://", skill_content)
         self.assertNotIn("https://", skill_content)
 

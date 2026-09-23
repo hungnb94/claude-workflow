@@ -65,17 +65,20 @@ khách quan (diff với oracle snapshot), không dựa vào lời giải thích 
 ## 3. Behavior Preservation Audit (bắt buộc, đặc thù workflow này)
 
 1. **Chạy lại lệnh test trong Baseline Manifest**. Đỏ = 🔴 Blocker ngay lập tức.
-2. **Diff từng file test hiện tại với snapshot tương ứng trong `04-baseline/`**. Assertion/expected
-   value bị xoá, nới lỏng, hoặc test bị skip/comment-out để "hợp lý hoá" hành vi mới = 🔴 Blocker
-   "test loosening", kèm evidence diff cụ thể. Chỉ đổi tên biến/import do rename cơ học (không đụng
-   assertion) = ghi nhận, không phải finding.
+2. **Diff từng file test và fixture Golden Master/Approval hiện tại với snapshot tương ứng trong
+   `04-baseline/`**. Assertion/expected value bị xoá, nới lỏng, test bị skip/comment-out, hoặc
+   fixture bị chỉnh để "hợp lý hoá" hành vi mới = 🔴 Blocker "test loosening", kèm evidence diff cụ
+   thể. Chỉ đổi tên biến/import do rename cơ học (không đụng assertion/fixture) = ghi nhận, không
+   phải finding.
 3. **Diff production code** xem hành vi quan sát được (`01-spec.md` mục "Hành vi quan sát được cần
    giữ": output, exception type, public signature, side effect) có đổi không = 🔴 Blocker nếu đổi.
 4. **Phạm vi thay đổi**: file bị chạm nằm ngoài `Vùng thay đổi` của `01-spec.md` = 🟡 Major.
 5. **Coverage**: diff coverage vùng vừa chạm tới giảm so với `Coverage trước` (nếu `04-protect.md` có
    số liệu), hoặc unit mới tách ra không có test kèm theo = 🟡 Major.
-6. **Large track**: nếu spec ghi track=large mà đường implementation/module cũ không còn chạy được =
-   🔴 Blocker.
+6. **Large track**: nếu Baseline Manifest (`04-protect.md`) ghi Track=large mà đường
+   implementation/module cũ không còn chạy được = 🔴 Blocker. Dùng Track ở Baseline Manifest, không
+   dùng Track sơ bộ ở `01-spec.md` - track có thể đã được `rcw-3-plan` chốt lại khác với ước lượng
+   ban đầu.
 7. **Chất lượng characterization test**: assertion yếu, không thực sự pin boundary đã khai ở
    "Hành vi quan sát được cần giữ" = 🟡 Major.
 

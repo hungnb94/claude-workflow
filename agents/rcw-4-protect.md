@@ -26,7 +26,10 @@ baseline vào `[WORKFLOW_DIR]/04-baseline/` làm oracle cố định cho các b�
 ## 1. Đọc Test Points đã chốt
 
 Đọc `03-plan.md` mục `### Test Points` và `### Seams & Dependency Breaking`. Đây là **duy nhất**
-những gì được phép làm ở bước này - không tự sáng tạo seam khác.
+những gì được phép làm ở bước này - không tự sáng tạo seam khác. Ghi lại giá trị `Track` đã chốt
+(mục TÓM TẮT của `03-plan.md`) để đưa vào Baseline Manifest ở bước 7 - đây là cách duy nhất
+`rcw-6-review` (không được đọc `03-plan.md`) biết được Track cuối cùng thay vì chỉ có Track sơ bộ
+từ `01-spec.md`.
 
 ## 2. Viết characterization test
 
@@ -60,10 +63,12 @@ không có, liệt kê số case/nhánh hành vi đã pin làm proxy.
 
 ## 7. Snapshot baseline
 
-`mkdir -p` + `cp` mọi file test baseline (đã có sẵn + mới thêm) vào `[WORKFLOW_DIR]/04-baseline/`,
-giữ nguyên đường dẫn tương đối (vd `04-baseline/tests/test_x.py`). Đây là oracle cố định - từ giờ
-`rcw-5-refactor` không được sửa các file gốc tương ứng, `rcw-6-review` dùng để diff phát hiện test
-loosening.
+`mkdir -p` + `cp` mọi file test baseline (đã có sẵn + mới thêm) **và mọi Golden Master/Approval
+fixture file** (file chứa output đã ghi lại ở bước 2 mà test so sánh vào) vào
+`[WORKFLOW_DIR]/04-baseline/`, giữ nguyên đường dẫn tương đối (vd `04-baseline/tests/test_x.py`,
+`04-baseline/tests/__snapshots__/x.approved.txt`). Đây là oracle cố định - từ giờ `rcw-5-refactor`
+không được sửa các file gốc tương ứng (test lẫn fixture), `rcw-6-review` dùng để diff phát hiện test
+loosening lẫn fixture bị chỉnh để hợp lý hoá output mới.
 
 ## 8. Viết output file
 
@@ -78,8 +83,8 @@ Ghi `[WORKFLOW_DIR]/04-protect.md` theo cấu trúc `<output>` (không lặp l�
    không có oracle sẵn
 3. **Chỉ sửa production code theo đúng seam đã liệt kê ở 03-plan.md**: không tự sáng tạo seam khác,
    không đổi hành vi quan sát được
-4. **Snapshot bắt buộc**: mọi file test baseline phải có bản sao trong `04-baseline/` trước khi kết
-   thúc bước này
+4. **Snapshot bắt buộc**: mọi file test baseline **và mọi Golden Master/Approval fixture** phải có
+   bản sao trong `04-baseline/` trước khi kết thúc bước này
 5. **Bug phát hiện thì pin, không sửa**: ghi vào Phát hiện ngoài phạm vi
 6. **Đo/liệt kê coverage trước**: làm baseline cho việc so sánh ở review
 </constraints>
@@ -112,7 +117,8 @@ Write to [WORKFLOW_DIR]/04-protect.md:
 
 ## Golden Master / Approval Fixtures
 
-[Mô tả input đại diện + nơi lưu fixture, nếu áp dụng]
+[Mô tả input đại diện + nơi lưu fixture (đường dẫn file gốc), nếu áp dụng - fixture này cũng phải
+nằm trong bảng snapshot ở Baseline Manifest]
 
 ## Seam Implementation (nếu có)
 
@@ -121,10 +127,11 @@ Write to [WORKFLOW_DIR]/04-protect.md:
 
 ### Baseline Manifest
 
+- Track (đã chốt ở `03-plan.md`): <micro | large>
 - Lệnh test đầy đủ: `[command]`
-- Danh sách file test + đường dẫn snapshot:
+- Danh sách file test **và fixture Golden Master/Approval** + đường dẫn snapshot:
 
-  | File test gốc | Snapshot tại 04-baseline/ |
+  | File gốc (test hoặc fixture) | Snapshot tại 04-baseline/ |
   |---|---|
 
 - Số test pass: <count>
