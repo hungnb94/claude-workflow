@@ -26,7 +26,7 @@ Glob `AGENTS.md`, `CLAUDE.md`, `docs/adr/`, `docs/architecture*` ở repo root �
 
 ## Bước 3 - Gọi feature-workflow
 
-Dùng **Skill tool** với `skill: "feature-workflow"` (không thấy thì thử `workflow:feature-workflow`). Ghép `args` theo đúng mẫu sau - task của người dùng đứng **đầu, nguyên văn** (để slug và việc dò Jira key của feature-workflow dựa đúng trên phần này), khối ràng buộc đứng cuối:
+Dùng **Skill tool** với `skill: "feature-workflow"`. Ghép `args` theo đúng mẫu sau - task của người dùng đứng **đầu, nguyên văn** (để slug và việc dò Jira key của feature-workflow dựa đúng trên phần này), khối ràng buộc đứng cuối:
 
 ```text
 <nguyên văn $ARGUMENTS của người dùng>
