@@ -6,12 +6,13 @@ Structured agent workflows for feature development, generic tasks, and behavior-
 
 ## Overview
 
-Claude Workflow packages four structured workflow frameworks powered by 20 specialized subagents into an official Claude Code Plugin:
+Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
 3. **Refactor Code Workflow** (`/refactor-code-workflow`) - A 7-phase workflow for behavior-preserving refactoring: scope & observable-behavior survey, refactoring/Golden Master research, seam & micro-step planning, characterization testing, micro-step refactoring, independent Behavior Preservation Audit review, and automated remediation.
 4. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
+5. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
@@ -182,6 +183,18 @@ For Android/Kotlin feature development that should follow Google-recommended bes
 /workflow:android-standards-workflow "<story description, Jira key, or .md path>"
 ```
 
+### Running KMP Standards Workflow
+
+For Kotlin Multiplatform feature development that should follow JetBrains-recommended best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance). This primes the standards and delegates to Feature Workflow.
+
+```bash
+# Direct slash command (when installed or running in workspace)
+/kmp-standards-workflow "<story description, Jira key, or .md path>"
+
+# Canonical plugin-namespaced command
+/workflow:kmp-standards-workflow "<story description, Jira key, or .md path>"
+```
+
 ## Subagents Reference
 
 ### Feature Workflow Subagents
@@ -289,9 +302,12 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   └── SKILL.md             # Orchestrator for /generic-task-workflow
 │   ├── refactor-code-workflow/
 │   │   └── SKILL.md             # Orchestrator for /refactor-code-workflow
-│   └── android-standards-workflow/
-│       ├── SKILL.md             # Orchestrator for /android-standards-workflow
-│       └── standards.md         # Android/Kotlin best practices reference
+│   ├── android-standards-workflow/
+│   │   ├── SKILL.md             # Orchestrator for /android-standards-workflow
+│   │   └── standards.md         # Android/Kotlin best practices reference
+│   └── kmp-standards-workflow/
+│       ├── SKILL.md             # Orchestrator for /kmp-standards-workflow
+│       └── standards.md         # Kotlin Multiplatform best practices reference
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
 │   └── test_verify_integrity.py # Unit tests for integrity gate
