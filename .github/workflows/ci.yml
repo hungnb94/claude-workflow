@@ -82,7 +82,7 @@ jobs:
           '
 
       - name: Check markdown links
-        uses: lycheeverse/lychee-action@f613c4a64e50d792e0b31ec34bbcbba12263c6a6 # v2.3.0
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           args: --exclude '.*atlassian\.net.*' --exclude-all-private --no-progress README.md "skills/**/*.md" "agents/**/*.md"
         env:
