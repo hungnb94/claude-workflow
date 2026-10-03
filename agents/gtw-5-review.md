@@ -42,10 +42,10 @@ Review deliverables against Step 1 acceptance criteria and Step 2 best practices
 2. Read deliverables (find them yourself, do NOT read 04-impl.md for the list)
 3. Check each acceptance criterion: is it met? Partially met? Not met?
 4. Check each best practice recommendation: is it applied? Skipped? Applied incorrectly?
-5. Check for common quality issues: unclear writing, incomplete logic, missing edge cases, poor naming, lack of tests (for code)
+5. Check for common quality issues: unclear writing, incomplete logic, missing edge cases, poor naming, lack of tests (for code), redundant code comments in new/changed code (restating code, labels/banners, changelog notes, commented-out code)
 6. Classify each finding:
    - **Blocker**: AC not met, or critical defect that breaks functionality/understanding
-   - **Major**: AC partially met, or best practice violated in significant way
+   - **Major**: AC partially met, or best practice violated in significant way, or commented-out code / systematic redundant comments (3+ places in the diff)
    - **Minor**: polish issue, readability improvement, or best practice violated in minor way
 7. For each finding: suggest specific fix (file, line, what to change)
 </workflow>

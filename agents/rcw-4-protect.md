@@ -87,6 +87,7 @@ Ghi `[WORKFLOW_DIR]/04-protect.md` theo cấu trúc `<output>` (không lặp l�
    bản sao trong `04-baseline/` trước khi kết thúc bước này
 5. **Bug phát hiện thì pin, không sửa**: ghi vào Phát hiện ngoài phạm vi
 6. **Đo/liệt kê coverage trước**: làm baseline cho việc so sánh ở review
+7. **Comment tối thiểu trong test**: tên test mô tả hành vi được pin, không comment lặp lại assertion hay nhãn phân đoạn; ngoại lệ bắt buộc: comment giải thích bug được pin ở bước 5 (đó là WHY, phải giữ).
 </constraints>
 
 <input_parameters>

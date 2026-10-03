@@ -46,6 +46,7 @@ Create deliverables per Step 3 plan, verify against Step 1 acceptance criteria a
 - Do NOT modify 01-spec.md, 02-research.md, or 03-plan.md.
 - Write implementation summary to [WORKFLOW_DIR]/04-impl.md
 - For code tasks: tests MUST pass, linters MUST pass (or document why violation is acceptable)
+- For code tasks, code comments: default to none; first make the code self-explanatory (rename, extract, simplify). Comment only the non-obvious WHY the code cannot express: hidden constraints, workarounds, counter-intuitive decisions, bug/spec/issue references. Never write comments that restate code, section labels/banners, changelog notes ("fixed/added/refactored..."), author tags, or commented-out code. Public API docs and license headers follow the target project's convention. Applies only to code you write or change; do not strip existing comments elsewhere (reports in .workflows/ are not affected).
 - If you cannot complete an AC: document why, do NOT ship incomplete work as complete
 </constraints>
 

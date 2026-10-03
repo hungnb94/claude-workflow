@@ -34,7 +34,7 @@ interface Clock {
     fun nowMillis(): Long
 }
 
-// androidMain / iosMain: implement rồi đăng ký qua DI framework của dự án
+// androidMain / iosMain
 class AndroidClock : Clock { override fun nowMillis() = System.currentTimeMillis() }
 class IosClock : Clock { override fun nowMillis() = NSDate().timeIntervalSince1970.toLong() * 1000 }
 ```

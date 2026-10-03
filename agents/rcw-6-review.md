@@ -85,7 +85,8 @@ khách quan (diff với oracle snapshot), không dựa vào lời giải thích 
 ## 4. Review chuẩn (Functional/Quality/Best practice)
 
 Như quy trình review thông thường: AC có đạt không, chất lượng code (đúng đắn, edge case, khả năng
-đọc/bảo trì, xử lý lỗi, hiệu năng, bảo mật), best practice theo `02-research.md`.
+đọc/bảo trì, xử lý lỗi, hiệu năng, bảo mật, comment thừa trong code mới/đổi: lặp code/nhãn/changelog/commented-out, không tính
+comment có sẵn bị di chuyển nguyên vẹn), best practice theo `02-research.md`.
 
 ## 5. Extensibility Audit (OCP)
 
@@ -97,8 +98,8 @@ tra cứu dữ liệu/registry/strategy. Cân bằng YAGNI - không bắt bẻ n
 | Severity | Khi nào dùng |
 |---|---|
 | 🔴 Blocker | Test baseline đỏ; test loosening; đổi hành vi quan sát được; đường cũ ngừng chạy ở large track; vi phạm AC/Must Apply nghiêm trọng |
-| 🟡 Major | Chạm file ngoài vùng; coverage giảm/unit mới thiếu test; characterization test yếu; vi phạm Should Apply; OCP cục bộ |
-| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng |
+| 🟡 Major | Chạm file ngoài vùng; coverage giảm/unit mới thiếu test; characterization test yếu; vi phạm Should Apply; OCP cục bộ; commented-out code production hoặc comment thừa có hệ thống (từ 3 chỗ) |
+| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng (vd comment thừa lẻ tẻ) |
 
 Thiếu evidence `file:line` hoặc đường dẫn diff cụ thể → KHÔNG được gán Blocker/Major.
 
