@@ -97,8 +97,9 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 3. **Blocking bridge**: `runBlocking` chỉ dùng trong test hoặc entrypoint chắc chắn không chạy trên main thread - không bao giờ gọi trên main thread; ưu tiên 2 pattern trên trước.
 4. UI Java còn dùng LiveData: `flow.asLiveData()` làm cầu tạm, gỡ bỏ khi UI đã chuyển sang Kotlin/Compose.
 
+Ví dụ pattern 1:
+
 ```kotlin
-// (1) Bridge Java callback/listener -> Flow
 fun locationUpdates(source: JavaLocationSource): Flow<Location> = callbackFlow {
     val listener = JavaLocationSource.Listener { trySend(it) }
     source.registerListener(listener)
@@ -106,8 +107,9 @@ fun locationUpdates(source: JavaLocationSource): Flow<Location> = callbackFlow {
 }
 ```
 
+Ví dụ pattern 2:
+
 ```kotlin
-// (2) Adapter cho Java Activity/Fragment gọi Kotlin suspend/Flow
 fun collectForJava(owner: LifecycleOwner, flow: Flow<Data>, callback: JavaCallback<Data>) {
     owner.lifecycleScope.launch {
         owner.repeatOnLifecycle(Lifecycle.State.STARTED) {

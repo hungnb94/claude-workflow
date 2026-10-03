@@ -75,6 +75,7 @@ Ghi `[WORKFLOW_DIR]/05-refactor.md` theo cấu trúc `<output>` (không lặp l�
 6. **Large track chỉ làm đúng increment đã chỉ định**: đường cũ còn chạy được
 7. **OCP không chắp vá**: khi tách case, không tạo cascading if/elif `==` mới; nhưng không tạo
    abstraction thừa (YAGNI)
+8. **Comment tối thiểu**: không thêm comment lặp code, nhãn, changelog ("refactored/extracted..."), commented-out code; khi tách hàm ưu tiên tên rõ thay vì comment. Comment WHY có sẵn phải đi theo code được di chuyển và được cập nhật nếu rename làm nó sai; không xoá comment ngoài move đang làm (không drive-by).
 </constraints>
 
 <input_parameters>

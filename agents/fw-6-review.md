@@ -59,7 +59,8 @@ deliverable - không review/đếm/báo lỗi. Nếu repo đích chưa gitignore
 ## 3. Review each deliverable
 
 **Functional** (meet AC/recommendations?), **Quality** (code: correctness, edge cases, readability,
-maintainability, error handling, tests, performance, security; content: completeness, accuracy,
+maintainability, error handling, tests, performance, security, comment thừa trong code mới/đổi (lặp code, nhãn/banner,
+changelog, commented-out code; comment WHY thì giữ); content: completeness, accuracy,
 clarity, structure), **Best practices** (`02-research.md`).
 
 **Extensibility Audit (Kiểm toán tính mở rộng theo OCP)**:
@@ -75,8 +76,8 @@ Mỗi issue classify theo bảng, anchor vào AC/Must Apply/Should Apply (không
 | Severity | Khi nào dùng | Ví dụ |
 |---|---|---|
 | 🔴 Blocker | Vi phạm AC/"Must Apply"; bug nghiêm trọng (crash/mất data/security); vi phạm OCP nghiêm trọng (rẽ nhánh đóng cứng phá vỡ extension points hoặc chắp vá nhánh `==` vi phạm AC/Must Apply) | AC không đạt, SQL injection, chuỗi cascading if-elif `==` ở core router/handler thay vì dispatch table |
-| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai) | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table |
-| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng | Style, optimization |
+| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai) | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table; commented-out code hoặc comment thừa lặp lại có hệ thống (từ 3 chỗ trong diff) |
+| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng | Style, optimization, comment thừa lẻ tẻ |
 
 **Quy tắc quyết định**: khớp nhiều mức → lấy mức CAO nhất; nghi ngờ giữa hai mức → escalate, ghi lý
 do; thiếu evidence `file:line` → KHÔNG được gán Blocker/Major.

@@ -44,8 +44,8 @@ Follow work breakdown, tôn trọng dependencies - không implement deliverable 
 Mỗi deliverable: follow design + design principles + conventions + Must Apply (**NO
 over-engineering**); **tuân thủ OCP**: tuyệt đối không chắp vá thêm nhánh `else if` hoặc so khớp `==`
 cho case mới trên code cũ, ưu tiên mở rộng bằng cơ chế hướng dữ liệu (lookup table / dictionary mapping),
-strategy hoặc hàm tổng quát; code clean/readable, comment logic phức tạp, handle errors, không để lại
-commented-out code; verify AC ngay sau implement - fail thì fix trước khi sang deliverable kế.
+strategy hoặc hàm tổng quát; logic phức tạp thì tách hàm/đặt tên rõ thay vì comment (quy tắc comment
+ở constraint 6), handle errors; verify AC ngay sau implement - fail thì fix trước khi sang deliverable kế.
 
 ## 3. Testing (for code tasks)
 
@@ -84,7 +84,7 @@ TODO dở dang.
 3. **All AC must pass**: Không kết thúc khi còn AC fail
 4. **Must Apply recommendations**: phải được implement
 5. **Tests must pass**: unit, integration, lint, typecheck
-6. **Clean code**: maintainable, readable, follow conventions
+6. **Comment tối thiểu trong code**: mặc định không comment; trước khi định comment, đổi tên/tách hàm/đơn giản hoá để code tự giải thích. Chỉ comment WHY mà code không thể hiện được (ràng buộc ẩn, workaround, tham chiếu bug/spec). Không viết comment lặp code, nhãn/banner, changelog, tên tác giả, commented-out code. Doc API công khai và license header theo convention dự án đích. Chỉ áp dụng cho code bạn viết/sửa, không xoá comment có sẵn ngoài phạm vi (không áp dụng cho báo cáo trong .workflows/).
 7. **Complete implementation**: Không để lại TODOs hoặc incomplete features
 8. **Role-model là tham khảo, không phải spec**: không implement thứ `03-role-model.md` có mà `01-spec.md`/`04-plan.md` không yêu cầu; xung đột thì theo thứ tự thẩm quyền ở §1b.
 9. **Extensibility & OCP compliance**: Tuyệt đối không chắp vá điều kiện kiểm tra == cụ thể hoặc nối thêm nhánh else if vào logic cũ; mở rộng qua bảng tra cứu hướng dữ liệu (dict/map), registry, strategy hoặc generalization

@@ -49,6 +49,7 @@ Fix all Blocker and Major issues from Step 5. Fix Minor issues if local change. 
 - Fix Blockers and Majors: non-negotiable
 - Fix Minors: only if local change, skip if requires design decision
 - Do NOT introduce new functionality while fixing
+- Code comments: do not add changelog-style comments ("fixed...", "changed..."), comments restating code, or commented-out code; git holds the history. Comment only a non-obvious WHY (workaround, hidden constraint, bug/issue reference). For redundant-comment findings, change only the flagged comments.
 - Do NOT modify 01-spec.md, 02-research.md, 03-plan.md, 04-impl.md, or 05-review.md
 - After fixes: all AC must be met (or explicitly documented why not)
 - Write to [WORKFLOW_DIR]/06-fix.md

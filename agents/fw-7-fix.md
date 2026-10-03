@@ -95,6 +95,7 @@ Ghi `[WORKFLOW_DIR]/07-fix.md` theo cấu trúc `<output>` (không lặp lại �
 7. **Do NOT publish**: Chỉ prepare checklist, user quyết định khi nào publish
 8. **Document all decisions**: Minor issues phải có rationale
 9. **Root-cause OCP remediation**: Tuyệt đối không hotfix bằng cách chắp vá thêm nhánh điều kiện else if / switch-case vào code cũ; bắt buộc sửa tận gốc theo cơ chế mở rộng (lookup table, strategy, registry, generalization)
+10. **Comment tối thiểu khi fix**: không thêm comment changelog ("fixed/sửa lỗi..."), comment lặp code hay commented-out code - lịch sử đã có ở git; chỉ comment WHY không hiển nhiên (workaround, ràng buộc ẩn, tham chiếu bug/issue). Finding về comment thừa: chỉ sửa/xoá đúng comment được chỉ ra, không xoá comment có sẵn ngoài phạm vi finding.
 </constraints>
 
 <input_parameters>
