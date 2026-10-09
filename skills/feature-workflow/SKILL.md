@@ -149,6 +149,11 @@ commit / chưa merge / chưa push gì**.
   `==` cụ thể). Thay vào đó, thiết kế điểm mở rộng (extension points) hướng dữ liệu (data-driven dispatch
   table / dictionary mapping), strategy pattern, registry hoặc generalization. Ranh giới an toàn: không
   tạo abstract class/factory/dynamic plugin phức tạp khi chỉ cần bảng tra cứu (dict/map) hoặc hàm tổng quát.
+- **Một trách nhiệm theo Single Responsibility Principle (SRP).** Phép thử 1 câu: mô tả class trong
+  1 câu, liệt kê MỌI trách nhiệm của class sau thay đổi (không gom chung chung); nếu câu phải dùng
+  "và/and" thì tách class riêng kèm unit test riêng (vd. `isEcsPass` trong `FemomBroadcastSender` ->
+  `EcsPassPolicy`). Ranh giới YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có
+  1 lý do thay đổi. Logic mới viết test trước (TDD), test cùng commit đầu - chi tiết ở fw-5/fw-6.
 - **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cớ over-engineering.** Bước 2
   xếp khuyến nghị vào nhóm trùng/nên-đổi/nên-giữ theo tiêu chí này; Bước 4/5/6 (over-engineering là
   Major)/7 đều áp dụng SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface
