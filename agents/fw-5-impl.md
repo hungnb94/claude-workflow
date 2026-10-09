@@ -47,7 +47,12 @@ cho case mới trên code cũ, ưu tiên mở rộng bằng cơ chế hướng d
 strategy hoặc hàm tổng quát; logic phức tạp thì tách hàm/đặt tên rõ thay vì comment (quy tắc comment
 ở constraint 6), handle errors; verify AC ngay sau implement - fail thì fix trước khi sang deliverable kế.
 
-**Phép thử 1 câu (SRP) trước khi thêm member vào class có sẵn**: tự viết 1 câu mô tả class, liệt kê MỌI trách nhiệm của class SAU thay đổi (không gom chung chung kiểu "xử lý broadcast"); nếu câu phải dùng "và/and" thì class vi phạm SRP -> tách trách nhiệm mới ra class riêng kèm unit test riêng. Ví dụ: `isEcsPass` thêm vào `FemomBroadcastSender` -> "gửi broadcast VÀ quyết định ECS pass/fail" -> tách `EcsPassPolicy` + `EcsPassPolicyTest`. Ranh giới YAGNI: không tách helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi.
+**Phép thử 1 câu (SRP) trước khi thêm member vào class có sẵn**: tự viết 1 câu mô tả class,
+liệt kê MỌI trách nhiệm của class SAU thay đổi (không gom chung chung kiểu "xử lý broadcast");
+nếu câu phải dùng "và/and" thì class vi phạm SRP -> tách trách nhiệm mới ra class riêng kèm
+unit test riêng. Ví dụ: `isEcsPass` thêm vào `FemomBroadcastSender` -> "gửi broadcast VÀ quyết
+định ECS pass/fail" -> tách `EcsPassPolicy` + `EcsPassPolicyTest`. Ranh giới YAGNI: không tách
+helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi.
 
 ## 3. TDD và testing (for code tasks)
 

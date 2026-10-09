@@ -32,7 +32,11 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 - Áp dụng tăng dần, có chọn lọc - không áp cứng cả 5 nguyên tắc lên mọi class; bắt đầu từ chỗ đau nhất (một interface quá lớn, một phụ thuộc khó test). [14]
 - SRP: ViewModel không chứa logic truy cập dữ liệu/network; đẩy xuống Repository/UseCase. [3]
-- SRP - phép thử 1 câu: mô tả class trong 1 câu, liệt kê MỌI trách nhiệm của class SAU thay đổi (không gom chung chung kiểu "xử lý broadcast"); nếu câu phải dùng "và/and" thì class vi phạm SRP -> tách trách nhiệm mới ra class riêng kèm unit test riêng. Ví dụ: thêm `isEcsPass()` (luật nghiệp vụ ECS pass/fail) vào `FemomBroadcastSender` -> mô tả thành "gửi broadcast VÀ quyết định ECS pass/fail" -> tách `EcsPassPolicy` + `EcsPassPolicyTest`. [15]
+- SRP - phép thử 1 câu: mô tả class trong 1 câu, liệt kê MỌI trách nhiệm của class SAU thay đổi
+  (không gom chung chung kiểu "xử lý broadcast"); nếu câu phải dùng "và/and" thì class vi phạm
+  SRP -> tách trách nhiệm mới ra class riêng kèm unit test riêng. Ví dụ: thêm `isEcsPass()` (luật
+  nghiệp vụ ECS pass/fail) vào `FemomBroadcastSender` -> mô tả thành "gửi broadcast VÀ quyết định
+  ECS pass/fail" -> tách `EcsPassPolicy` + `EcsPassPolicyTest`. [15]
 - SRP - ranh giới YAGNI: không tách helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi; áp dụng chọn lọc như đầu mục. [14]
 - OCP: thêm trường hợp mới bằng `sealed interface`/`sealed class` + `when` exhaustive hoặc bảng map/dispatch, không nối dài chuỗi `if-else`/`switch` kiểm tra `==` cụ thể. [14]
 - DIP: ViewModel/UseCase phụ thuộc interface của Repository, bind bằng Hilt `@Binds`, không phụ thuộc class cụ thể. [7]

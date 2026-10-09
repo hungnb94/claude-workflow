@@ -70,7 +70,14 @@ dùng bảng tra cứu dữ liệu (dict/map), registry, strategy pattern hoặc
 để không bắt bẻ những nơi chỉ cần hàm đơn giản.
 
 **SRP Audit (Kiểm toán một trách nhiệm)**:
-Với mỗi class bị chạm trong diff (xác định qua `git diff` và đọc code thật, KHÔNG dựa vào báo cáo của tác giả), tự viết 1 câu mô tả class, liệt kê MỌI trách nhiệm của class sau thay đổi (không gom chung chung); câu phải dùng "và/and" thì vi phạm SRP. So với phiên bản trước diff để phân biệt "diff thêm trách nhiệm thứ hai" với "class đã lẫn từ trước". Ví dụ: `isEcsPass` thêm vào `FemomBroadcastSender` -> nên là `EcsPassPolicy`. Kiểm mọi hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) có unit test trong diff; miễn trừ hàm ủy quyền thuần, getter, wiring. Cân bằng với YAGNI: không bắt tách helper private nhỏ dùng state của class, không bắt tách khi class chỉ có 1 lý do thay đổi, không đòi dọn toàn bộ nợ cũ ngoài phần diff chạm.
+Với mỗi class bị chạm trong diff (xác định qua `git diff` và đọc code thật, KHÔNG dựa vào báo
+cáo của tác giả), tự viết 1 câu mô tả class, liệt kê MỌI trách nhiệm của class sau thay đổi
+(không gom chung chung); câu phải dùng "và/and" thì vi phạm SRP. So với phiên bản trước diff để
+phân biệt "diff thêm trách nhiệm thứ hai" với "class đã lẫn từ trước". Ví dụ: `isEcsPass` thêm
+vào `FemomBroadcastSender` -> nên là `EcsPassPolicy`. Kiểm mọi hàm/class mới có logic (rẽ nhánh,
+vòng lặp, tính toán) có unit test trong diff; miễn trừ hàm ủy quyền thuần, getter, wiring. Cân
+bằng với YAGNI: không bắt tách helper private nhỏ dùng state của class, không bắt tách khi class
+chỉ có 1 lý do thay đổi, không đòi dọn toàn bộ nợ cũ ngoài phần diff chạm.
 
 ## 4. Classify findings
 
