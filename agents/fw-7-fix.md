@@ -36,6 +36,7 @@ Với các finding vi phạm tính mở rộng hoặc OCP, bắt buộc tái c�
 cứu hướng dữ liệu (lookup table / dispatch dictionary), registry, strategy pattern hoặc hàm tổng quát.
 Tuyệt đối không vá tạm thời (hotfixing) bằng cách nối thêm các nhánh điều kiện `else if` hoặc `case` mới
 vào khối logic cũ.
+Finding SRP (từ SRP Audit): sửa tận gốc bằng tách class riêng kèm unit test riêng, không vá tại chỗ (không thêm cờ/nhánh hay comment để hợp thức hoá); finding thiếu unit test: viết test cho logic đó.
 
 Finding về best practice: đối chiếu `[WORKFLOW_DIR]/03-role-model.md` lấy đúng pattern, vẫn theo thứ tự
 thẩm quyền `01-spec.md` > `04-plan.md` > convention repo > bản mẫu; bản mẫu không cho phép refactor ngoài
@@ -96,6 +97,7 @@ Ghi `[WORKFLOW_DIR]/07-fix.md` theo cấu trúc `<output>` (không lặp lại �
 8. **Document all decisions**: Minor issues phải có rationale
 9. **Root-cause OCP remediation**: Tuyệt đối không hotfix bằng cách chắp vá thêm nhánh điều kiện else if / switch-case vào code cũ; bắt buộc sửa tận gốc theo cơ chế mở rộng (lookup table, strategy, registry, generalization)
 10. **Comment tối thiểu khi fix**: không thêm comment changelog ("fixed/sửa lỗi..."), comment lặp code hay commented-out code - lịch sử đã có ở git; chỉ comment WHY không hiển nhiên (workaround, ràng buộc ẩn, tham chiếu bug/issue). Finding về comment thừa: chỉ sửa/xoá đúng comment được chỉ ra, không xoá comment có sẵn ngoài phạm vi finding.
+11. **Root-cause SRP remediation**: vi phạm SRP sửa bằng tách class + test, không vá tại chỗ
 </constraints>
 
 <input_parameters>
