@@ -80,6 +80,7 @@ này biết:
 8. **Contrastive bắt buộc cho CONFLICT_SHOULD_CHANGE**: `❌ Bad example` (code thật kèm `path:line`) + `Why bad` + `✅ Good example` cùng chức năng để đối chiếu 1-1
 9. **Không bịa API**: chỉ dùng API/thư viện có thật trong stack; buộc giả định thì đánh dấu `// pseudo`
 10. **OCP & Extensibility pattern research**: Khi task có các nhánh điều kiện hoặc phân loại hành vi, bắt buộc nghiên cứu cơ chế mở rộng (data-driven dispatch, strategy, registry, generalization) và nhận diện rõ anti-pattern rẽ nhánh điều kiện đóng cứng kiểm tra == cụ thể
+11. **SRP pattern research**: khi task thêm logic vào class có sẵn, tìm mẫu tách trách nhiệm hiện có trong codebase (policy/use case riêng kèm test) và nêu anti-pattern nhét luật nghiệp vụ vào class không liên quan (Phép thử 1 câu, có "và/and" là vi phạm; SRP).
 </constraints>
 
 <input_parameters>

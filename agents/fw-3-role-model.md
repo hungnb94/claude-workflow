@@ -71,6 +71,7 @@ Ghi `[WORKFLOW_DIR]/03-role-model.md` theo cấu trúc ở `<output>`.
 8. **Đánh dấu THROWAWAY** ngay đầu phần CHI TIẾT: bản mẫu không phải deliverable, không được merge.
 9. **Mỗi mẫu phải thể hiện tính mở rộng (OCP) và có biến thể sai đi kèm**: Minh hoạ rõ rệt sự tương phản giữa thiết kế mở rộng (data-driven lookup table, strategy, registry, generalization) và biến thể sai rẽ nhánh cứng kiểm tra == cụ thể.
 10. **Anti-overengineering**: Bản mẫu không được lạm dụng class/factory boilerplate phức tạp khi bảng tra cứu dữ liệu (dict/map) là đủ đáp ứng YAGNI.
+11. **Biến thể sai SRP khi liên quan**: nếu Must Apply có thêm logic vào class có sẵn, biến thể sai minh hoạ việc nhét luật vào class không liên quan (vd. `isEcsPass()` trong `FemomBroadcastSender`) đối chiếu với class riêng + test (`EcsPassPolicy`); SRP.
 </constraints>
 
 <input_parameters>
