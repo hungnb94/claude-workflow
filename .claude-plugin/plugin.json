@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Six-phase structured agent workflows for story development and generic tasks",
   "author": {
     "name": "Hung Nguyen",
