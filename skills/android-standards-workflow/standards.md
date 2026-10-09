@@ -32,6 +32,8 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 - Áp dụng tăng dần, có chọn lọc - không áp cứng cả 5 nguyên tắc lên mọi class; bắt đầu từ chỗ đau nhất (một interface quá lớn, một phụ thuộc khó test). [14]
 - SRP: ViewModel không chứa logic truy cập dữ liệu/network; đẩy xuống Repository/UseCase. [3]
+- SRP - phép thử 1 câu: mô tả class trong 1 câu, liệt kê MỌI trách nhiệm của class SAU thay đổi (không gom chung chung kiểu "xử lý broadcast"); nếu câu phải dùng "và/and" thì class vi phạm SRP -> tách trách nhiệm mới ra class riêng kèm unit test riêng. Ví dụ: thêm `isEcsPass()` (luật nghiệp vụ ECS pass/fail) vào `FemomBroadcastSender` -> mô tả thành "gửi broadcast VÀ quyết định ECS pass/fail" -> tách `EcsPassPolicy` + `EcsPassPolicyTest`. [15]
+- SRP - ranh giới YAGNI: không tách helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi; áp dụng chọn lọc như đầu mục. [14]
 - OCP: thêm trường hợp mới bằng `sealed interface`/`sealed class` + `when` exhaustive hoặc bảng map/dispatch, không nối dài chuỗi `if-else`/`switch` kiểm tra `==` cụ thể. [14]
 - DIP: ViewModel/UseCase phụ thuộc interface của Repository, bind bằng Hilt `@Binds`, không phụ thuộc class cụ thể. [7]
 - ISP: interface nhỏ theo đúng nhu cầu của caller; không gộp nhiều trách nhiệm vào 1 interface lớn. [14]
@@ -67,6 +69,8 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 ### 6.3 Testing
 
+- TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. [16]
+- Hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) phải có unit test trong CÙNG commit đầu tiên tạo ra nó; miễn trừ chỉ cho hàm ủy quyền thuần, getter, wiring. [6,16]
 - Ưu tiên fake hơn mock - fake nhẹ, không cần framework mock, dễ đọc; mock chỉ dùng khi cần verify tương tác (gọi bao nhiêu lần, tham số gì) mà fake không diễn đạt được. [6]
 - Test coroutine/Flow bằng `runTest`, inject `TestDispatcher` (`StandardTestDispatcher`/`UnconfinedTestDispatcher`) thay vì dispatcher thật. [1,6]
 - Test ViewModel qua `uiState` quan sát được, test Repository qua fake data source. [6]
@@ -135,3 +139,5 @@ fun collectForJava(owner: LifecycleOwner, flow: Flow<Data>, callback: JavaCallba
 12. Manuel Vivo (Android DevRel) - "A safer way to collect flows from Android UIs" - loạt bài coroutines/Flow trên Android Developers Medium.
 13. Marcin Moskała - *Effective Kotlin* (kt.academy) - "Item 1: Limit mutability".
 14. droidcon - "SOLID principles in practice: the clean architecture" (droidcon.com).
+15. Robert C. Martin - *Clean Code* (2008), ch.10 "Classes" - mô tả class ngắn gọn không dùng "and/or/if/but"; SRP.
+16. Kent Beck - *Test-Driven Development: By Example* (2002) - Red/Green/Refactor.
