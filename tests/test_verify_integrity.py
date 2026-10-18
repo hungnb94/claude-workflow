@@ -5,6 +5,7 @@ Tests all pass and fail conditions using temporary directory structures.
 """
 
 import json
+import re
 import shutil
 import tempfile
 import unittest
@@ -308,6 +309,51 @@ class TestVerifyIntegrity(unittest.TestCase):
         # 8. AC 9: fw-6-review strictly adheres to least privilege (no Edit tool)
         fw6_tools = vi.parse_frontmatter(fw6_content).get("tools", [])
         self.assertNotIn("Edit", fw6_tools)
+
+    def test_feature_workflow_slicing_guardrails(self):
+        """Verify that PR slicing, budget and rule-of-three guardrails are defined consistently."""
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        skill = read("skills", "feature-workflow", "SKILL.md")
+        for token in ("≤~400 dòng production", "≤~15 file", "<slug>/<n>-<tên-slice>", "slice chuẩn bị",
+                      "KHÔNG push", "KHÔNG tạo PR", "git push -u origin", "05-impl-<n>.md"):
+            self.assertIn(token, skill)
+        self.assertNotIn("chưa commit", skill)
+
+        self.assertIn("Hướng mở rộng sau", read("agents", "fw-1-spec.md"))
+
+        fw4 = read("agents", "fw-4-plan.md")
+        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer"):
+            self.assertIn(token, fw4)
+
+        fw5 = read("agents", "fw-5-impl.md")
+        self.assertIn("đúng 1 commit", fw5)
+        self.assertIn("API công khai", fw5)
+        self.assertNotIn("CÙNG commit đầu", fw5)
+
+        fw6 = read("agents", "fw-6-review.md")
+        self.assertIn("git diff --numstat", fw6)
+        self.assertIn("Scope & Budget Audit", fw6)
+        self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools", []))
+
+        fw7 = read("agents", "fw-7-fix.md")
+        self.assertIn("git push -u origin", fw7)
+        self.assertIn("Ship notes", fw7)
+        self.assertNotIn("do NOT commit", fw7)
+
+        standards = read("skills", "android-standards-workflow", "standards.md")
+        for token in ("tách slice riêng", "/refactor-code-workflow", ":core:ui"):
+            self.assertIn(token, standards)
+        self.assertNotIn("CÙNG commit đầu", standards)
+
+        android_skill = read("skills", "android-standards-workflow", "SKILL.md")
+        section = android_skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
+        block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
+        self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
+        self.assertIn("slice", block)
+
+        self.assertIn("stacked", read("README.md"))
 
     def test_refactor_code_workflow_guardrails(self):
         """Verify refactor-code-workflow embeds the 7 safe-refactor disciplines end-to-end."""
