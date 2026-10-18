@@ -28,8 +28,9 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 - **Bug đã xảy ra**: quy trình thiếu bước reproduce/root cause - nói rõ, đề nghị luồng bug thường
   (reproduce → root cause → fix → test).
 - **Story quá nhỏ, 1 bước** (sửa 1-2 dòng, đổi text/config): làm trực tiếp, nói rõ vì sao thừa.
-- **Story quá lớn** (chạm quá nhiều module, hoặc Bước 1 ra >~10 AC): đề nghị chẻ nhiều story nhỏ,
-  chạy quy trình riêng từng story.
+- **Story quá lớn** (chạm quá nhiều module, Bước 1 ra >~10 AC, hoặc Bước 4 ra >~5 slice): đề nghị chẻ
+  nhiều story nhỏ, chạy quy trình riêng từng story. Chỉ vượt ngân sách slice thì Bước 4 tự chẻ slice
+  trong cùng story, không cần chẻ story.
 
 ## Tham số & khởi tạo
 
@@ -43,9 +44,25 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   bắt Bước 1 tự mở link.
 - `[WORKFLOW_DIR]` = `<repo root>/.workflows/[STORY_SLUG]/` - luôn truyền **đường dẫn tuyệt đối**.
 - Không truyền "phạm vi code" cho bước nào - mỗi bước tự lấy phạm vi từ output bước trước (Bước 1
-  khảo sát ghi `Điểm tích hợp`; Bước 6 lấy diff; Bước 7 lấy phát hiện trong `06-review.md`).
+  khảo sát ghi `Điểm tích hợp`; Bước 6 lấy diff; Bước 7 lấy phát hiện trong `06-review-<n>.md`).
 - Spawn subagent chỉ truyền `WORKFLOW_DIR` và `STORY` (chỉ Bước 1) - subagent tự đọc hướng dẫn từ
-  definition của mình.
+  definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
+  BUDGET`, do orchestrator chép từ bảng slice trong `## TÓM TẮT` của `04-plan.md`.
+
+## Chẻ PR theo slice (luật chung)
+
+Để PR nhỏ, dễ review, Bước 4 chẻ story thành các slice (stacked); Bước 5→6→7 chạy lần lượt từng slice.
+
+- **Ngân sách mỗi slice**: **≤~400 dòng production** (added+deleted theo `git diff --numstat`, không
+  tính test/generated) và **≤~15 file**. Ngưỡng mềm; ngoại lệ chỉ duyệt ở cổng sau Bước 4.
+- **Trục chẻ**: **slice chuẩn bị** (refactor/migrate cần thiết, không đổi hành vi) đứng đầu, bỏ nếu
+  không cần, không tạo slice rỗng; sau đó các lát dọc, mỗi lát giao trọn một phần AC. Story nhỏ vẫn là
+  1 slice.
+- **Mỗi slice đúng 1 commit**, nhánh `<slug>/<n>-<tên-slice>`. Slice 1 base vào nhánh hiện tại lúc gọi
+  workflow; slice n base vào slice n-1. Chồng tuyến tính, không rebase.
+- **Mỗi slice build và test xanh** tại vị trí của nó trong chồng; test nằm cùng commit của slice.
+- **Bước 1-4 chạy 1 lần** cho cả story; **Bước 5→6→7 lặp theo từng slice**, xong slice n mới sang n+1.
+- Chỉ `git add -- <file được phép>`; `.workflows/` không bao giờ vào commit. KHÔNG push, KHÔNG tạo PR.
 
 ## Cấu trúc output
 
@@ -54,14 +71,14 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   01-spec.md         <- Bước 1: phạm vi + acceptance criteria + ràng buộc
   02-research.md     <- Bước 2: best practice ngành theo loại project, đối chiếu convention nội bộ
   03-role-model.md   <- Bước 3: code mẫu best practice (THROWAWAY, không phải deliverable)
-  04-plan.md         <- Bước 4: hướng đã chọn + danh sách thay đổi
-  05-impl.md         <- Bước 5: đã code gì + kết quả test
-  06-review.md       <- Bước 6: review + phân loại Blocker/Major/Minor
-  07-fix.md          <- Bước 7: sửa toàn bộ Blocker/Major/Minor + ghi chú ship
+  04-plan.md         <- Bước 4: hướng đã chọn + danh sách thay đổi + Slice plan
+  05-impl-<n>.md     <- Bước 5 (slice n): đã code gì + kết quả test + commit
+  06-review-<n>.md   <- Bước 6 (slice n): review + phân loại Blocker/Major/Minor
+  07-fix-<n>.md      <- Bước 7 (slice n): sửa toàn bộ Blocker/Major/Minor + ghi chú ship
 ```
 
-`.workflows/` phải nằm trong `.gitignore` repo đích; chưa có thì nhắc thêm **trước Bước 6** để
-artifact quy trình không lẫn vào vùng Bước 6 dò lỗi.
+`.workflows/` phải nằm trong `.gitignore` repo đích; chưa có thì nhắc thêm **trước Bước 5** để
+artifact quy trình không lẫn vào commit và vùng Bước 6 dò lỗi.
 
 Mỗi file có `## TÓM TẮT` (input bước sau) và `## CHI TIẾT` (audit). Không xoá file cũ - đây là audit
 trail.
@@ -75,6 +92,12 @@ trail.
   Không bao giờ ghi đè im lặng.
 - Chạy lại một bước: ghi đè đúng file bước đó, **không** xoá file bước sau; nói rõ file sau đã cũ so
   với bước vừa chạy lại.
+- Resume theo slice: slice n xong khi có `07-fix-<n>.md`, hoặc `06-review-<n>.md` báo
+  Blocker=Major=Minor=0. Lấy k = slice nhỏ nhất chưa xong: có `06-review-<k>.md` thì chạy Bước 7 cho
+  k; có `05-impl-<k>.md` thì Bước 6 cho k; còn lại Bước 5 cho k. Nếu `07-fix-<k>.md` có Đề xuất chẻ slice ≠ "không" thì hỏi lại cổng đó trước khi sang slice k+1. Có `04-plan.md` mà chưa có
+  `05-impl-1.md` thì quay lại cổng duyệt slice.
+- Có `05-impl.md` không hậu tố → layout cũ: hỏi *chạy tiếp tay theo layout cũ* / *chạy lại từ Bước 4
+  theo slice*.
 - Có `03-plan.md` không có `03-role-model.md` → layout cũ (6 bước): hỏi *chạy tiếp layout cũ bằng
   tay* / *chạy lại từ Bước 3 theo layout 7 bước (file 03..06 cũ giữ audit trail, không xoá)*.
 
@@ -95,6 +118,7 @@ Bước 3/4, Sonnet còn lại), context riêng (Bước 6 không thấy plan/im
 
 **Không dùng `subagent_type: "fork"`.** Fork thừa hưởng context của bạn, phá vỡ yêu cầu Bước 6 phải
 "mù" ý định tác giả. Chạy tuần tự - không spawn song song, vì bước sau ăn output bước trước.
+Bước 6 nhận dữ liệu slice qua prompt, vẫn không đọc `04-plan.md`.
 
 ## Mẫu lời gọi Agent
 
@@ -106,6 +130,8 @@ Làm theo hướng dẫn trong definition của bạn (agent fw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
 - STORY: <chỉ Bước 1: nội dung story đã lấy được>
+- SLICE: <chỉ Bước 5-7: số slice n>
+- BRANCH, BASE, FILES, AC, BUDGET: <chỉ Bước 6: chép từ bảng slice của 04-plan.md>
 ```
 
 ## Các cổng người duyệt
@@ -120,22 +146,31 @@ convention, ảnh hưởng quyết định sản phẩm/kiến trúc): `AskUserQ
 **Sau Bước 3 - không có cổng, chạy thẳng Bước 4.** Bản mẫu throwaway; sai sót bị Bước 4 lọc ở
 "Role-model adoption". Chỉ dừng nếu Bước 3 báo `Câu hỏi cần làm rõ`.
 
-**Sau Bước 5** - có mục bị chặn hoặc test đỏ chưa tự giải được: dừng, báo người dùng trước khi review.
+**Sau Bước 4 - điểm dừng duy nhất để duyệt kế hoạch slice.** Trình bảng slice; kiểm `git status` sạch
+(ngoài `.workflows/`) và `.workflows/` đã gitignore; >~5 slice thì đề nghị chẻ story. `AskUserQuestion`:
+*duyệt* / *chạy lại Bước 4 kèm ghi chú* / *dừng*. Ghi kết quả và ngoại lệ ngân sách vào `04-plan.md`
+(mục "Duyệt kế hoạch slice") **trước** Bước 5.
+
+**Sau Bước 5** (mỗi slice) - có mục bị chặn hoặc test đỏ chưa tự giải được: dừng, báo người dùng trước
+khi review.
 
 **Sau Bước 6 - không hỏi người dùng, tự động chạy tiếp Bước 7.** Chỉ dừng khi thật sự không đọc được
 diff (lỗi công cụ, không phải lỗi code). Mục đích Bước 7: khỏi phải quay lại yêu cầu "sửa mấy cái lỗi
 đó đi" - sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `fw-7-fix`) không cần hỏi.
-`06-review.md` báo Blocker=Major=Minor=0: bỏ qua Bước 7, coi Bước 6 là bước cuối.
+`06-review-<n>.md` báo Blocker=Major=Minor=0: bỏ qua Bước 7 của slice đó. `07-fix-<n>.md` có "Đề xuất
+chẻ slice": dừng hỏi *chạy lại Bước 4 với đề xuất* / *chấp nhận vượt*.
 
-**Sau Bước 7 (hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, nhắc **chưa
-commit / chưa merge / chưa push gì**.
+**Sau slice cuối (Bước 7, hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, báo
+**đã commit local theo slice, có nhánh `<slug>/<n>-<tên-slice>` cho từng slice, KHÔNG push, KHÔNG tạo
+PR, không merge**. Kèm bảng mỗi slice: nhánh, base PR, lệnh `git push -u origin <nhánh>`, title PR gợi ý
+(`git log -1 --format=%s <nhánh>`), description gợi ý (AC giao, kết quả test, "Base: <nhánh trước>").
 
 ## Nguyên tắc xuyên suốt
 
 - **Không nhảy bước.** Thiếu file bước trước thì không chạy được bước sau.
 - **Thiếu thông tin thì dừng, không đoán.** Ghi câu hỏi vào `## TÓM TẮT` rồi trả người dùng - kể cả
   Bước 7 ("tự động sửa" không có nghĩa đoán khi không chắc, chỉ là không cần hỏi *trước khi thử*).
-- **Chỉ Bước 5 và Bước 7 được sửa code thật** (file trong source tree). Bước 1/2/4/6 chỉ đọc code
+- **Chỉ Bước 5 và Bước 7 được sửa code thật** (file trong source tree) và commit (local). Bước 1/2/4/6 chỉ đọc code
   thật và ghi `.md` trong `.workflows/<SLUG>/` - Bước 6 review/phân loại lỗi nhưng không `Edit`/
   `Write` lên code. **Bước 3 viết code mẫu chỉ dưới dạng code block trong `03-role-model.md`** -
   không tạo/sửa file trong source tree, đúng nghĩa "Spike Solution" (Extreme Programming): code để
@@ -146,14 +181,16 @@ commit / chưa merge / chưa push gì**.
 - **Thiết kế mở rộng theo Open/Closed Principle (OCP) và ranh giới chống over-engineering (YAGNI).**
   Mã nguồn phải "open for extension, closed for modification": khi thêm trường hợp mới, tuyệt đối không
   chắp vá logic cũ bằng cách nối thêm các nhánh điều kiện (cascading if-else / switch-case với kiểm tra
-  `==` cụ thể). Thay vào đó, thiết kế điểm mở rộng (extension points) hướng dữ liệu (data-driven dispatch
-  table / dictionary mapping), strategy pattern, registry hoặc generalization. Ranh giới an toàn: không
-  tạo abstract class/factory/dynamic plugin phức tạp khi chỉ cần bảng tra cứu (dict/map) hoặc hàm tổng quát.
+  `==` cụ thể). Thay vào đó dùng điểm mở rộng (extension points) hướng dữ liệu (data-driven dispatch
+  table / dictionary mapping / sealed + `when`). Ranh giới an toàn: không dựng sẵn strategy, registry,
+  abstract class/factory cho trường hợp chưa có; chỉ đưa abstraction khi có ≥2 nơi dùng thật (rule of
+  three), phần còn lại ghi "Hướng mở rộng sau" ở `01-spec.md`.
 - **Một trách nhiệm theo Single Responsibility Principle (SRP).** Phép thử 1 câu: mô tả class trong
   1 câu, liệt kê MỌI trách nhiệm của class sau thay đổi (không gom chung chung); nếu câu phải dùng
-  "và/and" thì tách class riêng kèm unit test riêng (vd. `isEcsPass` trong `FemomBroadcastSender` ->
-  `EcsPassPolicy`). Ranh giới YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có
-  1 lý do thay đổi. Logic mới viết test trước (TDD), test cùng commit đầu - chi tiết ở fw-5/fw-6.
+  "và/and" thì tách class riêng (vd. `isEcsPass` trong `FemomBroadcastSender` -> `EcsPassPolicy`);
+  test theo hành vi qua API công khai, không bắt buộc 1 file test cho mỗi class tách ra. Ranh giới
+  YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có 1 lý do thay đổi. Logic mới
+  viết test trước (TDD), test cùng commit của slice - chi tiết ở fw-5/fw-6.
 - **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cớ over-engineering.** Bước 2
   xếp khuyến nghị vào nhóm trùng/nên-đổi/nên-giữ theo tiêu chí này; Bước 4/5/6 (over-engineering là
   Major)/7 đều áp dụng SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface

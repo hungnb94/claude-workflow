@@ -8,10 +8,10 @@ Structured agent workflows for feature development, generic tasks, and behavior-
 
 Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents into an official Claude Code Plugin:
 
-1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation.
+1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local commit and branch per slice, never pushed.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
 3. **Refactor Code Workflow** (`/refactor-code-workflow`) - A 7-phase workflow for behavior-preserving refactoring: scope & observable-behavior survey, refactoring/Golden Master research, seam & micro-step planning, characterization testing, micro-step refactoring, independent Behavior Preservation Audit review, and automated remediation.
-4. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
+4. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 5. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
@@ -85,12 +85,12 @@ Phase 1: Spec    Phase 2: Research   Phase 3: Role-model   Phase 4: Plan
 +-----------------------------------------------------------------+
 |
 v
-Phase 5: Impl    Phase 6: Review     Phase 7: Fix
+Phase 5: Impl    Phase 6: Review     Phase 7: Fix   (each runs per slice)
 [fw-5-impl] -->  [fw-6-review]  -->  [fw-7-fix]
  (Sonnet)         (Sonnet, NO Edit)   (Sonnet)
       |                |                   |
       v                v                   v
- 05-impl.md      06-review.md         07-fix.md
+ 05-impl-<n>.md  06-review-<n>.md     07-fix-<n>.md
 ```
 
 *Generic Task Workflow (`/generic-task-workflow`) keeps the original six-phase pipeline
@@ -129,7 +129,8 @@ Phase 7 restores from when a violation is found.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
 3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`, `rcw-6-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias. `rcw-6-review` additionally cannot read `03-plan.md`/`05-refactor.md`, so its Behavior Preservation Audit relies only on objective evidence (re-running tests, diffing against the `04-baseline/` oracle) instead of the refactoring author's rationale.
 4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents in Feature Workflow, `gtw-3-plan` in Generic Task Workflow, and `rcw-3-plan` in Refactor Code Workflow use `model: opus` for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning (seam/track/micro-step selection for `rcw-3-plan`). All other phases use `model: sonnet` for speed and deterministic execution.
-5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables, registry patterns, strategies, or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice).
+5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice). Rule of three: no abstraction before ≥2 real consumers.
+6. **Small Stacked PRs**: Feature Workflow plans slices in Phase 4 and runs Phases 5-7 per slice. Each slice is exactly one local commit on branch `<slug>/<n>-<slice-name>`, based on the previous slice, within the size budget; the workflow never pushes or opens PRs.
 
 ## Usage
 
@@ -145,6 +146,8 @@ Workflow instead for behavior-preserving refactoring):
 # Canonical plugin-namespaced command
 /workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
+
+After one plan-approval stop (after Phase 4), the workflow commits each slice locally on its own stacked branch and finally prints the `git push -u origin <branch>` commands with suggested PR titles and descriptions; nothing is pushed.
 
 ### Running Generic Task Workflow
 
@@ -182,6 +185,8 @@ For Android/Kotlin feature development that should follow Google-recommended bes
 # Canonical plugin-namespaced command
 /workflow:android-standards-workflow "<story description, Jira key, or .md path>"
 ```
+
+PRs are split into stacked slices per Feature Workflow; the Android rules keep each slice small (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions). Slices are committed locally and the push commands are printed at the end.
 
 ### Running KMP Standards Workflow
 

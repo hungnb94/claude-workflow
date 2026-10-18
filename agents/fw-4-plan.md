@@ -40,15 +40,16 @@ trước" tới khi ra thứ tự. Nếu dependencies đã hiển nhiên, sắp 
 
 ## Design Principles (áp dụng khi thiết kế, không giải thích lại định nghĩa ở đây)
 
-- **Code (SOLID)**: Single Responsibility, Open/Closed (OCP: mở rộng qua data-driven dispatch, strategy,
-  registry, generalization; không dùng cascading if-else / switch-case đóng cứng), Liskov Substitution,
+- **Code (SOLID)**: Single Responsibility, Open/Closed (OCP: không nối dài cascading if-else / switch `==`;
+  dùng bảng tra cứu/sealed + `when` khi thêm case vào chỗ đã rẽ nhánh), Liskov Substitution,
   Interface Segregation, Dependency Inversion.
 - **Content** (equivalent): Single Purpose, Extensibility, Consistency, Focused Interfaces,
   Abstraction Over Implementation.
 
-Bắt buộc: mục "Detailed Design" phải nêu principle nào áp dụng cho component nào, chỉ rõ điểm mở rộng
-(extension points) cho các trục biến thiên, ví dụ gắn context thật - không dùng ví dụ tĩnh chung chung.
-Chống over-engineering: không thêm abstraction/class/factory cho nhu cầu chưa xuất hiện (YAGNI), ưu tiên
+Bắt buộc: mục "Detailed Design" phải nêu principle nào áp dụng cho component nào, chỉ nêu điểm mở rộng
+(extension points) cho trục biến thiên đã có ≥2 trường hợp thật, ví dụ gắn context thật - không dùng ví
+dụ tĩnh chung chung. Chống over-engineering: abstraction (interface, strategy, registry, gateway, module
+dùng chung) chỉ khi có ≥2 consumer; nhu cầu chưa xuất hiện giữ ở "Hướng mở rộng sau" (YAGNI), ưu tiên
 bảng tra cứu dữ liệu (dict/map) khi đủ đáp ứng.
 </design_principles>
 
@@ -78,6 +79,18 @@ points, **extension points (điểm mở rộng OCP)**, principle áp dụng ở
 
 Chia deliverables tuần tự + dependencies (Backward Planning nếu chưa rõ) - field-spec ở `<output>`.
 
+## 5b. Slice plan
+
+Ước lượng LOC production/file của toàn bộ thay đổi. Vượt ≤~400 dòng production hoặc ≤~15 file thì tự
+chẻ: slice chuẩn bị trước (nếu cần, không đổi hành vi), sau đó các lát dọc giao trọn phần AC. Story nhỏ
+vẫn là 1 slice.
+
+- Mỗi slice có: ước lượng LOC/file, nhánh `<slug>/<n>-<tên-slice>`, base (slice 1 = `git branch
+  --show-current` lúc lập plan; slice n = nhánh n-1), AC giao, danh sách file được phép chạm (đường dẫn
+  cụ thể, gồm cả file test).
+- Mỗi slice xanh tại chỗ, không phụ thuộc slice sau; mọi deliverable thuộc đúng 1 slice.
+- Ước lượng >~5 slice thì ghi khuyến nghị chẻ story.
+
 ## 6. Test plan
 
 Unit/Integration/E2E (nếu cần)/Manual, phù hợp rủi ro của plan.
@@ -97,11 +110,12 @@ biết:
 1. **Thinking tools**: Second-order effects bắt buộc; Backward Planning chỉ khi dependencies chưa rõ
 2. **Evaluate approaches**: ≥ 2, có compare trade-offs
 3. **Apply design principles**: SOLID (code) hoặc equivalent (content)
-4. **No over-engineering**: reject approach quá complex cho problem size; không tạo abstract class/factory nếu bảng tra cứu dữ liệu (dict/map) là đủ đáp ứng YAGNI
+4. **No over-engineering**: reject approach quá complex cho problem size; không tạo abstract class/factory nếu bảng tra cứu dữ liệu (dict/map) là đủ đáp ứng YAGNI; abstraction chỉ khi ≥2 consumer
 5. **Clear rationale**: mỗi decision có explanation rõ ràng
 6. **Actionable breakdown**: đủ chi tiết để implement
 7. **Testable plan**: cover critical paths
-8. **Extension Points & OCP Evaluation**: Bắt buộc xác định extension points trong Detailed Design, giải thích cơ chế mở rộng mà không cần sửa logic cũ
+8. **Extension Points & OCP Evaluation**: Chỉ đánh giá trục biến thiên đã có thật và cơ chế không nối dài if-else; không dựng sẵn khung mở rộng; nhu cầu tương lai ghi vào Hướng mở rộng sau
+9. **Slice budget**: tự chẻ slice theo §5b khi vượt ≤~400 dòng production / ≤~15 file; mỗi slice có nhánh, base, file được phép chạm
 </constraints>
 
 <input_parameters>
@@ -118,6 +132,7 @@ Write to [WORKFLOW_DIR]/04-plan.md:
 - Approaches đã đánh giá: <tóm tắt, lý do chọn/bỏ>
 - Second-order effects chính: <rủi ro + cách giảm thiểu>
 - Danh sách thay đổi (deliverables): <tuần tự, đã xét dependencies>
+- Slice plan: <bảng n | tên | nhánh | base | AC | ước lượng LOC/file | file được phép chạm>; orchestrator chép từ bảng này vào prompt Bước 5-7
 - Test plan tóm tắt: <kịch bản cốt lõi>
 
 ## CHI TIẾT
@@ -167,7 +182,7 @@ Mỗi component: responsibility + principle applied.
 
 ### Extension Points & OCP Evaluation
 
-Các trục biến thiên, cơ chế mở rộng (data-driven dispatch/registry/strategy/generalization), và ranh giới chống over-engineering (YAGNI).
+Trục biến thiên đã có ≥2 trường hợp thật và cơ chế không nối dài if-else; KHÔNG dựng sẵn khung mở rộng; nhu cầu chưa xuất hiện ghi Hướng mở rộng sau.
 
 ### Design Principles Applied
 
@@ -184,6 +199,11 @@ Mỗi deliverable theo bảng:
 | Dependencies | có | None hoặc deliverable khác |
 | Acceptance Criteria | có | trỏ về ≥ 1 AC của `01-spec.md` |
 | Complexity | có | Small/Medium/Large |
+| Slice | có | số slice chứa deliverable |
+
+## Slice plan
+
+Trục chẻ, thứ tự, lý do mỗi slice xanh tại chỗ; bảng slice như ở TÓM TẮT.
 
 ## Test Plan
 

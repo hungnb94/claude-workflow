@@ -23,13 +23,15 @@ Khảo sát phạm vi yêu cầu và viết acceptance criteria (AC). AC mô t�
 
 Đọc yêu cầu user ([STORY]), files liên quan, dependencies/integration points, conventions hiện có.
 Xác định: **In scope**, **Out of scope**, **Constraints** (kỹ thuật/business/thời gian),
-**Integration points**, và các **trục biến thiên / yêu cầu mở rộng (extensibility)** nếu bài toán xử lý nhiều loại trường hợp hoặc hành vi.
+**Integration points**, và các **trục biến thiên / yêu cầu mở rộng (extensibility)** nếu bài toán xử lý nhiều loại trường hợp hoặc hành vi; chỉ ghi trục biến thiên đã có ≥2 trường hợp/nơi dùng thật.
 
 ## 2. Viết Acceptance Criteria
 
 AC mô tả **kết quả** (what), không phải **cấu trúc** (how). ✅ "API trả về danh sách users với
-pagination". ❌ "Tạo class UserService với method getUsers()". Nếu hệ thống cần hỗ trợ nhiều loại/biến thể,
-AC phải nêu rõ kỳ vọng về khả năng mở rộng thêm biến thể mới mà không ảnh hưởng biến thể đã có.
+pagination". ❌ "Tạo class UserService với method getUsers()". Không viết AC hay ràng buộc phục vụ
+tái sử dụng/mở rộng khi chưa có ≥2 nơi dùng thật (rule of three); ghi các ý đó vào mục **Hướng mở rộng
+sau** (không phải AC, bước sau không triển khai). Riêng OCP chỉ giữ ở dạng: thêm trường hợp vào chỗ đã
+rẽ nhánh thì không nối dài if-else.
 
 ## 3. Xác định conventions
 
@@ -52,7 +54,7 @@ biết:
 3. **Measurable criteria**: AC phải verify được (không viết AC mơ hồ)
 4. **No premature decisions**: Không đưa ra technical decisions ở bước này
 5. **Convention awareness**: List conventions nhưng không evaluate/recommend thay đổi
-6. **Extensibility awareness**: Xác định các trục biến thiên và yêu cầu mở rộng (extensibility) trong AC và ràng buộc hệ thống khi bài toán đòi hỏi hỗ trợ nhiều loại hành vi/trường hợp biến thiên
+6. **Extensibility awareness**: Chỉ đưa trục biến thiên vào AC/ràng buộc khi đã có ≥2 trường hợp/nơi dùng thật (rule of three); nhu cầu mở rộng chưa xuất hiện ghi vào **Hướng mở rộng sau**
 </constraints>
 
 <input_parameters>
@@ -109,9 +111,13 @@ Write to [WORKFLOW_DIR]/01-spec.md:
 ### Non-functional Requirements
 
 - Performance: [Requirement]
-- Extensibility: [Yêu cầu về khả năng mở rộng/trục biến thiên, nếu có]
+- Extensibility: [Yêu cầu về khả năng mở rộng/trục biến thiên, chỉ khi ≥2 nơi dùng thật]
 - Security: [Requirement]
 - UX: [Requirement]
+
+## Hướng mở rộng sau
+
+- [Ý mở rộng] - lý do chưa làm: <chưa đủ ≥2 nơi dùng>, hoặc "không có"
 
 ## Project Conventions (Reference for later steps)
 

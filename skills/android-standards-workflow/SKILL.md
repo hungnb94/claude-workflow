@@ -35,7 +35,8 @@ Dùng **Skill tool** với `skill: "feature-workflow"`. Ghép `args` theo đúng
 Ràng buộc bất biến (từ /android-standards-workflow):
 - Mọi bước tuân theo chuẩn Android/Kotlin tại [STANDARDS_PATH] - đọc trực tiếp file này.
 - Thứ tự ưu tiên: quy ước đã chốt của dự án (AGENTS.md, CLAUDE.md, docs/adr) > file chuẩn trên > best practice chung.
-- Bước 1 ghi nguyên văn 2 dòng trên vào mục "Ràng buộc bất biến" của 01-spec.md.
+- Chẻ PR theo luật slice của feature-workflow; luật Android ở §0, §3, §6.3, §7 của file chuẩn: migrate chỉ khi sửa logic đáng kể, test theo hành vi và không tính vào ngân sách, không thêm abstraction hay đưa vào :core:ui khi chỉ có 1 consumer.
+- Bước 1 ghi nguyên văn 3 dòng trên vào mục "Ràng buộc bất biến" của 01-spec.md.
 - Nếu STORY được thay bằng nội dung Jira ticket, nối nguyên khối này vào cuối STORY.
 ```
 
@@ -43,4 +44,4 @@ Quy tắc khi ghép: thay `[STANDARDS_PATH]` bằng đường dẫn tuyệt đ�
 
 ## Sau khi gọi
 
-`feature-workflow` tiếp quản toàn bộ (resume, cổng duyệt, 7 bước Research/Plan/Impl/Review/Fix). Skill này không tự spawn subagent, không tự làm lại Research/Plan/Impl/Review/Fix. Nếu Skill tool không tìm thấy `feature-workflow`: báo người dùng cài plugin `workflow@claude-workflow`, không tự mô phỏng quy trình 7 bước.
+`feature-workflow` tiếp quản toàn bộ (resume, cổng duyệt, 7 bước Research/Plan/Impl/Review/Fix). Chẻ PR theo slice là việc của feature-workflow. Skill này không tự spawn subagent, không tự làm lại Research/Plan/Impl/Review/Fix. Nếu Skill tool không tìm thấy `feature-workflow`: báo người dùng cài plugin `workflow@claude-workflow`, không tự mô phỏng quy trình 7 bước.
