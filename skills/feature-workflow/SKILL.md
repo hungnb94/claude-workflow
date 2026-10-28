@@ -77,8 +77,8 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   07-fix-<n>.md      <- Bước 7 (slice n): sửa toàn bộ Blocker/Major/Minor + ghi chú ship
 ```
 
-`.workflows/` phải nằm trong `.gitignore` repo đích; chưa có thì nhắc thêm **trước Bước 5** để
-artifact quy trình không lẫn vào commit và vùng Bước 6 dò lỗi.
+`.workflows/` phải bị git bỏ qua ở repo đích; chưa có thì orchestrator tự thêm vào `.git/info/exclude`
+**trước Bước 5** (xem "Sau Bước 4") để artifact quy trình không lẫn vào commit và vùng Bước 6 dò lỗi.
 
 Mỗi file có `## TÓM TẮT` (input bước sau) và `## CHI TIẾT` (audit). Không xoá file cũ - đây là audit
 trail.
@@ -94,8 +94,8 @@ trail.
   với bước vừa chạy lại.
 - Resume theo slice: slice n xong khi có `07-fix-<n>.md`, hoặc `06-review-<n>.md` báo
   Blocker=Major=Minor=0. Lấy k = slice nhỏ nhất chưa xong: có `06-review-<k>.md` thì chạy Bước 7 cho
-  k; có `05-impl-<k>.md` thì Bước 6 cho k; còn lại Bước 5 cho k. Có `04-plan.md` mà chưa có `05-impl-1.md` thì làm lại phần chuẩn bị "Sau Bước 4" rồi chạy Bước 5
-  cho slice 1.
+  k; có `05-impl-<k>.md` thì Bước 6 cho k; còn lại Bước 5 cho k. Có `04-plan.md` mà chưa có
+  `05-impl-1.md` thì làm lại phần chuẩn bị "Sau Bước 4" rồi chạy Bước 5 cho slice 1.
 - Có `05-impl.md` không hậu tố → layout cũ: hỏi *chạy tiếp tay theo layout cũ* / *chạy lại từ Bước 4
   theo slice*.
 - Có `03-plan.md` không có `03-role-model.md` → layout cũ (6 bước): hỏi *chạy tiếp layout cũ bằng
