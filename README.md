@@ -147,7 +147,7 @@ Workflow instead for behavior-preserving refactoring):
 /workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
 
-After one plan-approval stop (after Phase 4), the workflow commits each slice locally on its own stacked branch and finally prints the `git push -u origin <branch>` commands with suggested PR titles and descriptions; nothing is pushed.
+With no plan-approval stop (Phase 4 flows straight into Phase 5), the workflow commits each slice locally on its own stacked branch and finally prints the `git push -u origin <branch>` commands with suggested PR titles and descriptions; nothing is pushed.
 
 ### Running Generic Task Workflow
 

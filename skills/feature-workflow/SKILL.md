@@ -54,7 +54,7 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 Để PR nhỏ, dễ review, Bước 4 chẻ story thành các slice (stacked); Bước 5→6→7 chạy lần lượt từng slice.
 
 - **Ngân sách mỗi slice**: **≤~400 dòng production** (added+deleted theo `git diff --numstat`, không
-  tính test/generated) và **≤~15 file**. Ngưỡng mềm; ngoại lệ chỉ duyệt ở cổng sau Bước 4.
+  tính test/generated) và **≤~15 file**. Ngưỡng mềm; ngoại lệ ghi vào `04-plan.md` sau Bước 4.
 - **Trục chẻ**: **slice chuẩn bị** (refactor/migrate cần thiết, không đổi hành vi) đứng đầu, bỏ nếu
   không cần, không tạo slice rỗng; sau đó các lát dọc, mỗi lát giao trọn một phần AC. Story nhỏ vẫn là
   1 slice.
@@ -77,8 +77,8 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   07-fix-<n>.md      <- Bước 7 (slice n): sửa toàn bộ Blocker/Major/Minor + ghi chú ship
 ```
 
-`.workflows/` phải nằm trong `.gitignore` repo đích; chưa có thì nhắc thêm **trước Bước 5** để
-artifact quy trình không lẫn vào commit và vùng Bước 6 dò lỗi.
+`.workflows/` phải bị git bỏ qua ở repo đích; chưa có thì orchestrator tự thêm vào `.git/info/exclude`
+**trước Bước 5** (xem "Sau Bước 4") để artifact quy trình không lẫn vào commit và vùng Bước 6 dò lỗi.
 
 Mỗi file có `## TÓM TẮT` (input bước sau) và `## CHI TIẾT` (audit). Không xoá file cũ - đây là audit
 trail.
@@ -94,8 +94,8 @@ trail.
   với bước vừa chạy lại.
 - Resume theo slice: slice n xong khi có `07-fix-<n>.md`, hoặc `06-review-<n>.md` báo
   Blocker=Major=Minor=0. Lấy k = slice nhỏ nhất chưa xong: có `06-review-<k>.md` thì chạy Bước 7 cho
-  k; có `05-impl-<k>.md` thì Bước 6 cho k; còn lại Bước 5 cho k. Nếu `07-fix-<k>.md` có Đề xuất chẻ slice ≠ "không" thì hỏi lại cổng đó trước khi sang slice k+1. Có `04-plan.md` mà chưa có
-  `05-impl-1.md` thì quay lại cổng duyệt slice.
+  k; có `05-impl-<k>.md` thì Bước 6 cho k; còn lại Bước 5 cho k. Có `04-plan.md` mà chưa có
+  `05-impl-1.md` thì làm lại phần chuẩn bị "Sau Bước 4" rồi chạy Bước 5 cho slice 1.
 - Có `05-impl.md` không hậu tố → layout cũ: hỏi *chạy tiếp tay theo layout cũ* / *chạy lại từ Bước 4
   theo slice*.
 - Có `03-plan.md` không có `03-role-model.md` → layout cũ (6 bước): hỏi *chạy tiếp layout cũ bằng
@@ -146,10 +146,16 @@ convention, ảnh hưởng quyết định sản phẩm/kiến trúc): `AskUserQ
 **Sau Bước 3 - không có cổng, chạy thẳng Bước 4.** Bản mẫu throwaway; sai sót bị Bước 4 lọc ở
 "Role-model adoption". Chỉ dừng nếu Bước 3 báo `Câu hỏi cần làm rõ`.
 
-**Sau Bước 4 - điểm dừng duy nhất để duyệt kế hoạch slice.** Trình bảng slice; kiểm `git status` sạch
-(ngoài `.workflows/`) và `.workflows/` đã gitignore; >~5 slice thì đề nghị chẻ story. `AskUserQuestion`:
-*duyệt* / *chạy lại Bước 4 kèm ghi chú* / *dừng*. Ghi kết quả và ngoại lệ ngân sách vào `04-plan.md`
-(mục "Duyệt kế hoạch slice") **trước** Bước 5.
+**Sau Bước 4 - không hỏi người dùng, tự động chạy tiếp Bước 5.** Trình bảng slice trong báo cáo rồi
+làm các việc sau, không dừng:
+
+- `.workflows/` chưa gitignore: thêm `.workflows/` vào `.git/info/exclude` (không sửa `.gitignore`).
+- `git status` bẩn (ngoài `.workflows/`): vẫn chạy; ghi danh sách file bẩn vào `04-plan.md`. Slice
+  nào sửa trúng file trong danh sách thì commit luôn cả thay đổi có sẵn, và `## TÓM TẮT` cuối ghi rõ
+  "slice n đã commit kèm thay đổi có sẵn trong `<file>`".
+- >~5 slice: chỉ cảnh báo trong báo cáo, gợi ý lần sau chẻ story.
+- Ghi mục "Duyệt kế hoạch slice: tự động" vào `04-plan.md` kèm danh sách file bẩn và ngoại lệ ngân
+  sách **trước** Bước 5.
 
 **Sau Bước 5** (mỗi slice) - có mục bị chặn hoặc test đỏ chưa tự giải được: dừng, báo người dùng trước
 khi review.
@@ -158,7 +164,7 @@ khi review.
 diff (lỗi công cụ, không phải lỗi code). Mục đích Bước 7: khỏi phải quay lại yêu cầu "sửa mấy cái lỗi
 đó đi" - sửa toàn bộ Blocker/Major (bắt buộc) và Minor (theo phán đoán, xem `fw-7-fix`) không cần hỏi.
 `06-review-<n>.md` báo Blocker=Major=Minor=0: bỏ qua Bước 7 của slice đó. `07-fix-<n>.md` có "Đề xuất
-chẻ slice": dừng hỏi *chạy lại Bước 4 với đề xuất* / *chấp nhận vượt*.
+chẻ slice": không dừng, chấp nhận vượt ngân sách; ghi đề xuất vào `## TÓM TẮT` cuối.
 
 **Sau slice cuối (Bước 7, hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, báo
 **đã commit local theo slice, có nhánh `<slug>/<n>-<tên-slice>` cho từng slice, KHÔNG push, KHÔNG tạo
