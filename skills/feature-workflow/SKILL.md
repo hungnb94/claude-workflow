@@ -148,6 +148,7 @@ convention, ảnh hưởng quyết định sản phẩm/kiến trúc): `AskUserQ
 
 **Sau Bước 4 - không hỏi người dùng, tự động chạy tiếp Bước 5.** Trình bảng slice trong báo cáo rồi
 làm các việc sau, không dừng:
+
 - `.workflows/` chưa gitignore: thêm `.workflows/` vào `.git/info/exclude` (không sửa `.gitignore`).
 - `git status` bẩn (ngoài `.workflows/`): vẫn chạy; ghi danh sách file bẩn vào `04-plan.md`. Slice
   nào sửa trúng file trong danh sách thì commit luôn cả thay đổi có sẵn, và `## TÓM TẮT` cuối ghi rõ
