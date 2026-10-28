@@ -74,7 +74,7 @@ Use when existing behavior is wrong. Write facts first. Put guesses in "Suspecte
 | Actual result | Required | Say what happens. Quote error text exactly. | Nothing happens. No error is shown. |
 | Frequency | Required | Use Always, Sometimes, or Once. Add the rate if known. | Always |
 | Severity | Required | Rate the impact. Critical: no workaround, data loss, or outage. Major: main feature broken. Minor: small impact. Trivial: cosmetic. | Major |
-| Priority | Optional | Say how soon to fix it. The team decides. | TBD |
+| Priority | Optional | Say how soon to fix it. The team decides. Drop it if unknown. | High |
 | Evidence | Optional | Add logs, screenshots, or error text. Paste logs in a code block. | Console error: TypeError at checkout.js:88 |
 | Regression | Optional | Name the last version that worked. | Worked in 4.11.2 |
 | Workaround | Optional | Say how users can avoid the bug. | Use Chrome |
@@ -111,7 +111,7 @@ Use when existing behavior is wrong. Write facts first. Put guesses in "Suspecte
 <Critical / Major / Minor / Trivial>
 
 ## Priority
-<team scale or TBD>
+<team scale>
 
 ## Evidence
 <logs, screenshots, error text>

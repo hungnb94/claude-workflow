@@ -1,6 +1,6 @@
 ---
 name: issue-writing
-description: Write, improve, or split Jira and GitHub issues (user story, feature, bug report, task, chore, spike) using best-practice rules and templates. Use when the user asks to write or review an issue, ticket, bug report, or story. Do not use to create issues through an API or CLI, to do the work in an issue, to write a PRD, roadmap, sprint plan, PR description, or commit message.
+description: Write, improve, or split Jira and GitHub issues (user story, feature, bug report, task, chore, spike) using best-practice rules and templates. Use when the user asks to write or review the text of an issue, ticket, bug report, or story. Do not use to create issues through an API or CLI, to do the work in an issue, to write a PRD, roadmap, sprint plan, PR description, or commit message.
 ---
 
 # Issue Writing
@@ -56,13 +56,13 @@ Use the template in `templates.md`. Apply the writing rules. Use the format of t
 
 ### Step 4. Self-check and return
 
-Run the final checklist. Return the issue in the output format. List open questions at the end.
+Run the final checklist. Return the issue in the output format. Put open questions in the issue's "Open questions" section.
 
 ## Writing rules
 
 ### Title
 
-- Start with a verb and name the object. Be specific and short.
+- For a story, task, or spike, start with a verb and name the object. Be specific and short.
 - Keep it under about 70 characters. This is a rule of thumb, not a standard.
 - Good: "Export invoices as CSV". Bad: "CSV stuff".
 - Good: "Checkout button does nothing on Safari 17". Bad: "Fix bug".
@@ -120,13 +120,14 @@ Do not split into "frontend" and "backend" unless the team asks for it.
 ### Links and dependencies
 
 - State parent or epic, blocked by, blocks, relates to, and duplicates when they apply.
-- Use only real IDs that the user gave you. If there is no ID, describe the link and write `TBD`.
+- Use only real IDs that the user gave you. If a link applies but has no ID, describe the link and write `TBD`.
+- If no link applies, drop the Dependencies section. Do not fill it with `TBD`.
 
 ### Labels and priority
 
 - Use the labels and priority scale the team already has.
 - Do not invent new labels without saying so.
-- If you do not know, leave the field empty or write `TBD`.
+- If you do not know, drop the field. These fields are Optional.
 
 ### Plain English
 
@@ -181,7 +182,7 @@ Use the platform the user names. If it is unknown, use plain Markdown and no pla
 
 | Topic | GitHub | Jira |
 |---|---|---|
-| Format | GitHub Flavored Markdown. Task lists use `- [ ]`. | The Jira Cloud editor converts Markdown as you type. Older Jira versions may differ, so ask if unsure. |
+| Format | GitHub Flavored Markdown. Task lists use `- [ ]`. | The Jira Cloud editor converts Markdown as you type. `- [ ]` may not become a checkbox, so write checklist items as plain `-` bullets for Jira. Older Jira versions may differ, so ask if unsure. |
 | Types | Labels. Issue types exist only if the organization turned them on. | Epic, Story, Task, Bug, Subtask by default. Admins can change them. Newer docs say "work item". |
 | Templates | Markdown templates or YAML issue forms in `.github/ISSUE_TEMPLATE`. Forms can mark fields as required. | Fields are set by the Jira admin. |
 | ID | `#123`, or `owner/repo#123` for another repository. | A key such as `PROJ-123`. |
@@ -197,23 +198,23 @@ For each issue, give:
 
 - A line `Type: <type>`.
 - A line `Title: <title>`.
-- The body inside one fenced block marked `markdown`, so the user can copy it.
+- The body inside one fenced block marked `markdown`, so the user can copy it. Open the block with four backticks (````markdown) and close it with four backticks, so code blocks inside the body (logs, errors) do not end it early.
 
-After all issues, add "Open questions" and "Assumptions" if there are any. Do not add long comments.
+Open questions go in each issue's own "Open questions" section, not after all issues. After all issues, add "Assumptions" if there are any. Do not add long comments.
 
 ## Final checklist
 
 Before you return the issue, check:
 
 - [ ] The type is right.
-- [ ] The title starts with a verb and is specific.
+- [ ] The title is specific. Story, task, and spike titles start with a verb. Bug titles name the symptom and where it happens.
 - [ ] All Required fields are filled or marked `TBD`.
 - [ ] AC pass or fail, and have no vague words.
 - [ ] No fact is invented.
 - [ ] Every `TBD` has an open question.
 - [ ] The size passes INVEST. If not, split it.
-- [ ] Links and dependencies are stated or marked `TBD`.
-- [ ] Labels and priority follow the team's scheme, or are empty.
+- [ ] Links and dependencies that apply are stated, or marked `TBD` if the ID is unknown.
+- [ ] Labels and priority follow the team's scheme, or are dropped.
 - [ ] The language is plain, terms are explained, and the format fits the platform.
 
 ## Sources
