@@ -1,13 +1,13 @@
 ---
 name: pr-explainer
-description: Explain a pull request in two versions from the same facts. One is a short plain-language version built on a single everyday metaphor for non-technical readers (PM, QA, business). The other is a technical version with the verified root cause, the fix, impact, and how it was tested. Use when the user asks to explain a PR, bug fix, or change to non-technical people, or wants a PR comment that explains why a bug happened. Do not use to write a PR description or commit message, review code, fix bugs, or post comments unless the user asks.
+description: Explain a pull request in two versions from the same facts. One is a short plain-language version built on a single everyday metaphor for non-technical readers (PM, QA, business). The other is a technical version with the verified root cause, the fix, impact, and what was actually tested. The output is always in English. Use when the user asks to explain a PR, bug fix, or change to non-technical people, or wants a PR comment that explains why a bug happened. Do not use to write a PR description or commit message, review code, fix bugs, or post comments unless the user asks.
 ---
 
 # PR Explainer
 
 This skill drafts two explanations of one pull request. The user copies the text. The skill does not post a comment unless the user clearly asks.
 
-Write these instructions in plain English. Write the output in the user's language. If that is unclear, use the PR's language.
+Write these instructions in plain English. The output is always in English: the copy blocks, headings, facts table, mapping check, and the final line. Chat outside the copy blocks (open questions, assumptions, notes) follows the user's language.
 
 ## When to use
 
@@ -31,9 +31,9 @@ Find the folder of this skill with "Base directory for this skill". If it is not
 - Read `templates.md` before you write.
 - Read `references.md` only when the user asks where a rule comes from.
 - If you cannot read `templates.md`, use these minimum parts and tell the user.
-  - Facts table: problem, root cause, fix, impact, verified by.
-  - Metaphor version: what went wrong, why it matters, how we fixed it, where the comparison stops.
-  - Technical version: summary, root cause, fix and why, impact, verification, verified vs not confirmed.
+  - Facts table: problem, root cause, broken invariant (if any), fix, impact, how it was verified (only what ran), suggested checks for QA.
+  - Metaphor version: conclusion first, what went wrong, why it matters, how we fixed it, where the comparison stops.
+  - Technical version: summary, root cause, fix and why, safety net (if any), impact, how it was verified, suggested checks for QA, verified vs not confirmed.
 
 ## Workflow
 
@@ -56,11 +56,11 @@ For the current branch, run the same commands without `<number>`.
 
 ### Step 2. Fill the facts table
 
-Use the table in `templates.md`. Decide if the PR is a bug fix or a change. Mark each root cause `Verified` with evidence, or `Not confirmed`. Follow "Missing information" below.
+Use the table in `templates.md`. Decide if the PR is a bug fix or a change. Mark each root cause `Verified` with evidence, or `Not confirmed`. If the bug breaks a rule the code must always keep, write it in the "Broken invariant" row. Fill "Suggested checks for QA" from the changed code paths. Follow "Missing information" below.
 
 ### Step 3. Pick and check the metaphor
 
-Choose one everyday metaphor before you write. It must be familiar to the reader and to the culture of the output language. Fill the mapping check in `templates.md`. If it distorts scope, severity, or cause, pick another. Write the "where the comparison stops" sentence.
+Choose one everyday metaphor before you write. It must be familiar to an English-speaking, international reader. Fill the mapping check in `templates.md`, including who reads, who writes, and when. If it distorts scope, severity, or cause, pick another. Write the "where the comparison stops" sentence.
 
 ### Step 4. Write the two versions
 
@@ -78,7 +78,10 @@ Use the output format below. Do not offer to post unless the user mentioned post
 
 ### Both versions
 
-- Put the conclusion first.
+- Conclusion first: write so a reader who stops after any sentence still has the main point.
+- Why over what: the diff shows what changed. Say why it broke and why it matters before you list changes.
+- Broken invariant: when there is one, state the root cause as the rule that was broken, and the main fix as restoring that rule. Label any extra guard (null check, try/catch, skip) "Safety net, not the fix", apart from the main fix.
+- Write each version for one reader. Do not mix both audiences in one version.
 - Describe the same problem, cause, fix, and impact.
 - Avoid vague lines such as "Fix bug" or "improve stability".
 - Stay blameless. Do not name the person who caused the bug. Talk about the system.
@@ -86,13 +89,14 @@ Use the output format below. Do not offer to post unless the user mentioned post
 
 ### Metaphor version
 
-- Use one metaphor and keep it to the end.
+- Use one metaphor from the first line to the last. Do not switch, and do not save it for a closing line.
+- Structurally accurate: the metaphor must match who reads, who writes, and when. Looking alike is not enough.
+- Say where the metaphor breaks, in "Where the comparison stops".
 - Write 100 to 200 words, about one minute of reading. Count the whole copy block, labels included.
 - Use short sentences, active voice, and familiar words.
 - Use no technical terms. If you must use one, explain it in the same sentence.
 - Say "why it matters" in business words: what users saw or lost.
 - Do not guess the cause. If the root cause is `Not confirmed`, say in the metaphor that the team is still confirming why.
-- In Vietnamese, use a natural everyday metaphor. Do not translate word for word.
 
 ### Technical version
 
@@ -100,7 +104,8 @@ Use the output format below. Do not offer to post unless the user mentioned post
 - Explain the mechanism: what triggers the bug and why the old code was wrong.
 - Give the fix and why it was chosen.
 - Give impact and risks.
-- Say how it was verified: which test, how it was run.
+- Only record what was done: list only checks that actually ran, with how they ran and the result. Never write "should pass", "will be tested", or "CI will check". Put anything not run in Not confirmed or in "Suggested checks for QA".
+- Suggested checks for QA: user actions that go through the changed code path. Take them from the code, not from guesses.
 - Keep Verified and Not confirmed in separate lists.
 - Never invent test names or results.
 
@@ -111,6 +116,7 @@ Never invent a root cause, file, function, commit, number, test name, test resul
 - Blocking gap: there is no diff and no description, or it is unclear which PR. Ask first. Ask at most 5 questions in one message.
 - Non-blocking gap: write `Not confirmed` in the facts table and the technical version. The metaphor version says it is not yet clear. Do not guess. List "Open questions" after the two versions.
 - If the user says "just draft it", write with `Not confirmed` and do not ask more.
+- A test that did not run is `Not confirmed`, not a result.
 - A partly supported guess may be written. Label it "Hypothesis" and give the evidence.
 
 ## Edge cases
@@ -136,11 +142,11 @@ Write the text to a temporary file outside the repo (for example from `mktemp`),
 Return in this order.
 
 1. Facts: a short facts table outside the copy block, so the user can check it.
-2. Plain-language version (metaphor): a clear heading, then the text in a four-backtick markdown block. In Vietnamese, use "Phiên bản dễ hiểu (ẩn dụ)".
-3. Technical version: a clear heading, then the text in a four-backtick markdown block. In Vietnamese, use "Phiên bản kỹ thuật".
+2. Plain-language version (metaphor): heading "Plain-language version (metaphor)", then the text in a four-backtick markdown block.
+3. Technical version: heading "Technical version", then the text in a four-backtick markdown block. It includes "Suggested checks for QA".
 4. Metaphor check: the mapping table, outside the copy block.
-5. Open questions and Assumptions, if any.
-6. One line: "This is a draft. I have not posted it." In the output language. If you posted it on request, give the comment URL instead.
+5. Open questions and Assumptions, if any, in the user's language.
+6. One line: "This is a draft. I have not posted it." Always in English. If you posted it on request, give the comment URL instead.
 
 If the user asks for no facts table, leave out items 1 and 4. If there is no metaphor version (one version only, or no good metaphor), leave out item 4.
 
@@ -149,7 +155,7 @@ If the user asks for no facts table, leave out items 1 and 4. If there is no met
 - [ ] The facts table is filled. Every root cause is Verified with evidence or marked Not confirmed.
 - [ ] Both versions describe the same problem, cause, fix, and impact. Nothing contradicts the facts table.
 - [ ] The text still matches the final diff.
-- [ ] Metaphor version: one metaphor only, 100 to 200 words, no unexplained technical terms.
+- [ ] Metaphor version: one metaphor used from start to end, 100 to 200 words, no unexplained technical terms.
 - [ ] Metaphor version: says what went wrong, why it matters, and how it was fixed.
 - [ ] Metaphor version: has "where the comparison stops". The mapping check passed for scope, severity, and cause.
 - [ ] Technical version: cites files, functions, or commits, and explains the mechanism.
@@ -157,9 +163,16 @@ If the user asks for no facts table, leave out items 1 and 4. If there is no met
 - [ ] Technical version: Verified and Not confirmed are apart. No vague lines.
 - [ ] A PR that is not a bug fix uses the "why this change" framing.
 - [ ] No invented facts. No blame on a person. No exploit details for a security fix.
-- [ ] The language matches the user or the PR. A Vietnamese metaphor reads naturally.
+- [ ] Copy blocks, headings, facts table, and mapping check are in English. Chat outside the blocks follows the user's language. The metaphor is familiar to an international reader.
+- [ ] The first sentence of each version is the conclusion. Stopping after any sentence still gives the main point.
+- [ ] Each version says why, not only what.
+- [ ] If there is a broken invariant, the root cause names it, the fix restores it, and extra guards are labeled "Safety net, not the fix".
+- [ ] The mapping check answered "same causal structure: who reads, who writes, and when?".
+- [ ] "Where the comparison stops" says where the metaphor breaks.
+- [ ] Testing lists only checks that ran, with how and result. No "should pass", "will be tested", or "CI will check". "Suggested checks for QA" come from the code.
+- [ ] Each version has one reader.
 - [ ] Nothing was posted unless the user asked.
 
 ## Sources
 
-The rules rest on Google eng-practices, digital.gov plain language, Simon Tatham, the Google SRE Book, a practitioner blog (The Muse), and the GitHub CLI manual. See `references.md`.
+The rules rest on Google eng-practices, digital.gov plain language, Simon Tatham, the Google SRE Book, a practitioner blog (The Muse), BLUF and inverted pyramid overviews, Diátaxis, Gentner structure-mapping, Korzybski map-territory, and the GitHub CLI manual. See `references.md`.
