@@ -1,47 +1,31 @@
 # PR Explainer Templates
 
-Fill the facts table first. Both versions use only the facts in the table. Write `Not confirmed` in any cell you cannot support with evidence. In Vietnamese, write "Chưa xác định".
-
 ## Facts table
 
-| Field | Need | How to fill |
-|---|---|---|
-| PR type | Required | Bug fix, or Change (feature, refactor, performance, docs, chore, revert). |
-| Problem | Required | Bug: the symptom users see. Change: what was missing or hard. |
-| Root cause (bug) or Reason for change (non-bug) | Required | Mark `Verified` with evidence (file, function, commit, log, test) or `Not confirmed`. |
-| Contributing factors | Optional | Conditions that made the cause matter. |
-| Fix or What changed | Required | Main files and functions. |
-| Why this approach | Optional | Other options that were rejected, if known. Else `Not confirmed`. |
-| Impact | Required | Who or what is affected, scope, severity. Only from data. |
-| Risks and limits | Optional | What the change does not cover. |
-| How it was verified | Required | Tests added or run, manual checks. Else `Not confirmed`. |
-| Sources used | Required | PR number, linked issue, commits. |
-
-Skeleton:
+Fill it first. Both versions use only these facts. Leave out optional rows that do not apply.
 
 ```markdown
 | Field | Value |
 |---|---|
-| PR type | |
-| Problem | |
-| Root cause | Verified: ... (evidence) / Not confirmed |
-| Contributing factors | |
-| Fix | |
-| Why this approach | |
-| Impact | |
-| Risks and limits | |
-| How it was verified | |
-| Sources used | |
+| PR type | Bug fix, or Change (feature, refactor, performance, docs, chore, revert) |
+| Problem | Bug: the symptom users see. Change: what was missing or hard. |
+| Root cause / Reason for change | Verified: ... (file, function, commit, log, test) / Not confirmed |
+| Contributing factors | Optional: conditions that made the cause matter |
+| Broken invariant | Optional: the rule the code must always keep, written as a rule |
+| Fix / What changed | Main files and functions; how it restores the invariant |
+| Safety nets | Optional: Safety net, not the fix: ... |
+| Why this approach | Rejected options, if known / Not confirmed |
+| Impact | Who or what is affected, scope, severity. Only from data. |
+| Risks and limits | Optional: what the change does not cover |
+| How it was verified | Only checks that ran: what, how, result / Not confirmed |
+| Suggested checks for QA | Optional: user actions through the changed code path |
+| Sources used | PR number, linked issue, commits |
 ```
 
-## Metaphor version
-
-Use 100 to 200 words, about one minute of reading. Use one everyday metaphor from start to end. Open with the conclusion. Say the "why it matters" part in plain business words, not only inside the metaphor. The heading language follows the output language.
-
-### Metaphor version skeleton
+## Metaphor version skeleton
 
 ````markdown
-<One sentence in the metaphor: the problem is fixed.>
+<One sentence: the conclusion, in the metaphor. What users saw is fixed.>
 
 **What went wrong:** <what happened, in the metaphor>
 
@@ -50,42 +34,41 @@ Use 100 to 200 words, about one minute of reading. Use one everyday metaphor fro
 **How we fixed it:** <the fix, in the metaphor>
 
 **Where the comparison stops:** <one sentence on what the metaphor does not cover>
-
-<Optional: one sentence inviting questions, if still under 200 words.>
 ````
 
 ## Metaphor mapping check
 
-Fill this table before you write. Keep it short.
-
-| Metaphor part | Real part | Accurate (scope, severity, cause)? |
+| Metaphor part | Real part | Accurate? |
 |---|---|---|
 | | | |
 
-Ask three questions.
+Change the metaphor or the sentence if any answer is a problem:
 
 - Does every main part of the bug and the fix have a match?
-- Does the metaphor make the scope or severity look bigger or smaller than it is?
-- Does it suggest a cause that differs from the facts table?
+- Does it make scope or severity look bigger or smaller?
+- Does it suggest a different cause than the facts table?
+- Does it have the same causal structure: who acts on what, and in what order?
 
-If any answer is a problem, change the metaphor or fix the sentence.
+Counter-example: a double bank withdrawal (both sides write) is the wrong metaphor for a bug where one side reads while the other is halfway through writing.
 
-## Technical version
-
-Cite real files, functions, and commits. Explain the mechanism: what triggers the bug and why the old code was wrong. Keep verified facts apart from guesses.
-
-### Technical version skeleton
+## Technical version skeleton
 
 ````markdown
-**Summary:** <1-2 specific sentences: the bug and the fix. It must stand alone.>
+**Summary:** <1-2 sentences that stand alone: the bug and the fix>
 
-**Root cause:** <mechanism, with `path/file.ext`, `functionName`, commit hash. Add contributing factors.>
+**Root cause:** <the broken rule, if any. Then the mechanism, with `path/file.ext`, `functionName`, commit. Contributing factors.>
 
-**Fix and why this approach:** <what changed, and why. Other options if known.>
+**Fix and why this approach:** <how the fix restores the rule, and why. Rejected options if known.>
+
+**Safety net, not the fix:** <optional>
 
 **Impact and risks:** <who is affected, scope, limits, risks>
 
-**How it was verified:** <tests added or run, commands, results>
+**How it was verified:** <only checks that ran: what, how, result. Else Not confirmed.>
+
+**Suggested checks for QA:** <optional>
+
+1. <user action through the changed code path>
 
 **Verified:**
 
@@ -93,80 +76,70 @@ Cite real files, functions, and commits. Explain the mechanism: what triggers th
 
 **Not confirmed:**
 
-- <guess or open point, labeled "Hypothesis" if it has partial evidence>
+- <open point, or "Hypothesis" with partial evidence>
 ````
 
 ## Non-bug changes
 
-Use the same skeletons. Change the headings.
-
-| Bug heading | Non-bug heading |
-|---|---|
-| What went wrong | What was missing or hard |
-| Root cause | Why this change |
-| How we fixed it | What we changed |
-
-For a refactor, write "no behavior change expected" only when the diff or tests show it.
+Use the same skeletons with these headings: "What went wrong" becomes "What was missing or hard", "Root cause" becomes "Why this change", "How we fixed it" becomes "What we changed".
 
 ## Example
 
-Illustrative only. All names are made up.
+Illustrative only. All file names, function names, PR and issue numbers are made up.
 
-Facts table:
-
-| Field | Value |
-|---|---|
-| PR type | Bug fix |
-| Problem | Reloading the cart page applied the coupon discount twice. |
-| Root cause | Verified: `applyCoupon` in `cart/pricing.js` ran on each page load and added to the saved total. |
-| Fix | `applyCoupon` now computes the total from the base price each time. |
-| Impact | Customers with a coupon saw a price that was too low. Scope not measured. |
-| How it was verified | Verified: new test `reload keeps discount single` passes. |
-| Sources used | PR #123, issue #120 (made up). |
-
-Plain-language version (metaphor):
+Plain-language version (metaphor). For PM, QA, and business readers.
 
 ````markdown
-The double-discount problem is fixed.
+The cafe no longer closes for a moment when the specials board is updated.
 
-**What went wrong:** Think of a cashier who scans a discount voucher. If you walked away and came back, the cashier scanned the same voucher again and took off the discount a second time.
+**What went wrong:** One staff member wipes and rewrites the board. A helper copies the board onto the printed menu. Sometimes the helper copied while the board was half wiped. The copy made no sense, so the helper stopped and the cafe shut for a moment.
 
-**Why it matters:** Customers who reloaded the cart page saw a price lower than the real price. That is lost revenue, and it could confuse people at checkout.
+**Why it matters:** Some users saw the app close while their watchlist refreshed, and they had to reopen it. Their saved list was not changed.
 
-**How we fixed it:** Now the cashier starts from the shelf price every time and applies the voucher once.
+**How we fixed it:** When the staff member finishes each rewrite, they take a photo of the board. The helper now copies only from the photo, never from the board while it is being rewritten.
 
-**Where the comparison stops:** There is no cashier. A calculation step ran again on each reload, and no person made a mistake at checkout.
+**Where the comparison stops:** There are no people here. Two parts of the app ran at the same time, and nobody made a mistake. The "photo" is a copy the app takes in a split second.
 ````
 
-Technical version:
+Technical version. For reviewers.
 
 ````markdown
-**Summary:** Fix the coupon discount being applied twice when the cart page reloads.
+**Summary:** Fixes a crash during watchlist price refresh by giving the background sync a read-only snapshot taken on the main thread.
 
-**Root cause:** `applyCoupon` in `cart/pricing.js` added the discount to the saved total on every page load instead of the base price.
+**Root cause:** The rule "only the main thread reads or changes the live watchlist" was broken. `WatchlistSyncWorker.buildPayload()` looped over the live list on a background thread while `WatchlistViewModel.onPricesUpdated()` cleared and refilled it on the main thread. The loop saw a half-rebuilt list and threw `ConcurrentModificationException`. More frequent price updates may have made the overlap more likely (Not confirmed).
 
-**Fix and why this approach:** `applyCoupon` now computes the total from the base price each time. This makes the result the same on every reload.
+**Fix and why this approach:** `onPricesUpdated()` now publishes a read-only snapshot (`toList()`) on the main thread at the end of each update, and the worker reads only that snapshot. This restores the rule. The snapshot is never half-built because it is taken between updates. Copying on the background thread was rejected because the copy would loop over the live list mid-update. A lock was rejected because it could block the main thread.
 
-**Impact and risks:** Customers with a coupon saw a lower price. The number of affected orders is not measured.
+**Safety net, not the fix:** The worker catches the exception, logs it, and skips that sync round.
 
-**How it was verified:** New test `reload keeps discount single` passes.
+**Impact and risks:** Users saw the app close during a refresh and had to reopen it. The saved watchlist did not change. The snapshot can be up to one update old when the worker reads it.
+
+**How it was verified:** Not confirmed. This is an illustrative example; no test was run.
+
+**Suggested checks for QA:**
+
+1. Open a watchlist with 20+ symbols and pull to refresh several times quickly.
+2. Add and remove a symbol while prices refresh.
+3. Leave the app in the background longer than one sync interval, then reopen it. The app stays open and the list is correct.
 
 **Verified:**
 
-- Root cause in `applyCoupon` (code read).
-- New test passes.
+- Root cause in `buildPayload()` and `onPricesUpdated()` (code read).
+- The saved watchlist is unchanged, because the worker only reads (code read).
 
 **Not confirmed:**
 
-- How many orders were affected.
+- Number of affected users.
+- Whether more frequent price updates made the crash worse.
+- Test results.
 ````
 
 Mapping check:
 
 | Metaphor part | Real part | Accurate? |
 |---|---|---|
-| Cashier scans voucher again | Discount added again on reload | Yes, same cause |
-| Price lower than shelf price | Total too low | Yes, same severity |
-| Start from shelf price | Compute from base price | Yes |
-
-In Vietnamese, pick a metaphor from everyday Vietnamese life. Do not translate the English one word for word.
+| Staff member rewriting the board | Main thread clearing and refilling the list | Yes, the writer |
+| Helper copying the board | Background worker looping over the list | Yes, the reader, at the same time |
+| Copy of a half-wiped board makes no sense, helper stops | Loop sees half-rebuilt list, exception, app closes | Yes, same cause and severity (closes, no data lost) |
+| Photo taken right after each rewrite | Snapshot made on the main thread between updates | Yes |
+| Helper copies only the photo | Worker reads only the snapshot | Yes, restores the rule |

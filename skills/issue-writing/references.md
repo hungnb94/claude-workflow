@@ -39,7 +39,7 @@ These sources back the rules in SKILL.md and templates.md. All links were checke
 
 | Source | What it says | Used for |
 |---|---|---|
-| [Atlassian: Spikes](https://www.atlassian.com/agile/project-management/spikes) | A spike is time-boxed research to answer a question or lower risk. | Spike template |
+| [Scaled Agile Framework: Spikes](https://framework.scaledagile.com/spikes) | A spike is research or a small experiment to answer a question or lower risk before building. | Spike template |
 | [Mountain Goat Software: Spikes](https://www.mountaingoatsoftware.com/blog/spikes) | Start from a specific question. Limit the time. The output is knowledge, not shippable code. | Spike template |
 
 ## GitHub
