@@ -17,7 +17,7 @@ Fill the facts table first. Both versions use only the facts in the table. Write
 | Impact | Required | Who or what is affected, scope, severity. Only from data. |
 | Risks and limits | Optional | What the change does not cover. |
 | How it was verified | Required | Only checks that actually ran: what, how it was run, result. Else `Not confirmed`. |
-| Suggested checks for QA | Optional | User actions that go through the changed code path. From the code, not guesses. |
+| Suggested checks for QA | Optional | User actions that go through the changed code path. From the code, not guesses. Leave out if no user-facing path changed. |
 | Sources used | Required | PR number, linked issue, commits. |
 
 Skeleton:
@@ -64,7 +64,7 @@ Use 100 to 200 words, about one minute of reading. Use one everyday metaphor fro
 
 Fill this table before you write. Keep it short.
 
-| Metaphor part | Real part | Accurate (scope, severity, cause, who reads/writes/when)? |
+| Metaphor part | Real part | Accurate (scope, severity, cause, who acts on what and when)? |
 |---|---|---|
 | | | |
 
@@ -73,7 +73,7 @@ Ask four questions.
 - Does every main part of the bug and the fix have a match?
 - Does the metaphor make the scope or severity look bigger or smaller than it is?
 - Does it suggest a cause that differs from the facts table?
-- Does the metaphor have the same causal structure: who reads, who writes, and when?
+- Does the metaphor have the same causal structure: who acts on what, and in what order? For a timing bug: who reads, who writes, and when?
 
 If any answer is a problem, change the metaphor or fix the sentence.
 
@@ -98,7 +98,7 @@ Cite real files, functions, and commits. Explain the mechanism: what triggers th
 
 **How it was verified:** <only checks that ran: what, how, result. Else Not confirmed.>
 
-**Suggested checks for QA:**
+**Suggested checks for QA:** <optional: leave out if no user-facing path changed>
 
 1. <user action that goes through the changed code path>
 
@@ -134,8 +134,8 @@ Facts table:
 | PR type | Bug fix |
 | Problem | The app sometimes closed (crashed) while the watchlist refreshed prices. |
 | Root cause | Verified (code read): `WatchlistSyncWorker.buildPayload()` loops over the live watchlist on a background thread. At the same time `WatchlistViewModel.onPricesUpdated()` clears and refills that list on the main thread. The loop sees a half-rebuilt list and throws `ConcurrentModificationException`. |
-| Broken invariant | Only the main thread reads or changes the live watchlist. Other threads read a copy. |
 | Contributing factors | Price updates got more frequent, so the overlap happened more often. Not confirmed (no data). |
+| Broken invariant | Only the main thread reads or changes the live watchlist. Other threads read a copy. |
 | Fix | At the end of each update, on the main thread, `onPricesUpdated()` publishes a read-only snapshot (`toList()`). The worker reads only the snapshot. |
 | Why this approach | The snapshot is taken on the main thread between updates, so it is never half-built. Copying on the background thread was rejected: the copy itself would loop over the live list mid-update. A lock was rejected: it could block the main thread. |
 | Safety nets | The worker catches the exception, logs it, and skips that sync round. Safety net, not the fix. |

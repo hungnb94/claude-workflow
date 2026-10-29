@@ -9,7 +9,7 @@ These sources back the rules in SKILL.md and templates.md. All links were checke
 | Conclusion first | The reader can stop after any sentence and still have the main point. | A news bulletin: the headline and first line tell the story, and the rest adds detail. |
 | Why over what | The diff already shows what changed. The comment says why it broke and why it matters. | A doctor explains the diagnosis, not only the prescription. |
 | Broken invariant | Name the rule the code must always keep. The root cause is the broken rule, and the fix restores it. Extra guards are a safety net, not the fix. | A restaurant kitchen where only the head chef seasons the food. If another cook adds salt too, the fix is to restore that rule, not to add a taster at the pass. |
-| Structurally accurate metaphor | Match who reads, who writes, and when, not only how things look. | A key's teeth must fit the lock. A double bank withdrawal is the wrong key for a bug where one side reads while the other is mid-write. |
+| Structurally accurate metaphor | Match the causal structure (who acts on what, and in what order), not only how things look. | A key's teeth must fit the lock. A double bank withdrawal is the wrong key for a bug where one side reads while the other is mid-write. |
 | Say where the metaphor breaks | Every comparison simplifies. Say what it does not cover. | The map is not the territory. |
 | Only record what was done | List only checks that ran, with how and result. Plans go to Not confirmed or Suggested checks for QA. | Meeting minutes record only what was witnessed, not what people plan to do. |
 

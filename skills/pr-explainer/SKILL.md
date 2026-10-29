@@ -60,7 +60,7 @@ Use the table in `templates.md`. Decide if the PR is a bug fix or a change. Mark
 
 ### Step 3. Pick and check the metaphor
 
-Choose one everyday metaphor before you write. It must be familiar to an English-speaking, international reader. Fill the mapping check in `templates.md`, including who reads, who writes, and when. If it distorts scope, severity, or cause, pick another. Write the "where the comparison stops" sentence.
+Choose one everyday metaphor before you write. It must be familiar to an English-speaking, international reader. Fill the mapping check in `templates.md`, including the causal structure: who acts on what, and in what order. If it distorts scope, severity, or cause, pick another. Write the "where the comparison stops" sentence.
 
 ### Step 4. Write the two versions
 
@@ -90,7 +90,7 @@ Use the output format below. Do not offer to post unless the user mentioned post
 ### Metaphor version
 
 - Use one metaphor from the first line to the last. Do not switch, and do not save it for a closing line.
-- Structurally accurate: the metaphor must match who reads, who writes, and when. Looking alike is not enough.
+- Structurally accurate: the metaphor must match the causal structure, meaning who acts on what and in what order (for a timing bug: who reads, who writes, and when). Looking alike is not enough.
 - Say where the metaphor breaks, in "Where the comparison stops".
 - Write 100 to 200 words, about one minute of reading. Count the whole copy block, labels included.
 - Use short sentences, active voice, and familiar words.
@@ -143,7 +143,7 @@ Return in this order.
 
 1. Facts: a short facts table outside the copy block, so the user can check it.
 2. Plain-language version (metaphor): heading "Plain-language version (metaphor)", then the text in a four-backtick markdown block.
-3. Technical version: heading "Technical version", then the text in a four-backtick markdown block. It includes "Suggested checks for QA".
+3. Technical version: heading "Technical version", then the text in a four-backtick markdown block. It includes "Suggested checks for QA" when a user-facing path changed.
 4. Metaphor check: the mapping table, outside the copy block.
 5. Open questions and Assumptions, if any, in the user's language.
 6. One line: "This is a draft. I have not posted it." Always in English. If you posted it on request, give the comment URL instead.
@@ -157,9 +157,9 @@ If the user asks for no facts table, leave out items 1 and 4. If there is no met
 - [ ] The text still matches the final diff.
 - [ ] Metaphor version: one metaphor used from start to end, 100 to 200 words, no unexplained technical terms.
 - [ ] Metaphor version: says what went wrong, why it matters, and how it was fixed.
-- [ ] Metaphor version: has "where the comparison stops". The mapping check passed for scope, severity, and cause.
+- [ ] Metaphor version: "where the comparison stops" says where the metaphor breaks. The mapping check passed for scope, severity, cause, and causal structure (who acts on what, and in what order).
 - [ ] Technical version: cites files, functions, or commits, and explains the mechanism.
-- [ ] Technical version: gives the fix and why, impact and risks, and how it was verified.
+- [ ] Technical version: gives the fix and why, impact and risks, and how it was verified. Testing lists only checks that ran, with how and result. No "should pass", "will be tested", or "CI will check". "Suggested checks for QA" come from the code.
 - [ ] Technical version: Verified and Not confirmed are apart. No vague lines.
 - [ ] A PR that is not a bug fix uses the "why this change" framing.
 - [ ] No invented facts. No blame on a person. No exploit details for a security fix.
@@ -167,9 +167,6 @@ If the user asks for no facts table, leave out items 1 and 4. If there is no met
 - [ ] The first sentence of each version is the conclusion. Stopping after any sentence still gives the main point.
 - [ ] Each version says why, not only what.
 - [ ] If there is a broken invariant, the root cause names it, the fix restores it, and extra guards are labeled "Safety net, not the fix".
-- [ ] The mapping check answered "same causal structure: who reads, who writes, and when?".
-- [ ] "Where the comparison stops" says where the metaphor breaks.
-- [ ] Testing lists only checks that ran, with how and result. No "should pass", "will be tested", or "CI will check". "Suggested checks for QA" come from the code.
 - [ ] Each version has one reader.
 - [ ] Nothing was posted unless the user asked.
 
