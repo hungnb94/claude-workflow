@@ -122,6 +122,7 @@ Facts table:
 | Fix | `applyCoupon` now computes the total from the base price each time. |
 | Impact | Customers with a coupon saw a price that was too low. Scope not measured. |
 | How it was verified | Verified: new test `reload keeps discount single` passes. |
+| Sources used | PR #123, issue #120 (made up). |
 
 Plain-language version (metaphor):
 
@@ -134,7 +135,7 @@ The double-discount problem is fixed.
 
 **How we fixed it:** Now the cashier starts from the shelf price every time and applies the voucher once.
 
-**Where the comparison stops:** A real cashier remembers the voucher. Our system did not, and the cause was a calculation step, not a person.
+**Where the comparison stops:** There is no cashier. A calculation step ran again on each reload, and no person made a mistake at checkout.
 ````
 
 Technical version:

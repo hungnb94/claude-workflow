@@ -7,7 +7,7 @@ description: Explain a pull request in two versions from the same facts. One is 
 
 This skill drafts two explanations of one pull request. The user copies the text. The skill does not post a comment unless the user clearly asks.
 
-Write these instructions in plain English. Write the output in the user's language or the PR's language.
+Write these instructions in plain English. Write the output in the user's language. If that is unclear, use the PR's language.
 
 ## When to use
 
@@ -39,17 +39,19 @@ Find the folder of this skill with "Base directory for this skill". If it is not
 
 ### Step 1. Collect the input
 
-Use the first source that works. Order: a PR number or URL, the current branch, a diff or text the user pasted.
+Use the first source that works. Order: a PR number or URL, a diff or text the user pasted, the PR of the current branch. Never replace input the user gave with the current branch.
 
 ```bash
-gh pr view <number> --json title,body,files,commits,closingIssuesReferences,comments
+gh pr view <number> --json title,body,files,commits,closingIssuesReferences,comments,headRefName,headRefOid
 gh pr diff <number>
-gh issue view <number>
+gh issue view <issue-number>   # each issue in closingIssuesReferences, not the PR number
 ```
 
+For the current branch, run the same commands without `<number>`.
+
 - For a large diff, run `gh pr diff <number> --name-only` first. Then read the files that matter.
-- Without `gh` or a login, use `git log <base>..HEAD` and `git diff <base>...HEAD`. If that fails too, ask the user to paste the diff and the description.
-- Read the code around the changed functions in the local repo to confirm the cause. Read logs and tests if they exist.
+- Without `gh` or a login, use `git log <base>..HEAD` and `git diff <base>...HEAD` only when the PR is the current branch. Otherwise, or if that fails, ask the user to paste the diff and the description.
+- Read the code around the changed functions to confirm the cause. Read logs and tests if they exist. The local files show the PR code only when `git rev-parse HEAD` equals `headRefOid`. If not, read a file at the PR head with `gh api "repos/{owner}/{repo}/contents/<path>?ref=<headRefOid>" -H "Accept: application/vnd.github.raw"`, or say which local version you read.
 - Run read-only commands only. Do not check out a branch. Do not edit files.
 
 ### Step 2. Fill the facts table
@@ -127,7 +129,7 @@ Never invent a root cause, file, function, commit, number, test name, test resul
 
 Post only when the user clearly asks, for example "post it" or "comment on the PR". If it is unclear, ask whether to post both versions in one comment or only one.
 
-Write the text to a temporary file. Then run `gh pr comment <number> --body-file <file>`. To fix your own last comment, add `--edit-last`. Without `gh`, give the text for the user to paste. Report the comment URL after posting.
+Write the text to a temporary file outside the repo (for example from `mktemp`), and delete it after posting. Then run `gh pr comment <number> --body-file <file>`. To fix the comment you posted, add `--edit-last` only if your last comment on the PR is that comment. Check with `gh pr view <number> --json comments` first; `--edit-last` edits whatever your last comment is. Without `gh`, give the text for the user to paste. Report the comment URL after posting.
 
 ## Output format
 
@@ -138,9 +140,9 @@ Return in this order.
 3. Technical version: a clear heading, then the text in a four-backtick markdown block. In Vietnamese, use "Phiên bản kỹ thuật".
 4. Metaphor check: the mapping table, outside the copy block.
 5. Open questions and Assumptions, if any.
-6. One line: "This is a draft. I have not posted it." In the output language.
+6. One line: "This is a draft. I have not posted it." In the output language. If you posted it on request, give the comment URL instead.
 
-If the user asks for no facts table, leave out items 1 and 4.
+If the user asks for no facts table, leave out items 1 and 4. If there is no metaphor version (one version only, or no good metaphor), leave out item 4.
 
 ## Final checklist
 
