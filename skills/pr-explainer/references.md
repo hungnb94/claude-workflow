@@ -74,4 +74,3 @@ These are design decisions, not quotes from a source.
 - Keep two versions, not one layered comment. The two readers have different needs (Diátaxis), and one facts table keeps the versions consistent. No strong evidence for one layered comment was found on 2026-10-29.
 - The output is always English. This is a design choice for international reviewers and stable headings. Chat outside the copy blocks follows the user's language.
 - Broken invariant, "Safety net, not the fix", "Suggested checks for QA", and the banned phrases ("should pass", "will be tested", "CI will check") are skill design, not quotes.
-- GitLab handbook, Basecamp, and Stripe writing guides were considered but not added. Their content could not be verified on 2026-10-29.
