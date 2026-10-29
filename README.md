@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing.
+Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing and two-version PR explanations.
 
 ## Overview
 
-Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus a lightweight issue-writing skill, into an official Claude Code Plugin:
+Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus two lightweight skills (issue writing and PR explainer), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local commit and branch per slice, never pushed.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
@@ -14,6 +14,7 @@ Claude Workflow packages five structured workflow frameworks powered by 20 speci
 4. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 5. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 6. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
+7. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and how it was tested. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English; the output follows your language.
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
@@ -213,6 +214,18 @@ Draft a well-formed Jira or GitHub issue from a short description:
 
 The model may also use it automatically when you ask to write a ticket, bug report, or user story. It only drafts text; it does not create issues in Jira or GitHub.
 
+### Running PR Explainer
+
+Explain a pull request in two versions, a plain-language metaphor and a technical one:
+
+```bash
+/pr-explainer "<PR number or URL, or paste the diff>"
+# or, with the plugin namespace:
+/workflow:pr-explainer "<PR number or URL, or paste the diff>"
+```
+
+The model may also use it automatically when you ask to explain a PR to non-technical people. It only drafts text; it does not post a comment unless you ask.
+
 ## Subagents Reference
 
 ### Feature Workflow Subagents
@@ -326,9 +339,13 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── kmp-standards-workflow/
 │   │   ├── SKILL.md             # Orchestrator for /kmp-standards-workflow
 │   │   └── standards.md         # Kotlin Multiplatform best practices reference
-│   └── issue-writing/
-│       ├── SKILL.md             # Skill for /issue-writing (single pass, no subagents)
-│       ├── templates.md         # Story, Bug, Task, Spike templates
+│   ├── issue-writing/
+│   │   ├── SKILL.md             # Skill for /issue-writing (single pass, no subagents)
+│   │   ├── templates.md         # Story, Bug, Task, Spike templates
+│   │   └── references.md        # Verified sources for the rules
+│   └── pr-explainer/
+│       ├── SKILL.md             # Skill for /pr-explainer (single pass, no subagents)
+│       ├── templates.md         # Facts table, metaphor and technical templates
 │       └── references.md        # Verified sources for the rules
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
