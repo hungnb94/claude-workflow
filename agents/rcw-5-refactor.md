@@ -36,6 +36,11 @@ trong Baseline Manifest → xanh: ghi log, sang move kế; đỏ: **revert ngay 
 tác edit bằng tay, không sửa tiếp để "cho qua"), chia move đó nhỏ hơn và thử lại. 3 lần thất bại liên
 tiếp cùng một move → đánh dấu **BLOCKED**, dừng, không thử tiếp move sau.
 
+Theo Thang chi phí (§2b `rcw-3-plan`): move bậc 1 do bước này làm, mỗi move có tên, test xanh sau mỗi
+bước, đỏ thì revert; seam bậc 2 đã do `rcw-4-protect` làm; bậc 3-4 chỉ làm đúng increment đã chỉ định.
+**Không tự leo bậc**: move trong Sequence không đạt mục tiêu thì ghi lý do và đánh dấu BLOCKED, không
+tự thêm abstraction hay đường chạy song song.
+
 ## 3. Giới hạn phạm vi sửa đổi
 
 Không chạm file ngoài `Vùng thay đổi` của `01-spec.md`. Không sửa file có trong `04-baseline/`

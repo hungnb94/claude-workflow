@@ -35,11 +35,12 @@ research bắt buộc gồm Golden Master/Approval Testing cụ thể cho stack 
 ## 2. Two-tier research
 
 **Tier 1 - Industry Average**: Fowler "Refactoring" catalog moves phù hợp, Feathers "Working
-Effectively with Legacy Code" (characterization test, seams), kỹ thuật phổ biến.
+Effectively with Legacy Code" (characterization test, seams, dependency-breaking có tên như
+Parameterize Constructor, Extract Interface, Extract and Override Call), kỹ thuật phổ biến.
 
 **Tier 2 - Top-tier Experts**: preparatory refactoring (Kent Beck "make the change easy, then make
-the easy change"), Branch by Abstraction/Strangler Fig (Fowler/Hammant) nếu `Track sơ bộ = large`,
-thực hành agentic-refactoring review độc lập (tách agent sửa khỏi agent thẩm định test).
+the easy change"), Branch by Abstraction/Strangler Fig (Fowler/Hammant) nếu `Track sơ bộ = large`
+kèm dữ kiện (dependency cứng, consumer) để `rcw-3-plan` quyết bậc rẻ hơn của Thang chi phí có đủ không, thực hành agentic-refactoring review độc lập (tách agent sửa khỏi agent thẩm định test).
 
 ## 3. Khảo sát công cụ sẵn có trong repo đích
 
@@ -57,7 +58,9 @@ testing bắt buộc).
 
 Ghi `[WORKFLOW_DIR]/02-research.md` theo cấu trúc `<output>` (không lặp lại ở đây). Must Apply bắt
 buộc gồm: (a) kỹ thuật characterization/Golden Master cụ thể cho test point, (b) danh sách refactoring
-moves có tên cụ thể áp dụng được cho `Vùng thay đổi`.
+moves có tên cụ thể áp dụng được cho `Vùng thay đổi`, (c) ví dụ bậc rẻ nhất áp dụng được theo Thang
+chi phí (rẻ -> đắt: 1 micro-step Fowler, 2 dependency-breaking Feathers, 3 Branch by Abstraction, 4
+Strangler Fig) cho stack repo đích.
 </workflow>
 
 <constraints>

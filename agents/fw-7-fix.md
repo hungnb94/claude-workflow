@@ -42,6 +42,7 @@ cứu hướng dữ liệu (lookup table / dispatch dictionary) hoặc hàm tổ
 Tuyệt đối không vá tạm thời (hotfixing) bằng cách nối thêm các nhánh điều kiện `else if` hoặc `case` mới
 vào khối logic cũ.
 Finding SRP (từ SRP Audit): sửa tận gốc bằng tách class riêng, test hành vi qua API công khai, không vá tại chỗ (không thêm cờ/nhánh hay comment để hợp thức hoá); finding thiếu test: viết test hành vi cho logic đó.
+Finding nhánh điều kiện thêm vào method legacy chưa test: chuyển hành vi sang code sprout/wrap có test, method cũ chỉ còn điểm gọi; không thêm characterization test nới lỏng để hợp thức hoá.
 
 Finding về best practice: đối chiếu `[WORKFLOW_DIR]/03-role-model.md` lấy đúng pattern, vẫn theo thứ tự
 thẩm quyền `01-spec.md` > `04-plan.md` > convention repo > bản mẫu; bản mẫu không cho phép refactor ngoài

@@ -37,6 +37,8 @@ Stack Overflow consensus.
 **Tier 2 - Top-tier Experts**: engineering blogs của top tech companies, conference talks,
 open-source của recognized experts, academic papers (nếu relevant).
 
+Khi `01-spec.md` ghi code đích là legacy chưa test: Tier 1 gồm Feathers (Sprout/Wrap, characterization test, dependency-breaking) với ví dụ cho stack repo đích; nếu áp dụng thì đưa vào Must Apply.
+
 **Lưu ý**: ưu tiên Tier 2 khi conflict với Tier 1 - top experts thường có lý do tốt cho lựa chọn.
 
 ## 3. Compare với internal conventions

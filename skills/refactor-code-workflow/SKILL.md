@@ -38,9 +38,12 @@ làm mất oracle (không còn biết cái gì là hành vi cũ cần giữ, cá
   bug thường (reproduce → root cause → fix → test).
 - **Refactor quá nhỏ** (sửa 1-2 dòng, đổi tên biến đơn lẻ, không cần characterization test): làm trực
   tiếp, nói rõ vì sao 7 bước là thừa.
-- **Refactor quá lớn** (chạm quá nhiều module cùng lúc): không từ chối - yêu cầu chia thành increment
-  theo Branch by Abstraction (bên trong codebase) hoặc Strangler Fig (ranh giới/module), mỗi lần chạy
-  quy trình này chỉ làm **một increment**.
+- **Refactor quá lớn** (chạm quá nhiều module cùng lúc): không từ chối - thử bậc rẻ trước theo Thang
+  chi phí của `rcw-3-plan`: chia thành nhiều lần chạy track `micro` độc lập (micro-step Fowler +
+  dependency-breaking nhỏ) nếu được. Chỉ dùng Branch by Abstraction (bên trong codebase) hoặc Strangler
+  Fig (ranh giới/module) khi cần đường cũ/mới cùng tồn tại qua nhiều increment, và `rcw-3-plan` ghi lý
+  do bậc rẻ hơn không đủ - không nhảy thẳng sang hai kỹ thuật này chỉ vì track=large. Mỗi lần chạy chỉ
+  làm **một increment**.
 
 ## Kỷ luật an toàn
 
@@ -53,7 +56,7 @@ Bảng truy vết 7 kỷ luật → bước thực thi cụ thể:
 | Khoanh vùng nhỏ nhất, không refactor lan | `rcw-1-spec` (Vùng thay đổi) | `rcw-5-refactor` | `rcw-6-review` (Major nếu ngoài vùng) |
 | Không trộn bugfix/refactor/feature (Two Hats) | Cổng chặn + `rcw-1-spec` | `rcw-4-protect`/`rcw-5-refactor` (pin, không sửa) | `rcw-6-review` (Blocker nếu đổi hành vi) |
 | Micro-step, test xanh sau mỗi bước | `rcw-3-plan` (Micro-step Sequence) | `rcw-5-refactor` (revert ngay nếu đỏ) | Cổng orchestrator sau Bước 5 + `rcw-6-review` chạy lại test |
-| Branch by Abstraction / Strangler Fig cho thay đổi lớn | Cổng chặn + `rcw-3-plan` (track=large) | `rcw-5-refactor` (một increment/lần) | `rcw-6-review` (Blocker nếu đường cũ không còn chạy) |
+| Thang chi phí rẻ -> đắt; Branch by Abstraction / Strangler Fig chỉ khi bậc rẻ không đủ | Cổng chặn + `rcw-3-plan` (Thang chi phí, track=large) | `rcw-5-refactor` (move bậc 1; một increment/lần ở bậc 3-4) | `rcw-6-review` (Blocker nếu đường cũ không còn chạy; Major nếu vượt bậc có bằng chứng diff) |
 | Coverage mở rộng dần, đo bằng diff coverage không giảm | `rcw-4-protect` (đo trước, mở đầu) | `rcw-4-protect` (đo trước), `rcw-5-refactor` (đo sau) | `rcw-6-review` (Major nếu giảm) + `rcw-7-fix` |
 
 ## Tham số & khởi tạo

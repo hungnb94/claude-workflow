@@ -43,7 +43,10 @@ red (đang fail - **dừng, không refactor trên nền đỏ**), hoặc none (c
 
 Ghi nhận ứng viên seam (nơi có thể cắt dependency mà không sửa code tại chỗ - object seam qua
 interface/injection ưu tiên). Ước lượng track: `micro` (vài file, vài giờ) hay `large` (nhiều
-module, cần Branch by Abstraction/Strangler Fig) - `rcw-3-plan` sẽ chốt lại.
+module, chỉ khi bậc rẻ của Thang chi phí ở `rcw-3-plan` không đủ; thang rẻ -> đắt: 1 micro-step Fowler, 2
+dependency-breaking Feathers, 3 Branch by Abstraction, 4 Strangler Fig) - `rcw-3-plan` sẽ chốt lại. Với
+từng phần của `Vùng thay đổi`, ghi ứng viên bậc rẻ nhất (move Fowler hoặc dependency-breaking có
+tên) vào `Ứng viên seam`.
 
 ## 5. Phân loại lại nếu sai phạm vi
 
