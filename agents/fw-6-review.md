@@ -71,6 +71,8 @@ cascading `if-elif` so khớp giá trị cụ thể `==`, logic chắp vá thêm
 dùng bảng tra cứu dữ liệu (dict/map), registry, strategy pattern hoặc generalization. Cân bằng với YAGNI
 để không bắt bẻ những nơi chỉ cần hàm đơn giản.
 
+**Legacy chưa test (Sprout/Wrap)**: khi `01-spec.md` ghi code đích là legacy chưa test, hunk ở method cũ chỉ là điểm gọi tối thiểu (một lời gọi không điều kiện, hoặc rename + method bọc cùng tên) thì KHÔNG phải vi phạm OCP. Kiểm bằng diff: code mới có test hành vi, method cũ không thêm nhánh điều kiện. Phương pháp phải ở bậc thấp nhất đủ dùng: abstraction/đường song song chỉ có 1 consumer là Major.
+
 **Scope & Budget Audit (Kiểm toán phạm vi và ngân sách)**:
 LOC production = added+deleted từ `git diff --numstat`, bỏ dòng nhị phân, loại path test (`test/`,
 `tests/`, `androidTest/`, `testFixtures/`, `__tests__/`, `*Test.*`, `*Tests.*`, `*_test.*`, `*.spec.*`) và
@@ -96,7 +98,7 @@ Mỗi issue classify theo bảng, anchor vào AC/Must Apply/Should Apply (không
 | Severity | Khi nào dùng | Ví dụ |
 |---|---|---|
 | 🔴 Blocker | Vi phạm AC/"Must Apply"; bug nghiêm trọng (crash/mất data/security); vi phạm OCP nghiêm trọng (rẽ nhánh đóng cứng phá vỡ extension points hoặc chắp vá nhánh `==` vi phạm AC/Must Apply); diff mới thêm trách nhiệm thứ hai vào class (SRP Audit) | AC không đạt, SQL injection, chuỗi cascading if-elif `==` ở core router/handler thay vì dispatch table; thêm `isEcsPass()` vào `FemomBroadcastSender` |
-| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai); class đã lẫn trách nhiệm từ trước, diff chỉ chạm vào (SRP Audit); hàm/class có logic mới thiếu test hành vi; vượt BUDGET; chạm file ngoài FILES; thay đổi không gắn AC của slice; abstraction (interface/strategy/registry/gateway/module dùng chung) chỉ 1 impl hoặc 1 consumer; slice không đúng 1 commit | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table; commented-out code hoặc comment thừa lặp lại có hệ thống (từ 3 chỗ trong diff); hàm có rẽ nhánh mới không có test |
+| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai); class đã lẫn trách nhiệm từ trước, diff chỉ chạm vào (SRP Audit); hàm/class có logic mới thiếu test hành vi; thêm nhánh điều kiện/logic mới vào method legacy chưa test mà diff không có characterization test hoặc code sprout/wrap có test; vượt BUDGET; chạm file ngoài FILES; thay đổi không gắn AC của slice; abstraction (interface/strategy/registry/gateway/module dùng chung) chỉ 1 impl hoặc 1 consumer; slice không đúng 1 commit | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table; commented-out code hoặc comment thừa lặp lại có hệ thống (từ 3 chỗ trong diff); hàm có rẽ nhánh mới không có test |
 | 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng | Style, optimization, comment thừa lẻ tẻ |
 
 **Quy tắc quyết định**: khớp nhiều mức → lấy mức CAO nhất; nghi ngờ giữa hai mức → escalate, ghi lý

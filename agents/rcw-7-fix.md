@@ -43,6 +43,9 @@ Với mỗi finding, xử lý theo loại:
 - **Chạm file ngoài Vùng thay đổi**: revert phần ngoài phạm vi, hoặc nếu cần thiết thật sự thì tách
   thành `Phát hiện ngoài phạm vi`/follow-up, không giữ trong lần fix này.
 - **Coverage giảm/thiếu test unit mới tách**: bổ sung test ở file mới (không sửa file baseline).
+- **Vượt bậc thang chi phí**: gỡ cấu trúc thừa (abstraction 1 implementation/1 consumer, đường song
+  song không cần) về move bậc thấp hơn bằng micro-step trong `Vùng thay đổi`, test baseline xanh sau
+  mỗi bước.
 - **Vi phạm OCP**: root-cause sang bảng tra cứu dữ liệu/registry/strategy, không chắp vá thêm nhánh
   `else if`/`case`.
 

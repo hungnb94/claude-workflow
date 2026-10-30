@@ -62,6 +62,8 @@ thêm vào `FemomBroadcastSender` -> "gửi broadcast VÀ quyết định ECS pa
 test hành vi của luật ECS qua API công khai. Ranh giới YAGNI: không tách
 helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi.
 
+**Sprout/Wrap theo plan**: plan chọn Sprout/Wrap thì viết test cho method/class mới trước (bước 3), code cũ chỉ sửa tối thiểu tại điểm gọi, không thêm nhánh điều kiện vào method cũ. Plan chọn harness thì dependency-breaking + characterization test nằm ở slice chuẩn bị. Không tự leo bậc khác plan: không đạt thì ghi lý do và BLOCKED.
+
 ## 3. TDD và testing (for code tasks)
 
 TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. Hàm/class mới

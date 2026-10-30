@@ -191,6 +191,10 @@ PR, không merge**. Kèm bảng mỗi slice: nhánh, base PR, lệnh `git push -
   table / dictionary mapping / sealed + `when`). Ranh giới an toàn: không dựng sẵn strategy, registry,
   abstract class/factory cho trường hợp chưa có; chỉ đưa abstraction khi có ≥2 nơi dùng thật (rule of
   three), phần còn lại ghi "Hướng mở rộng sau" ở `01-spec.md`.
+- **Legacy chưa test: rẻ trước, đắt sau.** Thêm hành vi vào code chưa test thì thử Sprout/Wrap
+  (Feathers) trước, rồi mới đưa class cũ vào harness ở slice chuẩn bị, rồi mới Branch by Abstraction /
+  Strangler Fig; thang và tiêu chí ở `fw-4-plan` (§2b). Sprout/Wrap chèn MỘT điểm gọi tối thiểu vào code
+  cũ, hành vi mới viết test trước ở code mới, tương thích OCP; leo bậc phải ghi lý do.
 - **Một trách nhiệm theo Single Responsibility Principle (SRP).** Phép thử 1 câu: mô tả class trong
   1 câu, liệt kê MỌI trách nhiệm của class sau thay đổi (không gom chung chung); nếu câu phải dùng
   "và/and" thì tách class riêng (vd. `isEcsPass` trong `FemomBroadcastSender` -> `EcsPassPolicy`);

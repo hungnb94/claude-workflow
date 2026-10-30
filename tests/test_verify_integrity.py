@@ -470,5 +470,110 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("rcw-6-review", readme_content)
 
 
+    def test_cost_ladder_guardrails(self):
+        """Verify the cheapest-first cost ladders in refactor-code-workflow and feature-workflow."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        def section(text, start, end):
+            return text.split(start, 1)[1].split(end, 1)[0]
+
+        def assert_ordered(text, tokens):
+            positions = []
+            for token in tokens:
+                self.assertIn(token, text)
+                positions.append(text.index(token))
+            self.assertEqual(positions, sorted(positions))
+
+        reason = "Lý do bậc rẻ hơn không đủ"
+        rcw3 = read("agents", "rcw-3-plan.md")
+        ladder = section(rcw3, "## 2b. Thang chi phí refactor", "## 3.")
+        assert_ordered(
+            ladder,
+            [
+                "| 1. micro-step Fowler",
+                "| 2. dependency-breaking Feathers",
+                "| 3. Branch by Abstraction",
+                "| 4. Strangler Fig",
+            ],
+        )
+        for token in (
+            "Parameterize Constructor",
+            "Extract Interface",
+            "Extract and Override Call",
+            "make the change easy",
+            "feature-workflow",
+        ):
+            self.assertIn(token, ladder)
+        self.assertIn(reason, section(rcw3, "<constraints>", "</constraints>"))
+        self.assertIn(reason, rcw3.split("<output>", 1)[1])
+
+        rcw_skill = read("skills", "refactor-code-workflow", "SKILL.md")
+        self.assertIn("Thang chi phí", rcw_skill)
+        self.assertIn("Thang chi phí", read("agents", "rcw-1-spec.md"))
+        self.assertIn("Thang chi phí", read("agents", "rcw-2-research.md"))
+
+        for name in (
+            "rcw-1-spec",
+            "rcw-2-research",
+            "rcw-4-protect",
+            "rcw-5-refactor",
+            "rcw-6-review",
+            "rcw-7-fix",
+        ):
+            content = read("agents", f"{name}.md")
+            self.assertNotIn("Sprout", content)
+            self.assertNotIn("Wrap Method", content)
+        self.assertNotIn("Sprout", rcw_skill)
+
+        self.assertIn("Không tự leo bậc", read("agents", "rcw-5-refactor.md"))
+        rcw6 = read("agents", "rcw-6-review.md")
+        self.assertIn("bậc thấp nhất đủ dùng", rcw6)
+        self.assertIn("03-plan.md", rcw6)
+        self.assertNotIn("Edit", vi.parse_frontmatter(rcw6).get("tools"))
+
+        fw4 = read("agents", "fw-4-plan.md")
+        ladder = section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3.")
+        assert_ordered(
+            ladder,
+            [
+                "| 1. Sprout/Wrap",
+                "| 2. Đưa vào harness",
+                "| 3. Branch by Abstraction / Strangler Fig",
+            ],
+        )
+        for token in (
+            "Sprout Method",
+            "Sprout Class",
+            "Wrap Method",
+            "Wrap Class",
+            "characterization test",
+            "≥2 consumer",
+        ):
+            self.assertIn(token, ladder)
+        self.assertIn(reason, section(fw4, "<constraints>", "</constraints>"))
+        self.assertIn(reason, fw4.split("<output>", 1)[1])
+
+        fw_skill = read("skills", "feature-workflow", "SKILL.md")
+        self.assertIn("Sprout/Wrap", fw_skill)
+        self.assertIn("fw-4-plan", fw_skill)
+        self.assertIn("legacy chưa test", read("agents", "fw-1-spec.md"))
+        self.assertIn("Sprout/Wrap", read("agents", "fw-2-research.md"))
+        fw5 = read("agents", "fw-5-impl.md")
+        self.assertIn("Sprout", fw5)
+        self.assertIn("điểm gọi", fw5)
+        fw6 = read("agents", "fw-6-review.md")
+        self.assertIn("bậc thấp nhất đủ dùng", fw6)
+        self.assertIn("điểm gọi", fw6)
+        self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools"))
+
+        for text in (rcw3, fw4, rcw_skill, fw_skill):
+            self.assertNotIn("http://", text)
+            self.assertNotIn("https://", text)
+
+        self.assertIn("cost ladder", read("README.md"))
+
+
 if __name__ == "__main__":
     unittest.main()

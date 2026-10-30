@@ -24,6 +24,7 @@ Khảo sát phạm vi yêu cầu và viết acceptance criteria (AC). AC mô t�
 Đọc yêu cầu user ([STORY]), files liên quan, dependencies/integration points, conventions hiện có.
 Xác định: **In scope**, **Out of scope**, **Constraints** (kỹ thuật/business/thời gian),
 **Integration points**, và các **trục biến thiên / yêu cầu mở rộng (extensibility)** nếu bài toán xử lý nhiều loại trường hợp hoặc hành vi; chỉ ghi trục biến thiên đã có ≥2 trường hợp/nơi dùng thật.
+Nếu code đích là legacy chưa test: ghi vào Constraints/Integration points việc có test bao phủ không (grep/chạy thử), class có khởi tạo được trong test không, seam có sẵn, số consumer. Đây chỉ là dữ kiện để Bước 4 chọn bậc, không chọn kỹ thuật ở bước này.
 
 ## 2. Viết Acceptance Criteria
 

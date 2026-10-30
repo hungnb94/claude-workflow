@@ -93,12 +93,26 @@ comment có sẵn bị di chuyển nguyên vẹn), best practice theo `02-resear
 Rà soát vi phạm Open/Closed: cascading if-elif/switch-case `==` chắp vá thêm case mới thay vì bảng
 tra cứu dữ liệu/registry/strategy. Cân bằng YAGNI - không bắt bẻ nơi chỉ cần hàm đơn giản.
 
+## 5b. Method Cost Audit (bậc thấp nhất đủ dùng)
+
+Chỉ dựa vào diff, `01-spec.md` (`Vùng thay đổi`, AC cấu trúc) và Track trong Baseline Manifest, không
+đọc `03-plan.md`/`05-refactor.md`. 🟡 Major khi diff thêm cấu trúc kiểu thay thế lớn (lớp abstraction
+bọc implementation cũ, hai implementation cũ/mới chạy song song, facade/router chuyển hướng) và một
+trong hai:
+
+- diff chỉ cho thấy 1 implementation thật hoặc 1 consumer;
+- Track=micro trong Manifest.
+
+Finding phải nêu move rẻ hơn cụ thể đạt cùng AC cấu trúc; thiếu evidence `file:line` thì chỉ ghi Minor.
+Thêm hành vi
+qua method/class mới gọi từ code cũ vẫn là đổi hành vi (Blocker theo bước 3).
+
 ## 6. Classify findings
 
 | Severity | Khi nào dùng |
 |---|---|
 | 🔴 Blocker | Test baseline đỏ; test loosening; đổi hành vi quan sát được; đường cũ ngừng chạy ở large track; vi phạm AC/Must Apply nghiêm trọng |
-| 🟡 Major | Chạm file ngoài vùng; coverage giảm/unit mới thiếu test; characterization test yếu; vi phạm Should Apply; OCP cục bộ; commented-out code production hoặc comment thừa có hệ thống (từ 3 chỗ) |
+| 🟡 Major | Chạm file ngoài vùng; coverage giảm/unit mới thiếu test; characterization test yếu; vi phạm Should Apply; OCP cục bộ; vượt bậc thang chi phí (5b); commented-out code production hoặc comment thừa có hệ thống (từ 3 chỗ) |
 | 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng (vd comment thừa lẻ tẻ) |
 
 Thiếu evidence `file:line` hoặc đường dẫn diff cụ thể → KHÔNG được gán Blocker/Major.
@@ -124,6 +138,7 @@ Ghi `[WORKFLOW_DIR]/06-review.md` theo cấu trúc `<output>` (không lặp lạ
 5. **No Edit permission**: chỉ find/classify, không fix; tuyệt đối tuân thủ least privilege
 6. **Balance**: acknowledge good work, ưu tiên impact
 7. **Extensibility Audit**: kiểm tra vi phạm OCP, phân loại Blocker/Major theo mức độ
+8. **Method Cost Audit**: kiểm bậc thấp nhất đủ dùng chỉ từ diff, `01-spec.md` và Baseline Manifest
 </constraints>
 
 <input_parameters>
