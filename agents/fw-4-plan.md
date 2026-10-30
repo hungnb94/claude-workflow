@@ -92,17 +92,19 @@ Thứ tự chi phí gợi ý Sprout Method < Sprout Class < Wrap Method < Wrap C
   đoán.
 - Tương thích OCP: điểm gọi là một lời gọi không điều kiện (hoặc rename + method bọc), không phải
   nhánh if-else mới.
-- YAGNI: không dựng interface/abstraction cho Sprout Class/Wrap Class; Branch by Abstraction chỉ khi
+- YAGNI: không dựng interface/abstraction mới cho Sprout Class/Wrap Class (Wrap Class dùng lại kiểu/interface
+  sẵn có của class cũ; không có thì gọi lớp bọc trực tiếp tại điểm gọi); Branch by Abstraction chỉ khi
   ≥2 consumer.
-- Bậc 2 là slice chuẩn bị (không đổi hành vi), tách khỏi slice thêm hành vi.
+- Bậc 2 là slice chuẩn bị (không đổi hành vi), tách khỏi slice thêm hành vi; đây là lý do chẻ slice
+  hợp lệ dù chưa vượt ngân sách §5b.
 - Code sprout/wrap viết TDD, test cùng commit của slice.
 
 ## 3. Choose approach
 
 Ưu tiên: (1) đạt mọi AC, (2) theo Must Apply, (3) ít second-order effects tiêu cực nhất, (4)
 complexity phù hợp, (5) khả thi trong constraints, (6) đối chiếu `03-role-model.md` - nếu chưa đạt, do
-constraint thật hay chỉ quán tính?, (7) bậc thấp nhất của Thang chi phí §2b khi code đích là legacy
-chưa test.
+constraint thật hay chỉ quán tính?. Code đích là legacy chưa test: trước khi xếp theo thứ tự trên, chỉ
+giữ approach ở bậc thấp nhất đủ dùng của Thang chi phí §2b (ràng buộc cứng, constraint 10).
 
 ## 4. Detailed design
 
@@ -117,7 +119,7 @@ Chia deliverables tuần tự + dependencies (Backward Planning nếu chưa rõ)
 
 Ước lượng LOC production/file của toàn bộ thay đổi. Vượt ≤~400 dòng production hoặc ≤~15 file thì tự
 chẻ: slice chuẩn bị trước (nếu cần, không đổi hành vi), sau đó các lát dọc giao trọn phần AC. Story nhỏ
-vẫn là 1 slice.
+vẫn là 1 slice, trừ khi §2b chọn bậc 2 (slice chuẩn bị + slice hành vi).
 
 - Mỗi slice có: ước lượng LOC/file, nhánh `<slug>/<n>-<tên-slice>`, base (slice 1 = `git branch
   --show-current` lúc lập plan; slice n = nhánh n-1), AC giao, danh sách file được phép chạm (đường dẫn

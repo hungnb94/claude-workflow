@@ -100,12 +100,15 @@ Chỉ dựa vào diff, `01-spec.md` (`Vùng thay đổi`, AC cấu trúc) và Tr
 bọc implementation cũ, hai implementation cũ/mới chạy song song, facade/router chuyển hướng) và một
 trong hai:
 
-- diff chỉ cho thấy 1 implementation thật hoặc 1 consumer;
-- Track=micro trong Manifest.
+- Track=micro trong Manifest;
+- Track=large nhưng abstraction chỉ có 1 consumer (không có lý do cho đường cũ/mới cùng tồn tại).
+
+Ở Track=large, increment đầu của Branch by Abstraction chỉ có implementation cũ là hợp lệ, không phải
+finding. Seam dependency-breaking có tên (Extract Interface, Parameterize Constructor...) để đưa code
+vào test không tính là cấu trúc thay thế lớn.
 
 Finding phải nêu move rẻ hơn cụ thể đạt cùng AC cấu trúc; thiếu evidence `file:line` thì chỉ ghi Minor.
-Thêm hành vi
-qua method/class mới gọi từ code cũ vẫn là đổi hành vi (Blocker theo bước 3).
+Thêm hành vi qua method/class mới gọi từ code cũ vẫn là đổi hành vi (Blocker theo bước 3).
 
 ## 6. Classify findings
 

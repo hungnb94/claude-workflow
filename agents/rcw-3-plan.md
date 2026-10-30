@@ -56,7 +56,7 @@ Golden Master hay assertion-based cho mỗi test point.
 
 ## 2b. Thang chi phí refactor (rẻ -> đắt)
 
-Luôn bắt đầu ở bậc 1, chỉ leo bậc khi bậc hiện tại không đủ. Đây là heuristic của workflow, tổng hợp
+Luôn xét từ bậc 1, chỉ leo bậc khi bậc hiện tại không đủ. Đây là heuristic của workflow, tổng hợp
 từ Fowler (Refactoring), Feathers (Working Effectively with Legacy Code), Fowler/Hammant (Branch by
 Abstraction) và Fowler (Strangler Fig), không phải quy tắc chuẩn ngành.
 

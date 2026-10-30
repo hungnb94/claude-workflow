@@ -469,7 +469,6 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("rcw-1-spec", readme_content)
         self.assertIn("rcw-6-review", readme_content)
 
-
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladders in refactor-code-workflow and feature-workflow."""
 
@@ -530,7 +529,10 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Không tự leo bậc", read("agents", "rcw-5-refactor.md"))
         rcw6 = read("agents", "rcw-6-review.md")
         self.assertIn("bậc thấp nhất đủ dùng", rcw6)
-        self.assertIn("03-plan.md", rcw6)
+        cost_audit = section(rcw6, "## 5b. Method Cost Audit", "## 6.")
+        self.assertIn("Baseline Manifest", cost_audit)
+        self.assertIn("Track=micro", cost_audit)
+        self.assertIn("increment đầu của Branch by Abstraction", cost_audit)
         self.assertNotIn("Edit", vi.parse_frontmatter(rcw6).get("tools"))
 
         fw4 = read("agents", "fw-4-plan.md")
