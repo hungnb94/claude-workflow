@@ -15,7 +15,7 @@ These sources back the rules in SKILL.md and templates.md. All links were checke
 
 | Source | What it says | Used for |
 |---|---|---|
-| [Atlassian: Acceptance criteria](https://www.atlassian.com/agile/project-management/acceptance-criteria) | Acceptance criteria are clear, testable conditions. They are agreed before work starts. | Acceptance criteria |
+| [Atlassian: Acceptance criteria](https://www.atlassian.com/work-management/project-management/acceptance-criteria) | Acceptance criteria are clear, testable conditions. They are agreed before work starts. | Acceptance criteria |
 | [Cucumber: Gherkin reference](https://cucumber.io/docs/gherkin/reference/) | Given sets the context, When is the action, Then is the expected outcome. | Acceptance criteria |
 | [Cucumber: Better Gherkin](https://cucumber.io/docs/bdd/better-gherkin/) | Keep each scenario to one behavior. Describe what happens, not each UI step. | Acceptance criteria |
 | [Martin Fowler: Given When Then](https://martinfowler.com/bliki/GivenWhenThen.html) | Short overview of the Given/When/Then style. | Acceptance criteria |
