@@ -1,6 +1,6 @@
 ---
 name: issue-writing
-description: Write, improve, or split Jira and GitHub issues (user story, feature, bug report, task, chore, spike) using best-practice rules and templates. Use when the user asks to write or review the text of an issue, ticket, bug report, or story. Do not use to create issues through an API or CLI, to do the work in an issue, to write a PRD, roadmap, sprint plan, PR description, or commit message.
+description: Write, improve, or split Jira and GitHub issues (user story, feature, bug report, task, chore, spike) using best-practice rules and templates. Use when the user asks to write or review the text of an issue, ticket, bug report, or story. Do not use to create issues through an API or CLI, to do the work in an issue, to write a PRD, roadmap, sprint plan, or PR description. For commit messages, use atomic-commit.
 ---
 
 # Issue Writing
@@ -21,7 +21,8 @@ Write in plain English. Use short sentences.
 - Creating issues through an API, CLI, or MCP tool.
 - Doing the work described in an issue.
 - Writing a PRD, roadmap, or sprint plan.
-- Writing a PR description or commit message.
+- Writing a PR description.
+- Writing a commit message (use `atomic-commit`).
 
 ## Supporting files
 
