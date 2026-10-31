@@ -151,7 +151,8 @@ báo người dùng trước khi review.
 Minor=0: bỏ qua Bước 7, coi Bước 6 là bước cuối.
 
 **Sau Bước 7 (hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, nhắc **chưa
-commit / chưa merge / chưa push gì**.
+commit / chưa merge / chưa push gì**. Gợi ý dùng `/atomic-commit` để tạo hai commit `test:` rồi
+`refactor:`.
 
 ## Nguyên tắc xuyên suốt
 

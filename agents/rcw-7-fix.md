@@ -70,8 +70,9 @@ cần rà soát ở `rcw-3-plan`/`rcw-5-refactor`.
 ## 6. Prepare publication checklist
 
 Gợi ý **hai commit tách biệt**: `test: <mô tả characterization test thêm>` trước, rồi
-`refactor: <mô tả refactor>` sau (Two Hats - tách commit test khỏi commit đổi cấu trúc). Không tự
-commit/push. Rollback plan tách Command/Time/Impact.
+`refactor: <mô tả refactor>` sau (Two Hats - tách commit test khỏi commit đổi cấu trúc). Mỗi commit một
+thay đổi logic, message theo chuẩn `atomic-commit` (Conventional Commits + Beams); người dùng có thể chạy
+`/atomic-commit` để tạo hai commit này. Không tự commit/push. Rollback plan tách Command/Time/Impact.
 
 ## 7. Viết output file
 
@@ -153,6 +154,8 @@ Learnings.
 |---|---|
 | `test: ...` | Characterization test thêm ở `rcw-4-protect` |
 | `refactor: ...` | Refactor move đã thực hiện ở `rcw-5-refactor`/`rcw-7-fix` |
+
+Message theo chuẩn `atomic-commit`.
 
 ### Post-publication
 
