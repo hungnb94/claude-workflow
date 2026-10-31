@@ -1,7 +1,7 @@
 {
   "hooks": {
-    "Stop": [{"hooks": [{"type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" stop", "timeout": 10}]}],
-    "PreToolUse": [{"matcher": "AskUserQuestion", "hooks": [{"type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" question", "timeout": 10}]}],
-    "Notification": [{"matcher": "permission_prompt|elicitation_dialog", "hooks": [{"type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" notification", "timeout": 10}]}]
+    "Stop": [{"hooks": [{"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" stop", "timeout": 10}]}],
+    "PreToolUse": [{"matcher": "AskUserQuestion", "hooks": [{"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" question", "timeout": 10}]}],
+    "Notification": [{"matcher": "permission_prompt|elicitation_dialog", "hooks": [{"type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh\" notification", "timeout": 10}]}]
   }
 }

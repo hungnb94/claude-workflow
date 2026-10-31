@@ -294,7 +294,7 @@ class TestHooksConfig(unittest.TestCase):
                 self.assertEqual(len(entry["hooks"]), 1)
                 hook = entry["hooks"][0]
                 self.assertEqual(hook["type"], "command")
-                self.assertIn("${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh", hook["command"])
+                self.assertEqual(hook["command"], f'sh "${{CLAUDE_PLUGIN_ROOT}}/hooks/notify.sh" {kind}')
                 self.assertTrue(hook["command"].endswith(" " + kind))
                 self.assertIsInstance(hook["timeout"], int)
                 self.assertTrue(0 < hook["timeout"] <= 10)
