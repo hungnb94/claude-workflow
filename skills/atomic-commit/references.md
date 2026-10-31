@@ -8,7 +8,7 @@ These sources back the rules in SKILL.md and templates.md. All links were checke
 |---|---|---|
 | [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/) | Commits use the form `type: description`. Types other than `feat` and `fix` may be used, for example `docs:`. | Commit message rules, Types |
 | [Chris Beams: How to write a Git commit message](https://cbea.ms/git-commit/) | The seven rules: blank line after subject, 50 characters (not a hard limit, 72 is), capitalize, no period, imperative, wrap body at 72, explain what and why. | Commit message rules, Commit message template |
-| `.github/workflows/pr-governance.yml` (this repo, not a web link) | Lists the 11 allowed types and does not require a scope. | Types, Commit message rules |
+| `.github/workflows/pr-governance.yml` in the claude-workflow repo (not a web link) | Lists the 11 allowed types and does not require a scope. | Types, Commit message rules |
 
 ## Atomic commits
 

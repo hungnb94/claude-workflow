@@ -12,7 +12,7 @@ Rules:
 
 - The header is the whole first line, including the `type(scope):` prefix. Aim for 50 characters or less. 72 is the hard limit.
 - Use the imperative mood: "add", not "added" or "adds". The header should complete: "If applied, this commit will ...".
-- Start the subject with a lowercase letter after the colon. Conventional Commits replaces the Beams capital-letter rule here. It also matches the history of this repo.
+- Start the subject with a lowercase letter after the colon. Conventional Commits replaces the Beams capital-letter rule here.
 - Do not end the subject with a period.
 - Put one blank line between the header and the body.
 - Wrap body lines at 72 characters. Explain what and why, not how.
@@ -22,7 +22,7 @@ Rules:
 
 ## Types
 
-Use only these 11 types. They match the PR title check in this repo's CI.
+Use only these 11 types. They are the common Conventional Commits types, and the ones the claude-workflow PR title check accepts. If the target repo has its own type list, use that list instead.
 
 | Type | Use when | Example header |
 |---|---|---|
