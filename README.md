@@ -16,6 +16,8 @@ Claude Workflow packages five structured workflow frameworks powered by 20 speci
 6. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
 7. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
 
+The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications).
+
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
 ## Installation
@@ -61,6 +63,9 @@ python3 scripts/verify-integrity.py
 
 # Run unit tests
 python3 -m unittest discover tests
+
+# Lint hook scripts (requires shellcheck)
+shellcheck -s sh hooks/*.sh
 
 # Validate JSON syntax across repository
 python3 -c "import json, pathlib; [json.load(open(f, 'r', encoding='utf-8')) for f in pathlib.Path('.').rglob('*.json') if '.workflows' not in f.parts and 'node_modules' not in f.parts and '.git' not in f.parts]; print('All JSON files valid')"
@@ -226,6 +231,32 @@ Explain a pull request in two versions, a plain-language metaphor and a technica
 
 The model may also use it automatically when you ask to explain a PR to non-technical people. It only drafts text; it does not post a comment unless you ask.
 
+## Desktop Notifications
+
+The plugin registers hooks (`hooks/hooks.json`) that run `hooks/notify.sh` to show a desktop alert with a sound. They are enabled by default and work on **macOS and Linux only**. On any other OS the script exits silently.
+
+| Event | When | Body | Sound (macOS / Linux) |
+|---|---|---|---|
+| `Stop` | Claude finishes responding | `Done — ready for review` | Glass / `complete` |
+| `PreToolUse` (`AskUserQuestion`) | Claude asks you a question | The question text | Ping / `message` |
+| `Notification` (`permission_prompt`, `elicitation_dialog`) | Claude needs permission or input | The notification message | Ping / `message` |
+
+The title is `Claude Code · <project folder name>`. The script never blocks Claude and always exits with status 0.
+
+To turn the alerts off, set this in your shell profile:
+
+```bash
+export CLAUDE_WORKFLOW_NOTIFY=0
+```
+
+Optional tools:
+
+- macOS: `terminal-notifier` is used when installed, otherwise the built-in `osascript`.
+- Linux: `notify-send` for the alert, and `canberra-gtk-play` or `paplay` for the sound (falls back to the terminal bell).
+- `jq`: reads the question text, notification message, and project folder from the hook input. Without it, alerts use generic text (`Claude has a question for you`, `Claude needs permission`) and the current directory name.
+
+A question asked through `AskUserQuestion` can trigger two alerts, one from the `PreToolUse` hook and one from the `Notification` hook.
+
 ## Subagents Reference
 
 ### Feature Workflow Subagents
@@ -323,6 +354,9 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── rcw-5-refactor.md        # Refactor Engineer: Micro-step execution
 │   ├── rcw-6-review.md          # Refactor Auditor: Behavior Preservation Audit (no Edit)
 │   └── rcw-7-fix.md             # Refactor Remediation: Oracle restore and root-cause fix
+├── hooks/
+│   ├── hooks.json               # Desktop notification hooks (Stop, AskUserQuestion, Notification)
+│   └── notify.sh                # POSIX sh notifier for macOS/Linux (opt-out: CLAUDE_WORKFLOW_NOTIFY=0)
 ├── scripts/
 │   ├── bump-version.py          # Semantic version calculation and manifest sync
 │   └── verify-integrity.py      # Pre-release integrity check and gatekeeper
@@ -349,6 +383,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │       └── references.md        # Verified sources for the rules
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
+│   ├── test_notify_hooks.py     # Unit tests for notification hooks
 │   └── test_verify_integrity.py # Unit tests for integrity gate
 ├── .gitignore                   # Ignore rules (.workflows, .idea, OS files)
 └── README.md                    # Documentation

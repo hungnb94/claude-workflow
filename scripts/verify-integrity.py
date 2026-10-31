@@ -6,6 +6,7 @@ Validates:
 2. Subagent references between skills and agents/.
 3. Least-privilege tool isolation for review subagents (no Edit tool).
 4. Token budget guardrails for subagent frontmatter descriptions (<= 40 words).
+5. Hook configuration: hooks/hooks.json is valid and its scripts exist and are executable.
 
 Usage:
   python3 scripts/verify-integrity.py
@@ -348,6 +349,61 @@ def check_token_budgets(repo_root: Path, max_words: int = 40) -> bool:
     return all_valid
 
 
+def check_hooks(repo_root: Path) -> bool:
+    """
+    Check that hooks/hooks.json is well-formed and that every script it
+    references via ${CLAUDE_PLUGIN_ROOT} exists and is executable.
+    """
+    hooks_file = repo_root / "hooks" / "hooks.json"
+    if not hooks_file.exists():
+        print("[SKIP] hooks/hooks.json not found")
+        return True
+
+    try:
+        config = json.loads(hooks_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[FAIL] hooks/hooks.json is not valid JSON: {e}")
+        return False
+
+    events = config.get("hooks") if isinstance(config, dict) else None
+    if not isinstance(events, dict):
+        print("[FAIL] hooks/hooks.json must have a top-level 'hooks' object")
+        return False
+
+    all_valid = True
+    script_pattern = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\"'\s]+)")
+    hook_count = 0
+    for event, entries in events.items():
+        if not isinstance(entries, list) or not all(
+            isinstance(e, dict) and isinstance(e.get("hooks"), list) for e in entries
+        ):
+            print(f"[FAIL] hooks/hooks.json: event '{event}' must be a list of entries with a 'hooks' list")
+            all_valid = False
+            continue
+        for entry in entries:
+            for hook in entry["hooks"]:
+                if not isinstance(hook, dict) or hook.get("type") != "command":
+                    continue
+                hook_count += 1
+                command = hook.get("command", "")
+                match = script_pattern.search(command) if isinstance(command, str) else None
+                if not match:
+                    print(f"[FAIL] hooks/hooks.json: {event} command must reference ${{CLAUDE_PLUGIN_ROOT}}/<script>")
+                    all_valid = False
+                    continue
+                script = repo_root / match.group(1)
+                if not script.is_file():
+                    print(f"[FAIL] hooks/hooks.json: {event} script not found: {match.group(1)}")
+                    all_valid = False
+                elif not os.access(script, os.X_OK):
+                    print(f"[FAIL] hooks/hooks.json: {event} script is not executable: {match.group(1)}")
+                    all_valid = False
+
+    if all_valid:
+        print(f"[PASS] hooks/hooks.json: {hook_count} command hook(s) reference executable scripts")
+    return all_valid
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Verify semantic and structural integrity of Claude Workflow plugin."
@@ -378,6 +434,7 @@ def main():
         ("Subagent References", lambda: check_agent_references(repo_root)),
         ("Least Privilege Tool Isolation", lambda: check_review_tool_isolation(repo_root)),
         ("Token Budget Guardrails", lambda: check_token_budgets(repo_root)),
+        ("Hook Configuration", lambda: check_hooks(repo_root)),
     ]
 
     failed_checks = []

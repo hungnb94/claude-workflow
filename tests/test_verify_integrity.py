@@ -258,6 +258,48 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertTrue(vi.check_agent_references(ROOT_DIR))
         self.assertTrue(vi.check_review_tool_isolation(ROOT_DIR))
         self.assertTrue(vi.check_token_budgets(ROOT_DIR, max_words=40))
+        self.assertTrue(vi.check_hooks(ROOT_DIR))
+
+    def _write_hooks(self, config, script_mode=0o755, script=True):
+        (self.repo_root / "hooks").mkdir(exist_ok=True)
+        (self.repo_root / "hooks" / "hooks.json").write_text(
+            config if isinstance(config, str) else json.dumps(config), encoding="utf-8"
+        )
+        if script:
+            path = self.repo_root / "hooks" / "run.sh"
+            path.write_text("#!/bin/sh\n", encoding="utf-8")
+            path.chmod(script_mode)
+
+    @staticmethod
+    def _hooks_config(command='"${CLAUDE_PLUGIN_ROOT}/hooks/run.sh" stop'):
+        return {"hooks": {"Stop": [{"hooks": [{"type": "command", "command": command}]}]}}
+
+    def test_hooks_absent_pass(self):
+        self.assertTrue(vi.check_hooks(self.repo_root))
+
+    def test_hooks_pass(self):
+        self._write_hooks(self._hooks_config())
+        self.assertTrue(vi.check_hooks(self.repo_root))
+
+    def test_hooks_invalid_json(self):
+        self._write_hooks("{not json", script=False)
+        self.assertFalse(vi.check_hooks(self.repo_root))
+
+    def test_hooks_missing_top_level_key(self):
+        self._write_hooks({"Stop": []}, script=False)
+        self.assertFalse(vi.check_hooks(self.repo_root))
+
+    def test_hooks_script_missing(self):
+        self._write_hooks(self._hooks_config(), script=False)
+        self.assertFalse(vi.check_hooks(self.repo_root))
+
+    def test_hooks_script_not_executable(self):
+        self._write_hooks(self._hooks_config(), script_mode=0o644)
+        self.assertFalse(vi.check_hooks(self.repo_root))
+
+    def test_hooks_command_without_plugin_root(self):
+        self._write_hooks(self._hooks_config("/usr/bin/true"))
+        self.assertFalse(vi.check_hooks(self.repo_root))
 
     def test_feature_workflow_ocp_guardrails(self):
         """Verify that OCP and extensibility guardrails are properly defined across all agents and docs."""
