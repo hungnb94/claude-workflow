@@ -1,6 +1,6 @@
 ---
 name: pr-explainer
-description: Explain a pull request in two versions from the same facts. One is a short plain-language version built on a single everyday metaphor for non-technical readers (PM, QA, business). The other is a technical version with the verified root cause, the fix, impact, and what was actually tested. The output is always in English. Use when the user asks to explain a PR, bug fix, or change to non-technical people, or wants a PR comment that explains why a bug happened. Do not use to write a PR description or commit message, review code, fix bugs, or post comments unless the user asks.
+description: Explain a pull request in two versions from the same facts. One is a short plain-language version built on a single everyday metaphor for non-technical readers (PM, QA, business). The other is a technical version with the verified root cause, the fix, impact, and what was actually tested. The output is always in English. Use when the user asks to explain a PR, bug fix, or change to non-technical people, or wants a PR comment that explains why a bug happened. Do not use to write a PR description, review code, fix bugs, or post comments unless the user asks. For commit messages, use atomic-commit.
 ---
 
 # PR Explainer

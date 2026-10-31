@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing and two-version PR explanations.
+Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing, two-version PR explanations, and atomic commits.
 
 ## Overview
 
-Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus two lightweight skills (issue writing and PR explainer), into an official Claude Code Plugin:
+Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus three lightweight skills (issue writing, PR explainer, and atomic commit), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local commit and branch per slice, never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then characterization harness, then Branch by Abstraction/Strangler Fig) and records why cheaper rungs fall short.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
@@ -15,6 +15,7 @@ Claude Workflow packages five structured workflow frameworks powered by 20 speci
 5. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 6. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
 7. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
+8. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications).
 
@@ -231,6 +232,18 @@ Explain a pull request in two versions, a plain-language metaphor and a technica
 
 The model may also use it automatically when you ask to explain a PR to non-technical people. It only drafts text; it does not post a comment unless you ask.
 
+### Running Atomic Commit
+
+Split your uncommitted changes into atomic commits with well-formed messages:
+
+```bash
+/atomic-commit
+# or, with the plugin namespace and an optional hint:
+/workflow:atomic-commit "only what is staged"
+```
+
+The model may also use it automatically when you ask it to commit your changes. It shows a commit plan and waits for your approval, unless you clearly say to commit now. It does not push and does not open a pull request.
+
 ## Desktop Notifications
 
 The plugin registers hooks (`hooks/hooks.json`) that run `hooks/notify.sh` to show a desktop alert with a sound. They are enabled by default and work on **macOS and Linux only**. On any other OS the script exits silently.
@@ -377,9 +390,13 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── SKILL.md             # Skill for /issue-writing (single pass, no subagents)
 │   │   ├── templates.md         # Story, Bug, Task, Spike templates
 │   │   └── references.md        # Verified sources for the rules
-│   └── pr-explainer/
-│       ├── SKILL.md             # Skill for /pr-explainer (single pass, no subagents)
-│       ├── templates.md         # Facts table, metaphor and technical templates
+│   ├── pr-explainer/
+│   │   ├── SKILL.md             # Skill for /pr-explainer (single pass, no subagents)
+│   │   ├── templates.md         # Facts table, metaphor and technical templates
+│   │   └── references.md        # Verified sources for the rules
+│   └── atomic-commit/
+│       ├── SKILL.md             # Skill for /atomic-commit (single pass, no subagents)
+│       ├── templates.md         # Message, type table, commit plan, examples
 │       └── references.md        # Verified sources for the rules
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
