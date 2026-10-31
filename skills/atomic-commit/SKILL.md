@@ -9,7 +9,9 @@ This skill reads the uncommitted changes, groups them into atomic commits, shows
 
 Write in plain English. Use short sentences.
 
-If you are running inside a workflow that has its own commit rules, follow that workflow. Examples: feature-workflow makes exactly one commit per slice, and refactor-code-workflow never commits on its own. Use only the message rules and the staging safety rules from this skill. Do not stop for plan approval.
+If you are running as a step inside a workflow that has its own commit rules, follow that workflow. Example: feature-workflow makes exactly one commit per slice. Use only the message rules and the staging safety rules from this skill. Do not stop for plan approval.
+
+A workflow that has already finished does not count. When the user runs this skill after a workflow ends (for example, refactor-code-workflow suggests `/atomic-commit` for its `test:` and `refactor:` commits), use the full workflow below, including the plan approval.
 
 ## When to use
 
@@ -97,12 +99,12 @@ Skip the wait only when the user clearly says to commit now, for example "commit
 - Whole files: `git add -- <path>...`. For a rename, add the old and the new path. For a deleted file, `git add -- <old-path>` stages the deletion.
 - Part of a file: follow "Staging part of a file".
 - Before each commit, run `git diff --cached --name-only` and `git diff --cached --stat`. They must match the group. If not, run `git restore --staged -- <path>` for the extra files and check again.
-- Commit with `git commit -m "<header>" -m "<body>"`, or `git commit -F <file>` with a temp file outside the repo.
+- Commit with `git commit -F <file>`, using a temp file outside the repo, or a quoted heredoc: `git commit -F - <<'EOF'`. Do not put the message in double quotes with `-m`. The shell runs backticks and `$(...)` inside double quotes, and messages often contain backticks.
 - Run `git status` to see what is left.
 
 ### Step 7. If a hook fails
 
-The commit was not created. Read the error and fix the cause. If a hook changed files, stage those files of the group again. Then create a new commit. Never use `--no-verify`. Never use `--amend` for this.
+The commit was not created. Read the error and fix the cause. If a hook changed files, stage those files of the group again, with the same method as before. For a file split by hunk, use `git apply --cached` again, not `git add`, so the other groups' hunks stay out. Then create a new commit. Never use `--no-verify`. Never use `--amend` for this.
 
 If you cannot fix it, or the fix is outside this change, stop. Tell the user the error. Leave the index as it is.
 
@@ -115,12 +117,13 @@ Use the "Final report template". Run `git log --oneline -n <count>` to list the 
 - Format: `<type>[(<scope>)]: <subject>`, a blank line, then an optional body.
 - The header is the whole first line, including the `type(scope):` prefix. Aim for 50 characters or less. 72 is the hard limit.
 - Use the imperative mood: "add", not "added" or "adds".
-- Start the subject with a lowercase letter after the colon. Conventional Commits replaces the Beams capital-letter rule here. It also matches the history of this repo.
+- Start the subject with a lowercase letter after the colon. Conventional Commits replaces the Beams capital-letter rule here.
 - Do not end the subject with a period.
 - Put one blank line between the header and the body.
 - Wrap body lines at 72 characters. Explain what and why, not how.
 - The scope is optional. Footers and trailers are out of scope. Add them only if the user asks.
 - Use only these 11 types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- The target repo wins. If it has its own commit rules (a commitlint config, a CONTRIBUTING file, or a clear pattern in `git log --oneline -n 20`), follow them where they differ from these, and say so in the plan.
 
 ## Staging part of a file
 
