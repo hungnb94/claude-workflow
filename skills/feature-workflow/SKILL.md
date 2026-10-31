@@ -59,10 +59,12 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   không cần, không tạo slice rỗng; sau đó các lát dọc, mỗi lát giao trọn một phần AC. Story nhỏ vẫn là
   1 slice.
 - **Mỗi slice đúng 1 commit**, nhánh `<slug>/<n>-<tên-slice>`. Slice 1 base vào nhánh hiện tại lúc gọi
-  workflow; slice n base vào slice n-1. Chồng tuyến tính, không rebase.
+  workflow; slice n base vào slice n-1. Chồng tuyến tính, không rebase. Message theo chuẩn của skill
+  `atomic-commit` (Conventional Commits, quy tắc Beams); trong workflow này slice là đơn vị nguyên tử nên vẫn
+  đúng 1 commit, không tách thêm.
 - **Mỗi slice build và test xanh** tại vị trí của nó trong chồng; test nằm cùng commit của slice.
 - **Bước 1-4 chạy 1 lần** cho cả story; **Bước 5→6→7 lặp theo từng slice**, xong slice n mới sang n+1.
-- Chỉ `git add -- <file được phép>`; `.workflows/` không bao giờ vào commit. KHÔNG push, KHÔNG tạo PR.
+- Chỉ `git add -- <file được phép>`, không `--no-verify`; `.workflows/` không bao giờ vào commit. KHÔNG push, KHÔNG tạo PR.
 
 ## Cấu trúc output
 

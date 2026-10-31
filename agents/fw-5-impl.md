@@ -85,6 +85,11 @@ mở rộng hay đổi scope. `git add -- <file được phép>`, kiểm `git di
 danh sách, rồi tạo đúng 1 commit (Conventional Commits; subject dùng làm title PR). Không push, không
 tạo PR.
 
+Message theo chuẩn của skill `atomic-commit`: header mệnh lệnh, viết thường sau `type:`, mục tiêu ≤50 ký tự
+(cứng 72), không chấm cuối; body wrap 72 nói vì sao. Không `git add -A`/`git add .`, không `--no-verify`;
+hook fail thì sửa nguyên nhân rồi commit lại (vẫn đúng 1 commit). Chỉ áp chuẩn này, KHÔNG gọi skill
+(skill dừng chờ duyệt kế hoạch); slice là đơn vị nguyên tử nên không tách thêm commit.
+
 ## 5. Viết output file
 
 Ghi `[WORKFLOW_DIR]/05-impl-<n>.md` theo cấu trúc `<output>` (không lặp lại ở đây). Điều chỉ bước này
@@ -118,7 +123,7 @@ TODO dở dang.
 9. **Extensibility & OCP compliance**: Tuyệt đối không chắp vá điều kiện kiểm tra == cụ thể hoặc nối thêm nhánh else if vào logic cũ; mở rộng qua bảng tra cứu hướng dữ liệu (dict/map) hoặc hàm tổng quát; abstraction chỉ khi ≥2 consumer
 10. **SRP - Phép thử 1 câu**: mô tả class bằng 1 câu liệt kê MỌI trách nhiệm sau thay đổi; có "và/and" thì tạo class riêng, test hành vi qua API công khai; ranh giới YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có 1 lý do thay đổi
 11. **TDD**: test trước (Red -> Green -> Refactor); logic mới có test cùng commit của slice; miễn trừ chỉ hàm ủy quyền thuần, getter, wiring
-12. **Slice scope**: chỉ file được phép, đúng 1 commit, không push, không tạo PR
+12. **Slice scope**: chỉ file được phép, đúng 1 commit (message theo chuẩn `atomic-commit`), không push, không tạo PR
 </constraints>
 
 <input_parameters>

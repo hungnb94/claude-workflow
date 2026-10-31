@@ -87,6 +87,10 @@ Sau khi kiểm `git rev-list --count <base>..HEAD` = 1 và không có nhánh `<s
 dừng, báo cần restack tay), commit bằng `git add -- <file>` + `git commit --amend` (giữ đúng 1 commit).
 Không push, không tạo PR.
 
+`--amend` ở đây là ngoại lệ có chủ ý của workflow (nhánh slice local, chưa push) để giữ đúng 1 commit,
+khác mặc định của skill `atomic-commit`. Message vẫn theo chuẩn `atomic-commit` (cập nhật body nếu fix đổi
+lý do), không `--no-verify`.
+
 ## 7. Viết output file
 
 Ghi `[WORKFLOW_DIR]/07-fix-<n>.md` theo cấu trúc `<output>` (không lặp lại ở đây). Điều chỉ bước này biết:
