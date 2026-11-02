@@ -16,6 +16,7 @@ Claude Workflow packages five structured workflow frameworks powered by 20 speci
 6. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
 7. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
 8. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
+9. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 10 options in one table and narrows them to 3 (Minimal, Balanced, Durable) with a fixed 6-criteria score table (1-5, no total). It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Written in English; the output follows your language.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications).
 
@@ -232,6 +233,18 @@ Explain a pull request in two versions, a plain-language metaphor and a technica
 
 The model may also use it automatically when you ask to explain a PR to non-technical people. It only drafts text; it does not post a comment unless you ask.
 
+### Running Solution Brainstorm
+
+Brainstorm 10 solutions for a coding task, narrow them to 3, and get a recommendation:
+
+```bash
+/solution-brainstorm "<the task or problem to solve>"
+# or, with the plugin namespace:
+/workflow:solution-brainstorm "<the task or problem to solve>"
+```
+
+The model does not run it automatically; it starts only when you type the command. It only analyzes and proposes. It does not write code or edit files, and it waits for you to choose an option.
+
 ### Running Atomic Commit
 
 Split your uncommitted changes into atomic commits with well-formed messages:
@@ -394,10 +407,14 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── SKILL.md             # Skill for /pr-explainer (single pass, no subagents)
 │   │   ├── templates.md         # Facts table, metaphor and technical templates
 │   │   └── references.md        # Verified sources for the rules
-│   └── atomic-commit/
-│       ├── SKILL.md             # Skill for /atomic-commit (single pass, no subagents)
-│       ├── templates.md         # Message, type table, commit plan, examples
-│       └── references.md        # Verified sources for the rules
+│   ├── atomic-commit/
+│   │   ├── SKILL.md             # Skill for /atomic-commit (single pass, no subagents)
+│   │   ├── templates.md         # Message, type table, commit plan, examples
+│   │   └── references.md        # Verified sources for the rules
+│   └── solution-brainstorm/
+│       ├── SKILL.md             # Skill for /solution-brainstorm (single pass, no subagents)
+│       ├── platforms.md         # Platform registry: detect signals, architecture, patterns
+│       └── templates.md         # Fixed 6 criteria and output format
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
 │   ├── test_notify_hooks.py     # Unit tests for notification hooks
