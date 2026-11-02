@@ -4,6 +4,8 @@ Unit tests for scripts/verify-integrity.py.
 Tests all pass and fail conditions using temporary directory structures.
 """
 
+import contextlib
+import io
 import json
 import re
 import shutil
@@ -259,6 +261,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertTrue(vi.check_review_tool_isolation(ROOT_DIR))
         self.assertTrue(vi.check_token_budgets(ROOT_DIR, max_words=40))
         self.assertTrue(vi.check_hooks(ROOT_DIR))
+        self.assertTrue(vi.check_catalog_references(ROOT_DIR))
 
     def _write_hooks(self, config, script_mode=0o755, script=True):
         (self.repo_root / "hooks").mkdir(exist_ok=True)
@@ -300,6 +303,68 @@ class TestVerifyIntegrity(unittest.TestCase):
     def test_hooks_command_without_plugin_root(self):
         self._write_hooks(self._hooks_config("/usr/bin/true"))
         self.assertFalse(vi.check_hooks(self.repo_root))
+
+    def _write(self, rel, content):
+        path = self.repo_root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+    def test_catalog_references_pass_with_catalog(self):
+        self._write("skills/solution-brainstorm/legacy-techniques.md", "# catalog\n")
+        self._write("agents/fw-4-plan.md", "Read legacy-techniques.md\n")
+        self.assertTrue(vi.check_catalog_references(self.repo_root))
+
+    def test_catalog_references_fail_when_catalog_missing(self):
+        self._write("agents/fw-4-plan.md", "Read legacy-techniques.md\n")
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ok = vi.check_catalog_references(self.repo_root)
+        self.assertFalse(ok)
+        self.assertIn("[FAIL]", out.getvalue())
+        self.assertIn("fw-4-plan.md", out.getvalue())
+
+    def test_catalog_references_pass_without_referrer(self):
+        self.assertTrue(vi.check_catalog_references(self.repo_root))
+
+    def test_legacy_catalog_guardrails(self):
+        """Verify the legacy techniques catalog keeps its data schema."""
+        text = (ROOT_DIR / "skills" / "solution-brainstorm" / "legacy-techniques.md").read_text(encoding="utf-8")
+        techniques_part = text.split("## Kỹ thuật", 1)[1]
+        parts = re.split(r"^### (.+)$", techniques_part, flags=re.MULTILINE)
+        entries = {parts[i].split("(")[0].strip(): parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+        required_techniques = (
+            "Sprout Method",
+            "Sprout Class",
+            "Wrap Method",
+            "Wrap Class",
+            "Parameterize Constructor",
+            "Extract Interface",
+            "Extract and Override Call",
+            "Branch by Abstraction",
+            "Strangler Fig",
+            "Mikado Method",
+        )
+        required_fields = ("Bậc:", "Mũ:", "Khi dùng:", "Khi leo bậc:", "Các bước:", "Test bắt buộc:", "Nợ còn lại:")
+        for name in required_techniques:
+            with self.subTest(technique=name):
+                self.assertIn(name, entries)
+                for field in required_fields:
+                    self.assertIn(f"- {field}", entries[name])
+
+        for token in (
+            "Mikado",
+            "characterization test",
+            "happy",
+            "edge",
+            "error",
+            "Lý do bậc rẻ hơn không đủ",
+            "≥2 consumer",
+            "Mũ: feature",
+            "Mũ: chung",
+        ):
+            self.assertIn(token, text)
+        self.assertNotIn("http://", text)
+        self.assertNotIn("https://", text)
 
     def test_feature_workflow_ocp_guardrails(self):
         """Verify that OCP and extensibility guardrails are properly defined across all agents and docs."""

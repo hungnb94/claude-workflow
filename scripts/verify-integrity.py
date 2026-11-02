@@ -7,6 +7,7 @@ Validates:
 3. Least-privilege tool isolation for review subagents (no Edit tool).
 4. Token budget guardrails for subagent frontmatter descriptions (<= 40 words).
 5. Hook configuration: hooks/hooks.json is valid and its scripts exist and are executable.
+6. Shared reference files that skills/agents point to actually exist.
 
 Usage:
   python3 scripts/verify-integrity.py
@@ -404,6 +405,44 @@ def check_hooks(repo_root: Path) -> bool:
     return all_valid
 
 
+SHARED_REFERENCE_FILES = {
+    "legacy-techniques.md": "skills/solution-brainstorm/legacy-techniques.md",
+}
+SCANNED_GLOBS = ("skills/*/*.md", "agents/*.md")
+
+
+def check_catalog_references(repo_root: Path) -> bool:
+    """
+    Check that every shared reference file mentioned by a skill or agent
+    exists at its registered location.
+    """
+    print("[INFO] Running Shared Catalog Reference Check...")
+    all_valid = True
+    for name, rel_path in SHARED_REFERENCE_FILES.items():
+        target = repo_root / rel_path
+        referrers = []
+        for pattern in SCANNED_GLOBS:
+            for md_file in sorted(repo_root.glob(pattern)):
+                if md_file == target:
+                    continue
+                try:
+                    content = md_file.read_text(encoding="utf-8")
+                except Exception as e:
+                    print(f"[FAIL] Could not read {md_file.relative_to(repo_root)}: {e}")
+                    all_valid = False
+                    continue
+                if name in content:
+                    referrers.append(md_file.relative_to(repo_root))
+
+        if referrers and not target.is_file():
+            listed = ", ".join(str(r) for r in referrers)
+            print(f"[FAIL] {rel_path} is referenced by {listed} but does not exist")
+            all_valid = False
+        else:
+            print(f"[PASS] {name}: {len(referrers)} referrer(s), catalog consistent")
+    return all_valid
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Verify semantic and structural integrity of Claude Workflow plugin."
@@ -435,6 +474,7 @@ def main():
         ("Least Privilege Tool Isolation", lambda: check_review_tool_isolation(repo_root)),
         ("Token Budget Guardrails", lambda: check_token_budgets(repo_root)),
         ("Hook Configuration", lambda: check_hooks(repo_root)),
+        ("Shared Catalog References", lambda: check_catalog_references(repo_root)),
     ]
 
     failed_checks = []
