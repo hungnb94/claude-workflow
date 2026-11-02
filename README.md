@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing, two-version PR explanations, and atomic commits.
+Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, and solution brainstorming.
 
 ## Overview
 
-Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus three lightweight skills (issue writing, PR explainer, and atomic commit), into an official Claude Code Plugin:
+Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus four lightweight skills (issue writing, PR explainer, atomic commit, and solution brainstorm), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local commit and branch per slice, never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then characterization harness, then Branch by Abstraction/Strangler Fig) and records why cheaper rungs fall short.
 2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
