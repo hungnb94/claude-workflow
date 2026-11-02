@@ -45,8 +45,10 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 - `[WORKFLOW_DIR]` = `<repo root>/.workflows/[STORY_SLUG]/` - luôn truyền **đường dẫn tuyệt đối**.
 - Không truyền "phạm vi code" cho bước nào - mỗi bước tự lấy phạm vi từ output bước trước (Bước 1
   khảo sát ghi `Điểm tích hợp`; Bước 6 lấy diff; Bước 7 lấy phát hiện trong `06-review-<n>.md`).
-- Spawn subagent chỉ truyền `WORKFLOW_DIR` và `STORY` (chỉ Bước 1) - subagent tự đọc hướng dẫn từ
-  definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
+- `[LEGACY_CATALOG]` = `<Base directory của skill này>/../solution-brainstorm/legacy-techniques.md`,
+  chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
+- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG` và `STORY` (chỉ Bước 1) - subagent tự đọc
+  hướng dẫn từ definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
   BUDGET`, do orchestrator chép từ bảng slice trong `## TÓM TẮT` của `04-plan.md`.
 
 ## Chẻ PR theo slice (luật chung)
@@ -131,6 +133,7 @@ Bạn là subagent thực hiện BƯỚC <N>/7 của quy trình làm story.
 Làm theo hướng dẫn trong definition của bạn (agent fw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
+- LEGACY_CATALOG: <đường dẫn tuyệt đối tới legacy-techniques.md>
 - STORY: <chỉ Bước 1: nội dung story đã lấy được>
 - SLICE: <chỉ Bước 5-7: số slice n>
 - BRANCH, BASE, FILES, AC, BUDGET: <chỉ Bước 6: chép từ bảng slice của 04-plan.md>
@@ -195,7 +198,8 @@ PR, không merge**. Kèm bảng mỗi slice: nhánh, base PR, lệnh `git push -
   three), phần còn lại ghi "Hướng mở rộng sau" ở `01-spec.md`.
 - **Legacy chưa test: rẻ trước, đắt sau.** Thêm hành vi vào code chưa test thì thử Sprout/Wrap
   (Feathers) trước, rồi mới đưa class cũ vào harness ở slice chuẩn bị, rồi mới Branch by Abstraction /
-  Strangler Fig; thang và tiêu chí ở `fw-4-plan` (§2b). Sprout/Wrap chèn MỘT điểm gọi tối thiểu vào code
+  Strangler Fig; thang 4 bậc và chi tiết kỹ thuật ở `legacy-techniques.md` (`LEGACY_CATALOG`), chọn bậc
+  ở `fw-4-plan` (§2b). Sprout/Wrap chèn MỘT điểm gọi tối thiểu vào code
   cũ, hành vi mới viết test trước ở code mới, tương thích OCP; leo bậc phải ghi lý do.
 - **Một trách nhiệm theo Single Responsibility Principle (SRP).** Phép thử 1 câu: mô tả class trong
   1 câu, liệt kê MỌI trách nhiệm của class sau thay đổi (không gom chung chung); nếu câu phải dùng

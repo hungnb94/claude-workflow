@@ -57,6 +57,7 @@ Bảng truy vết 7 kỷ luật → bước thực thi cụ thể:
 | Không trộn bugfix/refactor/feature (Two Hats) | Cổng chặn + `rcw-1-spec` | `rcw-4-protect`/`rcw-5-refactor` (pin, không sửa) | `rcw-6-review` (Blocker nếu đổi hành vi) |
 | Micro-step, test xanh sau mỗi bước | `rcw-3-plan` (Micro-step Sequence) | `rcw-5-refactor` (revert ngay nếu đỏ) | Cổng orchestrator sau Bước 5 + `rcw-6-review` chạy lại test |
 | Thang chi phí rẻ -> đắt; Branch by Abstraction / Strangler Fig chỉ khi bậc rẻ không đủ | Cổng chặn + `rcw-3-plan` (Thang chi phí, track=large) | `rcw-5-refactor` (move bậc 1; một increment/lần ở bậc 3-4) | `rcw-6-review` (Blocker nếu đường cũ không còn chạy; Major nếu vượt bậc có bằng chứng diff) |
+| Mikado Method khi một bước vỡ nhiều chỗ: thử, vỡ thì hoàn tác và ghi prerequisite | `legacy-techniques.md` + `rcw-3-plan` (`### Mikado graph`) | `rcw-5-refactor` (hoàn tác tay lần thử hỏng) | `rcw-6-review` (Major nếu diff còn sửa dở của lần thử hỏng) |
 | Coverage mở rộng dần, đo bằng diff coverage không giảm | `rcw-4-protect` (đo trước, mở đầu) | `rcw-4-protect` (đo trước), `rcw-5-refactor` (đo sau) | `rcw-6-review` (Major nếu giảm) + `rcw-7-fix` |
 
 ## Tham số & khởi tạo
@@ -67,8 +68,10 @@ Bảng truy vết 7 kỷ luật → bước thực thi cụ thể:
   cả URL - có key thì slug **chính là key**; (2) không có key: kebab-case tối đa 4 từ.
 - Có Jira key → dùng skill `acli` lấy title + description ticket làm `[TASK]` thật cho Bước 1.
 - `[WORKFLOW_DIR]` = `<repo root>/.workflows/[TASK_SLUG]/` - luôn truyền **đường dẫn tuyệt đối**.
-- Spawn subagent chỉ truyền `WORKFLOW_DIR` và `TASK` (chỉ Bước 1) - subagent tự đọc hướng dẫn từ
-  definition của mình.
+- `[LEGACY_CATALOG]` = `<Base directory của skill này>/../solution-brainstorm/legacy-techniques.md`,
+  chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
+- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG` và `TASK` (chỉ Bước 1) - subagent tự đọc
+  hướng dẫn từ definition của mình.
 
 ## Cấu trúc output
 
@@ -126,6 +129,7 @@ Bạn là subagent thực hiện BƯỚC <N>/7 của quy trình refactor.
 Làm theo hướng dẫn trong definition của bạn (agent rcw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
+- LEGACY_CATALOG: <đường dẫn tuyệt đối tới legacy-techniques.md>
 - TASK: <chỉ Bước 1: nội dung nhiệm vụ đã lấy được>
 ```
 

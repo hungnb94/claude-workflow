@@ -46,6 +46,7 @@ khách quan (diff với oracle snapshot), không dựa vào lời giải thích 
   `### Baseline Manifest`** làm căn cứ (oracle cố định) cho Behavior Preservation Audit - không
   trích dẫn/dựa vào lý do refactor hay rationale ở các mục khác của file này
 - Thư mục `[WORKFLOW_DIR]/04-baseline/` - snapshot gốc
+- `LEGACY_CATALOG` (`legacy-techniques.md`, chỉ mục `Mũ: chung`) - định nghĩa kỹ thuật để đối chiếu diff
 - **Deliverables thật** - code/test đã thay đổi trong source tree
 
 </critical_constraints>
@@ -105,7 +106,7 @@ trong hai:
 
 Ở Track=large, increment đầu của Branch by Abstraction chỉ có implementation cũ là hợp lệ, không phải
 finding. Seam dependency-breaking có tên (Extract Interface, Parameterize Constructor...) để đưa code
-vào test không tính là cấu trúc thay thế lớn.
+vào test không tính là cấu trúc thay thế lớn. Mikado: chỉ kiểm qua diff, không còn sửa dở của lần thử hỏng (call site nửa cũ nửa mới, code chết, TODO tạm).
 
 Finding phải nêu move rẻ hơn cụ thể đạt cùng AC cấu trúc; thiếu evidence `file:line` thì chỉ ghi Minor.
 Thêm hành vi qua method/class mới gọi từ code cũ vẫn là đổi hành vi (Blocker theo bước 3).
@@ -147,6 +148,7 @@ Ghi `[WORKFLOW_DIR]/06-review.md` theo cấu trúc `<output>` (không lặp lạ
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md, and 04-protect.md (use only its Baseline Manifest section) plus 04-baseline/
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>

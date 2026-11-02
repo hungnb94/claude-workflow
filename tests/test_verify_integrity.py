@@ -648,8 +648,9 @@ class TestVerifyIntegrity(unittest.TestCase):
             ladder,
             [
                 "| 1. Sprout/Wrap",
-                "| 2. Đưa vào harness",
-                "| 3. Branch by Abstraction / Strangler Fig",
+                "| 2. dependency-breaking Feathers",
+                "| 3. Branch by Abstraction",
+                "| 4. Strangler Fig",
             ],
         )
         for token in (
@@ -676,6 +677,40 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("bậc thấp nhất đủ dùng", fw6)
         self.assertIn("điểm gọi", fw6)
         self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools"))
+
+        catalog = read("skills", "solution-brainstorm", "legacy-techniques.md")
+        mikado_heading = "### Mikado graph"
+        self.assertIn(mikado_heading, catalog)
+        for text in (fw4, rcw3):
+            self.assertIn(mikado_heading, text)
+        for ladder_text in (
+            section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3."),
+            section(rcw3, "## 2b. Thang chi phí refactor", "## 3."),
+        ):
+            self.assertIn("legacy-techniques.md", ladder_text)
+            self.assertIn("Mikado", ladder_text)
+        for name in ("fw-5-impl", "fw-6-review", "rcw-5-refactor", "rcw-6-review"):
+            self.assertIn("Mikado", read("agents", f"{name}.md"))
+        for skill_text in (rcw_skill, fw_skill):
+            self.assertIn("LEGACY_CATALOG", skill_text)
+
+        feature_hat = re.findall(
+            r"^### (.+?)\s*\n- Bậc:.*\n- Mũ: feature", catalog, flags=re.MULTILINE
+        )
+        self.assertTrue(feature_hat)
+        for name in (
+            "rcw-1-spec",
+            "rcw-2-research",
+            "rcw-4-protect",
+            "rcw-5-refactor",
+            "rcw-6-review",
+            "rcw-7-fix",
+        ):
+            content = read("agents", f"{name}.md")
+            for technique in feature_hat:
+                self.assertNotIn(technique, content)
+        for technique in feature_hat:
+            self.assertNotIn(technique, rcw_skill)
 
         for text in (rcw3, fw4, rcw_skill, fw_skill):
             self.assertNotIn("http://", text)

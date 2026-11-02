@@ -42,6 +42,8 @@ Parameterize Constructor, Extract Interface, Extract and Override Call), kỹ th
 the easy change"), Branch by Abstraction/Strangler Fig (Fowler/Hammant) nếu `Track sơ bộ = large`
 kèm dữ kiện (dependency cứng, consumer) để `rcw-3-plan` quyết bậc rẻ hơn của Thang chi phí có đủ không, thực hành agentic-refactoring review độc lập (tách agent sửa khỏi agent thẩm định test).
 
+Nếu có legacy chưa test: Read `LEGACY_CATALOG` (fallback Glob `**/legacy-techniques.md`, chỉ mục `Mũ: chung`) và ghi dữ kiện theo trường `Khi dùng`/`Khi leo bậc`; không chọn bậc.
+
 ## 3. Khảo sát công cụ sẵn có trong repo đích
 
 `Grep`/`Glob`/đọc file cấu hình (package manifest, CI config) tìm coverage tool, approval/snapshot
@@ -76,6 +78,7 @@ Strangler Fig) cho stack repo đích.
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>

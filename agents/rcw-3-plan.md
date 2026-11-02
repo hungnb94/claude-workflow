@@ -67,6 +67,12 @@ Abstraction) và Fowler (Strangler Fig), không phải quy tắc chuẩn ngành.
 | 3. Branch by Abstraction | Lớp abstraction bọc implementation cũ rồi thay dần (Parallel Change là biến thể nhỏ khi chỉ đổi interface có nhiều caller) | Phần thay thế nằm bên trong codebase | Thay cả module/hệ thống qua ranh giới ngoài (API, route, entry point) |
 | 4. Strangler Fig | Hệ thống cũ/mới cùng tồn tại sau một ranh giới, chuyển dần từng phần | Bậc cuối | Không có - chẻ task nếu vẫn quá lớn |
 
+Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc. Chi tiết kỹ thuật (Các bước, Test
+bắt buộc) nằm ở `legacy-techniques.md`, chỉ dùng mục `Mũ: chung`; đọc theo tham số `LEGACY_CATALOG`,
+fallback Glob `**/legacy-techniques.md`, không thấy thì ghi 1 dòng và dùng bảng bậc trên.
+
+- Mikado: khi một move dự kiến làm vỡ nhiều chỗ ngoài `Vùng thay đổi`, ghi `### Mikado graph` trong
+  `03-plan.md` (lá ánh xạ vào micro-step/seam); không cần thì ghi "không áp dụng".
 - Leo bậc phải ghi `Lý do bậc rẻ hơn không đủ` (dẫn chứng cụ thể từ `01-spec.md`/`02-research.md`:
   dependency nào, consumer nào) vào `03-plan.md`. Thiếu lý do thì plan không hợp lệ.
 - Thiếu dữ liệu để quyết bậc: ghi câu hỏi vào `Câu hỏi cần làm rõ` của TÓM TẮT, không đoán.
@@ -140,6 +146,7 @@ Ghi `[WORKFLOW_DIR]/03-plan.md` theo cấu trúc `<output>` (không lặp lại 
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>
@@ -177,6 +184,10 @@ Write to [WORKFLOW_DIR]/03-plan.md:
 
 | # | Move (tên Fowler) | Files | Test command |
 |---|---|---|---|
+
+### Mikado graph
+
+[checklist lồng `- [ ] Goal` / `- [ ] Prereq` / `- [x] ... (xanh)` | "không áp dụng"]
 
 ### Large-scale Track
 

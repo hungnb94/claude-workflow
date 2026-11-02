@@ -72,32 +72,24 @@ hợp từ Feathers (Working Effectively with Legacy Code) và Fowler, không ph
 
 | Bậc | Kỹ thuật | Đủ khi | Leo bậc kế khi |
 |---|---|---|---|
-| 1. Sprout/Wrap | Hành vi mới ở method/class mới viết test-first; legacy chỉ thêm MỘT điểm gọi tối thiểu | Hành vi mới độc lập, hoặc chạy trước/sau lời gọi cũ | Phải sửa logic đang có, sprout/wrap không đạt được hành vi, hoặc điểm gọi buộc thêm nhánh điều kiện vào method cũ |
-| 2. Đưa vào harness | Dependency-breaking nhỏ có tên (Parameterize Constructor, Extract Interface, Extract and Override Call...) + characterization test ở slice chuẩn bị, rồi sửa trực tiếp ở slice hành vi | Sửa được trong ngân sách slice | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice |
-| 3. Branch by Abstraction / Strangler Fig | Thay thế lớn qua abstraction hoặc ranh giới ngoài | Bậc cuối | Không có - đề nghị chẻ story; phần refactor lớn có thể chạy `/refactor-code-workflow` trước |
+| 1. Sprout/Wrap | Hành vi mới ở method/class mới viết test-first; legacy chỉ thêm MỘT điểm gọi tối thiểu. Thứ tự chi phí: Sprout Method < Sprout Class < Wrap Method < Wrap Class | Hành vi mới độc lập, hoặc chạy trước/sau lời gọi cũ | Phải sửa logic đang có, sprout/wrap không đạt được hành vi, hoặc điểm gọi buộc thêm nhánh điều kiện vào method cũ |
+| 2. dependency-breaking Feathers | Dependency-breaking nhỏ có tên (Parameterize Constructor, Extract Interface, Extract and Override Call) + characterization test ở slice chuẩn bị, rồi sửa trực tiếp ở slice hành vi | Sửa được trong ngân sách slice | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice |
+| 3. Branch by Abstraction | Abstraction bọc implementation cũ rồi thay dần (Parallel Change là biến thể nhỏ) | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
+| 4. Strangler Fig | Hệ thống cũ/mới cùng tồn tại sau một ranh giới, chuyển dần từng chức năng | Bậc cuối | Không có - đề nghị chẻ story; phần refactor lớn có thể chạy `/refactor-code-workflow` trước |
 
-Chọn kỹ thuật trong bậc 1:
+Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc.
 
-| Kỹ thuật | Dùng khi | Rủi ro/nợ còn lại |
-|---|---|---|
-| Sprout Method | Hành vi mới độc lập và class cũ khởi tạo được trong test | Code cũ vẫn chưa test |
-| Sprout Class | Class cũ không đưa vào harness được; class mới là class cụ thể, không interface | Code cũ vẫn chưa test |
-| Wrap Method | Hành vi mới phải chạy ngay trước/sau mọi lời gọi method cũ (đổi tên method cũ, method cùng tên gọi hành vi mới + method cũ) | Code cũ vẫn chưa test; dễ sinh tên gây hiểu lầm |
-| Wrap Class | Như Wrap Method nhưng không muốn làm to class cũ, hoặc nhiều nơi gọi cần cùng lớp bọc (decorator) | Code cũ vẫn chưa test |
-
-Thứ tự chi phí gợi ý Sprout Method < Sprout Class < Wrap Method < Wrap Class; quyết định theo cột
-"Dùng khi".
+Chi tiết từng kỹ thuật (Khi dùng, Các bước, Test bắt buộc, Nợ còn lại), quy ước chung và "Test đầy đủ
+cho code mới" nằm ở `legacy-techniques.md`; đọc theo tham số `LEGACY_CATALOG`, fallback Glob
+`**/legacy-techniques.md`, không thấy thì ghi 1 dòng trong output và dùng bảng bậc trên. Không chép lại
+nội dung catalog vào plan, chỉ ghi tên kỹ thuật + bậc.
 
 - Leo bậc phải ghi `Lý do bậc rẻ hơn không đủ` vào `04-plan.md`. Thiếu thông tin thì ghi câu hỏi, không
   đoán.
-- Tương thích OCP: điểm gọi là một lời gọi không điều kiện (hoặc rename + method bọc), không phải
-  nhánh if-else mới.
-- YAGNI: không dựng interface/abstraction mới cho Sprout Class/Wrap Class (Wrap Class dùng lại kiểu/interface
-  sẵn có của class cũ; không có thì gọi lớp bọc trực tiếp tại điểm gọi); Branch by Abstraction chỉ khi
-  ≥2 consumer.
 - Bậc 2 là slice chuẩn bị (không đổi hành vi), tách khỏi slice thêm hành vi; đây là lý do chẻ slice
   hợp lệ dù chưa vượt ngân sách §5b.
-- Code sprout/wrap viết TDD, test cùng commit của slice.
+- Mikado: khi một bước dự kiến làm vỡ nhiều chỗ, ghi mục `### Mikado graph` trong `04-plan.md` (lá ánh
+  xạ vào deliverable/slice chuẩn bị); không cần thì bỏ mục.
 
 ## 3. Choose approach
 
@@ -158,6 +150,7 @@ biết:
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md and 03-role-model.md
+- [LEGACY_CATALOG]: đường dẫn tuyệt đối tới `legacy-techniques.md` (dùng khi §2b áp dụng)
 </input_parameters>
 
 <output>
@@ -167,7 +160,7 @@ Write to [WORKFLOW_DIR]/04-plan.md:
 
 - Hướng tiếp cận đã chọn: <1-2 câu + rationale>
 - Approaches đã đánh giá: <tóm tắt, lý do chọn/bỏ>
-- Bậc legacy: <Sprout Method/Sprout Class/Wrap Method/Wrap Class/harness/B-by-A/Strangler Fig + Lý do bậc rẻ hơn không đủ | "không áp dụng">
+- Bậc legacy: <Sprout Method/Sprout Class/Wrap Method/Wrap Class/dependency-breaking/B-by-A/Strangler Fig (+ Mikado) + Lý do bậc rẻ hơn không đủ | "không áp dụng">
 - Second-order effects chính: <rủi ro + cách giảm thiểu>
 - Danh sách thay đổi (deliverables): <tuần tự, đã xét dependencies>
 - Slice plan: <bảng n | tên | nhánh | base | AC | ước lượng LOC/file | file được phép chạm>; orchestrator chép từ bảng này vào prompt Bước 5-7
@@ -238,6 +231,10 @@ Mỗi deliverable theo bảng:
 | Acceptance Criteria | có | trỏ về ≥ 1 AC của `01-spec.md` |
 | Complexity | có | Small/Medium/Large |
 | Slice | có | số slice chứa deliverable |
+
+### Mikado graph
+
+Chỉ khi §2b dùng Mikado: checklist lồng `- [ ] Goal` / `- [ ] Prereq` / `- [x] ... (xanh)`, lá ánh xạ vào deliverable/slice chuẩn bị. Không dùng thì ghi "không áp dụng".
 
 ## Slice plan
 

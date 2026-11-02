@@ -39,6 +39,7 @@ Dữ liệu slice (SLICE, BRANCH, BASE, FILES, AC, BUDGET) chỉ lấy từ prom
 - `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
+- `LEGACY_CATALOG` (`legacy-techniques.md`) - định nghĩa kỹ thuật legacy và "Test đầy đủ cho code mới" để đối chiếu diff
 
 **Your job**: Verify deliverables meet spec và best practices, KHÔNG verify deliverables meet plan.
 </critical_constraints>
@@ -71,7 +72,7 @@ cascading `if-elif` so khớp giá trị cụ thể `==`, logic chắp vá thêm
 dùng bảng tra cứu dữ liệu (dict/map), registry, strategy pattern hoặc generalization. Cân bằng với YAGNI
 để không bắt bẻ những nơi chỉ cần hàm đơn giản.
 
-**Legacy chưa test (Sprout/Wrap)**: khi `01-spec.md` ghi code đích là legacy chưa test, hunk ở method cũ chỉ là điểm gọi tối thiểu (một lời gọi không điều kiện, hoặc rename + method bọc cùng tên) thì KHÔNG phải vi phạm OCP. Kiểm bằng diff: code mới có test hành vi, method cũ không thêm nhánh điều kiện. Phương pháp phải ở bậc thấp nhất đủ dùng: abstraction/đường song song chỉ có 1 consumer là Major; ngoại lệ: interface tạo bằng Extract Interface để đưa class cũ vào harness (bậc 2, có fake trong test) là seam, không tính là abstraction 1 consumer.
+**Legacy chưa test (Sprout/Wrap)**: khi `01-spec.md` ghi code đích là legacy chưa test, hunk ở method cũ chỉ là điểm gọi tối thiểu (một lời gọi không điều kiện, hoặc rename + method bọc cùng tên) thì KHÔNG phải vi phạm OCP. Kiểm bằng diff: code mới có test hành vi, method cũ không thêm nhánh điều kiện. Phương pháp phải ở bậc thấp nhất đủ dùng: abstraction/đường song song chỉ có 1 consumer là Major; ngoại lệ: interface tạo bằng Extract Interface để đưa class cũ vào harness (bậc 2, có fake trong test) là seam, không tính là abstraction 1 consumer. Kiểm code sprout/wrap/extract mới có test happy/edge/error theo catalog. Mikado: chỉ kiểm qua diff, không còn sửa dở của lần thử hỏng (call site nửa cũ nửa mới, code chết, TODO tạm).
 
 **Scope & Budget Audit (Kiểm toán phạm vi và ngân sách)**:
 LOC production = added+deleted từ `git diff --numstat`, bỏ dòng nhị phân, loại path test (`test/`,
@@ -152,6 +153,7 @@ criticism.
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
 - [SLICE], [BRANCH], [BASE], [FILES], [AC], [BUDGET]: dữ liệu slice do orchestrator chép vào prompt
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>
