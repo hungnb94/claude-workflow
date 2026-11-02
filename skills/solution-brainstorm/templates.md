@@ -33,11 +33,11 @@ Always 10 rows. One or two lines per row.
 |---|---|---|---|---|
 | 1 | Name (pattern) | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
 
-Use `Merged into #n` only when two options share the same main pattern.
+Exactly 3 rows are `Kept`, one per investment level. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
 ### 4. Scores
 
-One row per criterion, in the order of the Criteria list. Do not add a sum row.
+Only the 3 kept options. One row per criterion, in the order of the Criteria list. Do not add a sum row.
 
 | Criterion | A (Minimal) | B (Balanced) | C (Durable) |
 |---|---|---|---|

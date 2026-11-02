@@ -31,30 +31,30 @@ If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not gues
 ### Step 1. Survey and detect
 
 - Read the build files, the package or folder layout, CLAUDE.md, AGENTS.md, and docs/adr.
-- Read `platforms.md`. Pick every section whose **Detect** line matches what you found.
-  - Several match: use the most specific one (most distinctive signals). Keep the others as secondary context.
+- Read `platforms.md`. A section matches when at least one signal on its **Detect** line is present.
+  - Several match: use the one with the most distinctive signals (a section's Detect line may say it wins over another). Keep the others as secondary context.
   - None match: tell the user and use general best practice.
-- If the chosen section has a **Standards** line, follow it and Read that file. If it cannot be read, say so and continue.
+- If the chosen section has a **Standards** line, follow it and Read that file. Use only its architecture, pattern, and migration rules; ignore rules about how another workflow runs (slices, delegation, commits). If it cannot be read, say so and continue.
 
 ### Step 2. Check for outdated tech
 
-Compare the project with the **Outdated signals** line of the section, or with the migration rules in the linked Standards file.
+Compare the project with the **Outdated signals** line of the section and with the migration rules in the linked Standards file, if any.
 
-- Signal found: list what you found (file and line). Ask once: migrate as part of this task, or keep the current tech? Wait for the answer.
-- A convention in source 1 that already decides it counts as the answer. Do not ask again.
+- Signal found: list what you found (file and line). Add one question to Step 3: migrate as part of this task, or keep the current tech?
+- A convention in source 1 that already decides it counts as the answer. Do not ask.
 - No signal found: continue.
 
 ### Step 3. Clarify
 
-Ask only what blocks option design, at most 5 questions. If the task is clear, ask none. If the user says to just go, write an **Assumptions** list and continue.
+Ask everything in one message, then wait: the migration question from Step 2 (if any) plus only what blocks option design, at most 5 questions in total. If nothing blocks, ask none and continue. If the user says to just go, write an **Assumptions** list (including the migration choice you assumed) and continue.
 
 ### Step 4. Diverge: 10 options
 
-Always write exactly 10 options. No shortcut for easy tasks. Each option differs from the others in its main pattern. The table always has 10 rows; an idea that shares a pattern with another stays as its own row marked `Merged into #n`.
+Always write exactly 10 options. No shortcut for easy tasks. Aim for a different main pattern in each row. If an idea turns out to share the main pattern of an earlier row, keep it as its own row and mark it `Merged into #n`, where #n is that earlier row. The table always has 10 rows.
 
 ### Step 5. Converge: best 3
 
-Score the options on the criteria in `templates.md`. Keep 3 that differ in main pattern and span the investment levels: A Minimal, B Balanced, C Durable. Scores are 1-5 per criterion. Do not add them up.
+Judge all 10 options against the criteria in `templates.md` and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Do not add the scores up.
 
 ### Step 6. Write and stop
 
