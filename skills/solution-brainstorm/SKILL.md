@@ -35,6 +35,7 @@ If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not gues
   - Several match: use the one with the most distinctive signals (a section's Detect line may say it wins over another). Keep the others as secondary context.
   - None match: tell the user and use general best practice.
 - If the chosen section has a **Standards** line, follow it and Read that file. Use only its architecture, pattern, and migration rules; ignore rules about how another workflow runs (slices, delegation, commits). If it cannot be read, say so and continue.
+- Mark the target as untested legacy when no test covers it or it cannot be instantiated in a test. Then Read `legacy-techniques.md` (next to this file; if missing, Glob `**/solution-brainstorm/legacy-techniques.md`). If it cannot be read, say so and continue.
 
 ### Step 2. Check for outdated tech
 
@@ -55,6 +56,8 @@ Always write exactly 10 options. No shortcut for easy tasks. Aim for a different
 ### Step 5. Converge: best 3
 
 Judge all 10 options against the criteria in `templates.md` and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Do not add the scores up.
+
+Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. B or C that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
 
 ### Step 6. Write and stop
 
