@@ -22,8 +22,8 @@ Implement các deliverables của slice [SLICE] theo `04-plan.md`. Follow plan e
 <workflow>
 ## 1. Review plan và setup
 
-Đọc `04-plan.md` (approach, work breakdown, test plan, design principles) và dòng slice [SLICE] trong
-Slice plan; chỉ implement deliverable thuộc slice đó. Refresh AC và Must/Should Apply từ `01-spec.md`,
+Đọc `04-plan.md` (approach, work breakdown, test plan, design principles), dòng slice [SLICE] trong
+Slice plan và các task của slice đó trong Task plan; chỉ implement deliverable thuộc slice đó. Refresh AC và Must/Should Apply từ `01-spec.md`,
 `02-research.md`.
 
 ## 1c. Nhánh slice
@@ -47,7 +47,7 @@ tình làm khác bản mẫu: ghi lý do vào "Role-model deviations".
 
 ## 2. Implement theo sequence
 
-Follow work breakdown, tôn trọng dependencies - không implement deliverable khi dependency chưa done.
+Implement theo thứ tự task của slice (vòng ở §4), tôn trọng dependencies - không implement deliverable khi dependency chưa done.
 Mỗi deliverable: follow design + design principles + conventions + Must Apply (**NO
 over-engineering**); **tuân thủ OCP**: tuyệt đối không chắp vá thêm nhánh `else if` hoặc so khớp `==`
 cho case mới trên code cũ, ưu tiên mở rộng bằng cơ chế hướng dữ liệu (lookup table / dictionary mapping)
@@ -67,28 +67,45 @@ helper private nhỏ dùng state của class; không tách khi class chỉ có 1
 ## 3. TDD và testing (for code tasks)
 
 TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. Hàm/class mới
-có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của slice; test theo hành vi qua
+có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của task; test theo hành vi qua
 API công khai; không viết test cho class chỉ chứa dữ liệu/mapper đơn giản; miễn trừ chỉ cho hàm ủy
 quyền thuần, getter, wiring. Unit tests theo scope/coverage/scenarios, integration
 tests critical paths (nếu applicable), lint + type check - fix hết lỗi. **Tests phải pass TRƯỚC KHI
 declare deliverable done.**
 
-## 4. Final verification
+## 4. Vòng task (mỗi task kết thúc bằng commit)
 
-Sau mọi deliverable done: verify toàn bộ AC từ `01-spec.md` (fail thì fix trước khi kết thúc), và
-verify đã apply Must Apply (bắt buộc) + Should Apply (skip được nếu có lý do tốt, ghi rõ).
+Làm lần lượt từng task của slice trong Task plan, xong task k mới sang k+1:
 
-## 4b. Commit slice
+1. `TASK_BASE=$(git rev-parse HEAD)`.
+2. Red: viết test fail cho hành vi của task, chạy lệnh test của task, xác nhận fail đúng lý do
+   (task `refactor`/`remove`/`switch` không thêm logic: chạy test có sẵn, xác nhận xanh trước khi sửa).
+3. Green: code tối thiểu đúng `Kind` của task cho test pass; rồi refactor nếu cần, test vẫn xanh.
+4. Chạy lệnh test của task + test có sẵn liên quan + lint/typecheck: phải xanh. Không commit khi đỏ.
+5. `git add -- <file của task>`, kiểm `git diff --cached --name-only` nằm trong `Files` của task và
+   danh sách file được phép của slice, rồi commit với subject dự kiến (được chỉnh chữ, giữ ý).
+6. Ghi một dòng ledger: `Task k: complete (commits <TASK_BASE 7>..<HEAD 7>, kind: <Kind>, tests: <lệnh> → <kết quả>)`.
 
-Đo `git diff --numstat <base>` (LOC production theo định nghĩa của luật chung: added+deleted, loại path test/generated); vượt ngân sách thì ghi vào báo cáo, không tự
-mở rộng hay đổi scope. `git add -- <file được phép>`, kiểm `git diff --cached --name-only` nằm trong
-danh sách, rồi tạo đúng 1 commit (Conventional Commits; subject dùng làm title PR). Không push, không
-tạo PR.
+Luật commit:
+
+- Mỗi commit chỉ một `Kind`; test đi cùng commit của code nó kiểm. Task được có nhiều commit (vd. port:
+  chép nguyên trước, chỉnh sau); range review là `TASK_BASE..HEAD`, không dùng `HEAD~1`.
+- Không gộp hai task vào một commit, không `--amend` commit của task trước. Task không xanh được nếu
+  đứng riêng: gộp với task kế tiếp, ghi vào "Deviations from Plan".
+- Commit vượt ~200 dòng production: ghi lý do trong body.
+
+## 4b. Final verification và ngân sách
+
+Sau task cuối: verify toàn bộ AC từ `01-spec.md` (fail thì sửa trong task gây lỗi bằng commit mới
+cùng `Kind`, rồi chạy lại), và verify đã apply Must Apply (bắt buộc) + Should Apply (skip được nếu có
+lý do tốt, ghi rõ). Đo `git diff --numstat <base>` cho cả slice (LOC production theo định nghĩa của
+luật chung: added+deleted, loại path test/generated); vượt ngân sách thì ghi vào báo cáo, không tự
+mở rộng hay đổi scope. Không push, không tạo PR.
 
 Message theo chuẩn của skill `atomic-commit`: header mệnh lệnh, viết thường sau `type:`, mục tiêu ≤50 ký tự
 (cứng 72), không chấm cuối; body wrap 72 nói vì sao. Không `git add -A`/`git add .`, không `--no-verify`;
-hook fail thì sửa nguyên nhân rồi commit lại (vẫn đúng 1 commit). Chỉ áp chuẩn này, KHÔNG gọi skill
-(skill dừng chờ duyệt kế hoạch); slice là đơn vị nguyên tử nên không tách thêm commit.
+hook fail thì sửa nguyên nhân rồi commit lại. Chỉ áp chuẩn này, KHÔNG gọi skill (skill dừng chờ
+duyệt kế hoạch); ranh giới commit đã do Task plan quyết định.
 
 ## 5. Viết output file
 
@@ -122,8 +139,8 @@ TODO dở dang.
 8. **Role-model là tham khảo, không phải spec**: không implement thứ `03-role-model.md` có mà `01-spec.md`/`04-plan.md` không yêu cầu; xung đột thì theo thứ tự thẩm quyền ở §1b.
 9. **Extensibility & OCP compliance**: Tuyệt đối không chắp vá điều kiện kiểm tra == cụ thể hoặc nối thêm nhánh else if vào logic cũ; mở rộng qua bảng tra cứu hướng dữ liệu (dict/map) hoặc hàm tổng quát; abstraction chỉ khi ≥2 consumer
 10. **SRP - Phép thử 1 câu**: mô tả class bằng 1 câu liệt kê MỌI trách nhiệm sau thay đổi; có "và/and" thì tạo class riêng, test hành vi qua API công khai; ranh giới YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có 1 lý do thay đổi
-11. **TDD**: test trước (Red -> Green -> Refactor); logic mới có test cùng commit của slice; miễn trừ chỉ hàm ủy quyền thuần, getter, wiring
-12. **Slice scope**: chỉ file được phép, đúng 1 commit (message theo chuẩn `atomic-commit`), không push, không tạo PR
+11. **TDD**: test trước (Red -> Green -> Refactor); logic mới có test cùng commit của task; miễn trừ chỉ hàm ủy quyền thuần, getter, wiring
+12. **Slice scope**: chỉ file được phép, mỗi task ≥1 commit một `Kind` và xanh tại chỗ (message theo chuẩn `atomic-commit`), không gộp task, không push, không tạo PR
 </constraints>
 
 <input_parameters>
@@ -140,7 +157,7 @@ Write to [WORKFLOW_DIR]/05-impl-<n>.md:
 
 - Trạng thái triển khai: <COMPLETED | IN_PROGRESS | BLOCKED>
 - Thay đổi đã thực hiện: <tóm tắt files/modules đã sửa>
-- Nhánh/commit: <nhánh> @ <sha ngắn>
+- Nhánh/commit: <nhánh> @ <base 7>..<head 7> (<số commit> commit / <số task> task)
 - Ngân sách đo được: <LOC>/<file>
 - Kết quả kiểm thử: <unit/integration/typecheck/lint: pass/fail count>
 - Acceptance criteria: <X of Y verified pass>
@@ -181,6 +198,10 @@ Theo bảng:
 ### Integration Tests
 
 ### Quality Checks (Lint, Typecheck)
+
+## Task Ledger
+
+- Task 1: complete (commits <base7>..<head7>, kind: <Kind>, tests: <lệnh> → <kết quả>)
 
 ## Deviations from Plan
 

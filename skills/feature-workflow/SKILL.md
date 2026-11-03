@@ -49,7 +49,7 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
 - Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG` và `STORY` (chỉ Bước 1) - subagent tự đọc
   hướng dẫn từ definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
-  BUDGET`, do orchestrator chép từ bảng slice trong `## TÓM TẮT` của `04-plan.md`.
+  BUDGET, TASKS`, do orchestrator chép từ bảng slice và Task plan trong `## TÓM TẮT` của `04-plan.md`.
 
 ## Chẻ PR theo slice (luật chung)
 
@@ -60,11 +60,16 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
 - **Trục chẻ**: **slice chuẩn bị** (refactor/migrate cần thiết, không đổi hành vi) đứng đầu, bỏ nếu
   không cần, không tạo slice rỗng; sau đó các lát dọc, mỗi lát giao trọn một phần AC. Story nhỏ vẫn là
   1 slice.
-- **Mỗi slice đúng 1 commit**, nhánh `<slug>/<n>-<tên-slice>`. Slice 1 base vào nhánh hiện tại lúc gọi
-  workflow; slice n base vào slice n-1. Chồng tuyến tính, không rebase. Message theo chuẩn của skill
-  `atomic-commit` (Conventional Commits, quy tắc Beams); trong workflow này slice là đơn vị nguyên tử nên vẫn
-  đúng 1 commit, không tách thêm.
-- **Mỗi slice build và test xanh** tại vị trí của nó trong chồng; test nằm cùng commit của slice.
+- **Mỗi slice một nhánh** `<slug>/<n>-<tên-slice>`, một PR. Slice 1 base vào nhánh hiện tại lúc gọi
+  workflow; slice n base vào slice n-1. Chồng tuyến tính, không rebase giữa các slice.
+- **Commit theo task, không theo slice.** Bước 4 chẻ mỗi slice thành task (Task plan); task là đơn vị
+  nhỏ nhất có vòng test riêng, mỗi task kết thúc bằng ≥1 commit một `Kind` (`refactor`/`add`/`change`/
+  `switch`/`remove`). Phép thử tách: reviewer có thể từ chối task này mà vẫn duyệt task bên cạnh. Port
+  code lớn chép nguyên trước, chỉnh sau; thay đổi hành vi không đi cùng commit xoá; ngưỡng mềm ~200 dòng
+  production mỗi commit. Message theo chuẩn của skill `atomic-commit` (Conventional Commits, quy tắc
+  Beams). Review cắt range theo `BASE..HEAD`, không `HEAD~1`; Bước 7 không viết lại lịch sử, mỗi fix là
+  commit mới một `Kind`.
+- **Mỗi commit build và test xanh** tại vị trí của nó; test nằm cùng commit của task.
 - **Bước 1-4 chạy 1 lần** cho cả story; **Bước 5→6→7 lặp theo từng slice**, xong slice n mới sang n+1.
 - Chỉ `git add -- <file được phép>`, không `--no-verify`; `.workflows/` không bao giờ vào commit. KHÔNG push, KHÔNG tạo PR.
 
@@ -75,8 +80,8 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   01-spec.md         <- Bước 1: phạm vi + acceptance criteria + ràng buộc
   02-research.md     <- Bước 2: best practice ngành theo loại project, đối chiếu convention nội bộ
   03-role-model.md   <- Bước 3: code mẫu best practice (THROWAWAY, không phải deliverable)
-  04-plan.md         <- Bước 4: hướng đã chọn + danh sách thay đổi + Slice plan
-  05-impl-<n>.md     <- Bước 5 (slice n): đã code gì + kết quả test + commit
+  04-plan.md         <- Bước 4: hướng đã chọn + danh sách thay đổi + Slice plan + Task plan
+  05-impl-<n>.md     <- Bước 5 (slice n): đã code gì + kết quả test + task ledger
   06-review-<n>.md   <- Bước 6 (slice n): review + phân loại Blocker/Major/Minor
   07-fix-<n>.md      <- Bước 7 (slice n): sửa toàn bộ Blocker/Major/Minor + ghi chú ship
 ```
@@ -136,7 +141,7 @@ Tham số:
 - LEGACY_CATALOG: <đường dẫn tuyệt đối tới legacy-techniques.md>
 - STORY: <chỉ Bước 1: nội dung story đã lấy được>
 - SLICE: <chỉ Bước 5-7: số slice n>
-- BRANCH, BASE, FILES, AC, BUDGET: <chỉ Bước 6: chép từ bảng slice của 04-plan.md>
+- BRANCH, BASE, FILES, AC, BUDGET, TASKS: <chỉ Bước 6: chép từ bảng slice và Task plan của 04-plan.md>
 ```
 
 ## Các cổng người duyệt
@@ -174,7 +179,7 @@ chẻ slice": không dừng, chấp nhận vượt ngân sách; ghi đề xuất
 **Sau slice cuối (Bước 7, hoặc Bước 6 nếu không có gì để sửa)** - cổng cuối: trình `## TÓM TẮT`, báo
 **đã commit local theo slice, có nhánh `<slug>/<n>-<tên-slice>` cho từng slice, KHÔNG push, KHÔNG tạo
 PR, không merge**. Kèm bảng mỗi slice: nhánh, base PR, lệnh `git push -u origin <nhánh>`, title PR gợi ý
-(`git log -1 --format=%s <nhánh>`), description gợi ý (AC giao, kết quả test, "Base: <nhánh trước>").
+(cột `PR title` của bảng slice), danh sách commit (`git log --oneline <base>..<nhánh>`), description gợi ý (AC giao, kết quả test, "Base: <nhánh trước>").
 
 ## Nguyên tắc xuyên suốt
 
@@ -206,7 +211,7 @@ PR, không merge**. Kèm bảng mỗi slice: nhánh, base PR, lệnh `git push -
   "và/and" thì tách class riêng (vd. `isEcsPass` trong `FemomBroadcastSender` -> `EcsPassPolicy`);
   test theo hành vi qua API công khai, không bắt buộc 1 file test cho mỗi class tách ra. Ranh giới
   YAGNI: không tách helper private nhỏ dùng state, không tách khi chỉ có 1 lý do thay đổi. Logic mới
-  viết test trước (TDD), test cùng commit của slice - chi tiết ở fw-5/fw-6.
+  viết test trước (TDD), test cùng commit của task - chi tiết ở fw-5/fw-6.
 - **Best practice ngành ưu tiên hơn convention nội bộ, nhưng không phải cớ over-engineering.** Bước 2
   xếp khuyến nghị vào nhóm trùng/nên-đổi/nên-giữ theo tiêu chí này; Bước 4/5/6 (over-engineering là
   Major)/7 đều áp dụng SOLID (Single Responsibility, Open/Closed, Liskov Substitution, Interface
