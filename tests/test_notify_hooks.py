@@ -279,7 +279,7 @@ class TestNotifyScript(NotifyTestCase):
 class TestHooksConfig(unittest.TestCase):
     def test_hooks_json_structure(self):
         hooks = json.loads(HOOKS_JSON.read_text(encoding="utf-8"))["hooks"]
-        self.assertEqual(set(hooks), {"Stop", "PreToolUse", "Notification"})
+        self.assertEqual(set(hooks), {"Stop", "PreToolUse", "Notification", "PostToolUse"})
         self.assertNotIn("SubagentStop", hooks)
         expected = {
             "Stop": (None, "stop"),
