@@ -431,8 +431,10 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Hướng mở rộng sau", read("agents", "fw-1-spec.md"))
 
         fw4 = read("agents", "fw-4-plan.md")
-        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer"):
+        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer", "Task plan", "PR title"):
             self.assertIn(token, fw4)
+        for kind in ("`refactor`", "`add`", "`change`", "`switch`", "`remove`"):
+            self.assertIn(kind, fw4)
 
         fw5 = read("agents", "fw-5-impl.md")
         self.assertIn("đúng 1 commit", fw5)

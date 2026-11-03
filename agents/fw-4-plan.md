@@ -117,7 +117,35 @@ vẫn là 1 slice, trừ khi §2b chọn bậc 2 (slice chuẩn bị + slice hà
   --show-current` lúc lập plan; slice n = nhánh n-1), AC giao, danh sách file được phép chạm (đường dẫn
   cụ thể, gồm cả file test).
 - Mỗi slice xanh tại chỗ, không phụ thuộc slice sau; mọi deliverable thuộc đúng 1 slice.
+- Mỗi slice có `PR title` theo Conventional Commits (dùng làm title PR, vì slice có nhiều commit).
 - Ước lượng >~5 slice thì ghi khuyến nghị chẻ story.
+
+## 5c. Task plan (đơn vị commit)
+
+Chẻ mỗi slice thành task theo thứ tự thực hiện. Task là đơn vị nhỏ nhất có vòng test riêng (hoặc
+cách kiểm chứng riêng) và kết thúc bằng commit; slice là đơn vị PR. Phép thử tách: reviewer có thể
+từ chối task này mà vẫn duyệt task bên cạnh không? Có thì tách; không thì gộp. Slice nhỏ có thể chỉ
+có 1 task.
+
+Mỗi task ghi: `Kind`, `Files` (Create/Modify/Test, nằm trong file được phép của slice), lệnh test
+(hoặc cách kiểm chứng), subject commit dự kiến. `Kind` là một trong:
+
+| Kind | Nội dung commit | Không được chứa |
+|---|---|---|
+| `refactor` | đổi cấu trúc, không đổi hành vi (rename, extract, move) | hành vi mới |
+| `add` | code mới kèm test, chưa có caller (Parallel Change: expand) | đổi caller cũ |
+| `change` | sửa hành vi tại chỗ kèm test | refactor, xoá code chết |
+| `switch` | chuyển caller sang code mới; thường là commit duy nhất đổi thứ người dùng thấy | code mới có logic |
+| `remove` | thuần xoá code/file/resource không còn dùng (contract) | thay đổi hành vi |
+
+Luật thứ tự và kích thước:
+
+- `refactor` đứng trước task đổi hành vi; `add` → `switch` → `remove` khi thay thế đường cũ.
+- Port code lớn: task `add` đầu chép nguyên, chỉ sửa phần bắt buộc để compile; các chỉnh sửa là task
+  sau, để reviewer so task đầu với file gốc bằng diff.
+- Thay đổi hành vi không bao giờ đi cùng task `remove`.
+- Mỗi task xanh tại chỗ (build + test pass sau commit của nó), không phụ thuộc task sau.
+- Ngưỡng mềm ~200 dòng production mỗi task; vượt thì ghi lý do ở task và trong body commit.
 
 ## 6. Test plan
 
@@ -144,7 +172,8 @@ biết:
 7. **Testable plan**: cover critical paths
 8. **Extension Points & OCP Evaluation**: Chỉ đánh giá trục biến thiên đã có thật và cơ chế không nối dài if-else; không dựng sẵn khung mở rộng; nhu cầu tương lai ghi vào Hướng mở rộng sau
 9. **Slice budget**: tự chẻ slice theo §5b khi vượt ≤~400 dòng production / ≤~15 file; mỗi slice có nhánh, base, file được phép chạm
-10. **Thang chi phí legacy (§2b)**: chọn bậc thấp nhất đủ dùng; leo bậc phải có `Lý do bậc rẻ hơn không đủ`, thiếu là plan không hợp lệ; thiếu thông tin thì ghi câu hỏi, không đoán
+10. **Task plan**: mỗi slice chẻ thành task theo §5c, mỗi task một `Kind`, xanh tại chỗ và kết thúc bằng commit
+11. **Thang chi phí legacy (§2b)**: chọn bậc thấp nhất đủ dùng; leo bậc phải có `Lý do bậc rẻ hơn không đủ`, thiếu là plan không hợp lệ; thiếu thông tin thì ghi câu hỏi, không đoán
 </constraints>
 
 <input_parameters>
@@ -163,7 +192,8 @@ Write to [WORKFLOW_DIR]/04-plan.md:
 - Bậc legacy: <Sprout Method/Sprout Class/Wrap Method/Wrap Class/dependency-breaking/B-by-A/Strangler Fig (+ Mikado) + Lý do bậc rẻ hơn không đủ | "không áp dụng">
 - Second-order effects chính: <rủi ro + cách giảm thiểu>
 - Danh sách thay đổi (deliverables): <tuần tự, đã xét dependencies>
-- Slice plan: <bảng n | tên | nhánh | base | AC | ước lượng LOC/file | file được phép chạm>; orchestrator chép từ bảng này vào prompt Bước 5-7
+- Slice plan: <bảng n | tên | PR title | nhánh | base | AC | ước lượng LOC/file | file được phép chạm>; orchestrator chép từ bảng này vào prompt Bước 5-7
+- Task plan: <mỗi slice một danh sách `k. <Kind> - <subject commit dự kiến>`>; orchestrator chép vào TASKS của Bước 6
 - Test plan tóm tắt: <kịch bản cốt lõi>
 
 ## CHI TIẾT
@@ -239,6 +269,19 @@ Chỉ khi §2b dùng Mikado: checklist lồng `- [ ] Goal` / `- [ ] Prereq` / `-
 ## Slice plan
 
 Trục chẻ, thứ tự, lý do mỗi slice xanh tại chỗ; bảng slice như ở TÓM TẮT.
+
+## Task plan
+
+Theo §5c, mỗi slice một nhóm task:
+
+```markdown
+### Slice <n> / Task <k>: <subject commit dự kiến>
+- Kind: <refactor | add | change | switch | remove>
+- Files: Create `<path>`; Modify `<path>`; Test `<path>`
+- Test: `<lệnh test>` (hoặc cách kiểm chứng nếu không có test)
+- Reject riêng được: <vì sao reviewer có thể từ chối riêng task này>
+- Vượt ~200 dòng production: <lý do | "không">
+```
 
 ## Test Plan
 
