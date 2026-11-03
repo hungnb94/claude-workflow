@@ -54,12 +54,14 @@ has jq || exit 0
 file=$(json_field '.tool_input.file_path')
 is_kotlin_source "$file" || exit 0
 
-root=${CLAUDE_PROJECT_DIR:-$(json_field '.cwd')}
+cwd=$(json_field '.cwd')
+root=${CLAUDE_PROJECT_DIR:-$cwd}
 case "$file" in
   /*) ;;
   *)
-    [ -n "$root" ] || exit 0
-    file="$root/$file"
+    base=${cwd:-$root}
+    [ -n "$base" ] || exit 0
+    file="$base/$file"
     ;;
 esac
 
@@ -68,7 +70,7 @@ has_glob_chars "$file" && exit 0
 
 bin=$(find_ktlint) || exit 0
 
-out=$(cd "${root:-${file%/*}}" 2>/dev/null && "$bin" --format "$file" 2>&1)
+out=$({ cd "$root" 2>/dev/null || cd "${file%/*}/"; } && "$bin" --format "$file" 2>&1)
 status=$?
 [ "$status" -eq 0 ] && exit 0
 [ -n "$out" ] || exit 0

@@ -126,6 +126,24 @@ class TestBinaryLookup(KtlintHookCase):
         self.assertSilent(result)
         self.assertEqual(self.calls(), [f"{local} --format {path}"])
 
+    def test_relative_path_resolves_against_input_cwd(self):
+        ktlint = self.fake_ktlint(self.bin / "ktlint")
+        path = self.make_file("sub/App.kt")
+        result = self.run_hook(self.payload("App.kt", cwd=str(self.proj / "sub")))
+        self.assertSilent(result)
+        self.assertEqual(self.calls(), [f"{ktlint} --format {path}"])
+
+    def test_missing_project_dir_falls_back_to_file_dir(self):
+        ktlint = self.fake_ktlint(self.bin / "ktlint")
+        path = self.make_file("App.kt")
+        env_proj, self.proj = self.proj, self.tmp / "gone"
+        try:
+            result = self.run_hook(self.payload(path))
+        finally:
+            self.proj = env_proj
+        self.assertSilent(result)
+        self.assertEqual(self.calls(), [f"{ktlint} --format {path}"])
+
     def test_directory_named_ktlint_is_skipped(self):
         (self.proj / "ktlint").mkdir()
         path = self.make_file("App.kt")
@@ -215,11 +233,14 @@ class TestHooksConfig(unittest.TestCase):
     def test_script_shebang_and_mode(self):
         self.assertEqual(SCRIPT.read_text(encoding="utf-8").splitlines()[0], "#!/bin/sh")
         self.assertTrue(os.access(SCRIPT, os.X_OK))
-        out = subprocess.run(
-            ["git", "ls-files", "-s", "hooks/ktlint-format.sh"],
-            cwd=ROOT_DIR, capture_output=True, text=True, timeout=10,
-        ).stdout
-        if out:
+        try:
+            out = subprocess.run(
+                ["git", "ls-files", "-s", "hooks/ktlint-format.sh"],
+                cwd=ROOT_DIR, capture_output=True, text=True, timeout=10,
+            ).stdout
+        except (OSError, subprocess.SubprocessError):
+            out = ""
+        if out.strip():
             self.assertTrue(out.startswith("100755"), out)
 
 
