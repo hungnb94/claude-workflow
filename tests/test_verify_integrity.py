@@ -427,27 +427,39 @@ class TestVerifyIntegrity(unittest.TestCase):
                       "KHÔNG push", "KHÔNG tạo PR", "git push -u origin", "05-impl-<n>.md"):
             self.assertIn(token, skill)
         self.assertNotIn("chưa commit", skill)
+        self.assertNotIn("Mỗi slice đúng 1 commit", skill)
+        self.assertIn("Commit theo task", skill)
 
         self.assertIn("Hướng mở rộng sau", read("agents", "fw-1-spec.md"))
 
         fw4 = read("agents", "fw-4-plan.md")
-        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer"):
+        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer", "Task plan", "PR title"):
             self.assertIn(token, fw4)
+        for kind in ("`refactor`", "`add`", "`change`", "`switch`", "`remove`"):
+            self.assertIn(kind, fw4)
 
         fw5 = read("agents", "fw-5-impl.md")
-        self.assertIn("đúng 1 commit", fw5)
+        self.assertNotIn("đúng 1 commit", fw5)
+        self.assertIn("Vòng task", fw5)
+        self.assertIn("Task Ledger", fw5)
         self.assertIn("API công khai", fw5)
         self.assertNotIn("CÙNG commit đầu", fw5)
 
         fw6 = read("agents", "fw-6-review.md")
         self.assertIn("git diff --numstat", fw6)
         self.assertIn("Scope & Budget Audit", fw6)
+        self.assertIn("Commit Granularity Audit", fw6)
+        self.assertIn("[TASKS]", fw6)
+        self.assertNotIn("Số commit phải là 1", fw6)
         self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools", []))
 
         fw7 = read("agents", "fw-7-fix.md")
         self.assertIn("git push -u origin", fw7)
         self.assertIn("Ship notes", fw7)
         self.assertNotIn("do NOT commit", fw7)
+        self.assertIn("Không viết lại commit đã có", fw7)
+        self.assertNotIn("git rebase -i", fw7)
+        self.assertNotIn("git rev-list --count <base>..HEAD` = 1", fw7)
 
         standards = read("skills", "android-standards-workflow", "standards.md")
         for token in ("tách slice riêng", "/refactor-code-workflow", ":core:ui"):

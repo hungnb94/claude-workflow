@@ -76,7 +76,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 ### 6.3 Testing
 
 - TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. [16]
-- Hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của slice; miễn trừ chỉ cho hàm ủy quyền thuần, getter, wiring. [6,16]
+- Hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của task; miễn trừ chỉ cho hàm ủy quyền thuần, getter, wiring. [6,16]
 - Test theo hành vi qua API công khai (ViewModel `uiState`, UseCase, Repository), không bắt buộc 1 file test cho mỗi class; bỏ test cho class chỉ chứa dữ liệu, serializer/mapper đơn giản. Test không tính vào ngân sách slice. [6,18]
 - Ưu tiên fake hơn mock - fake nhẹ, không cần framework mock, dễ đọc; mock chỉ dùng khi cần verify tương tác (gọi bao nhiêu lần, tham số gì) mà fake không diễn đạt được. [6]
 - Test coroutine/Flow bằng `runTest`, inject `TestDispatcher` (`StandardTestDispatcher`/`UnconfinedTestDispatcher`) thay vì dispatcher thật. [1,6]

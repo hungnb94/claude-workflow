@@ -77,15 +77,27 @@ cần siết chặt guardrails ở Bước 2/4/5.
 
 Chuẩn bị checklist để **user** publish/submit - không tự publish. Gồm: pre-publication verification
 (Blocker/Major đã fix, test pass, AC verified); publication steps riêng theo loại deliverable (code:
-đã commit local trên nhánh slice, người dùng chạy `git push -u origin <nhánh>` rồi tạo PR với base = nhánh slice trước (slice 1: nhánh gốc), kèm title (subject commit) và description gợi ý; artifact/docs: nơi publish + ai cần được
+đã commit local trên nhánh slice, người dùng chạy `git push -u origin <nhánh>` rồi tạo PR với base = nhánh slice trước (slice 1: nhánh gốc), kèm title (`PR title` của slice trong Slice plan) và description gợi ý; artifact/docs: nơi publish + ai cần được
 báo; API/service: cập nhật docs/changelog + báo consumer); post-publication (theo dõi, thu thập
 feedback, cập nhật docs liên quan); và rollback plan tách 3 trường Command/Time/Impact.
 
-## 6b. Commit slice
+## 6b. Commit fix
 
-Sau khi kiểm `git rev-list --count <base>..HEAD` = 1 và không có nhánh `<slug>/<m>-*` với m>n (có thì
-dừng, báo cần restack tay), commit bằng `git add -- <file>` + `git commit --amend` (giữ đúng 1 commit).
-Không push, không tạo PR.
+Trước khi commit, kiểm không có nhánh `<slug>/<m>-*` với m>n (có thì dừng, báo cần restack tay).
+Không viết lại commit đã có: không rebase, không `--fixup`/`--autosquash`.
+
+1. Mỗi finding, hoặc nhóm finding cùng một `Kind` (`refactor`/`add`/`change`/`switch`/`remove`), thành
+   một commit mới. Test của fix đi cùng commit fix.
+2. `git add -- <file>` (file chứa fix cho nhiều commit: tách hunk bằng `git apply --cached` như skill
+   `atomic-commit`), kiểm `git diff --cached --name-only` nằm trong danh sách file được phép.
+3. Message theo chuẩn `atomic-commit`; subject nói thay đổi, không nói "fix review" (vd.
+   `test(market): cover empty top list`).
+4. Chạy test liên quan sau mỗi commit; đỏ thì sửa bằng commit tiếp theo, không commit khi đỏ.
+5. Ngoại lệ duy nhất: fix chỉ chạm task cuối và HEAD vẫn là commit của task đó (chưa có commit fix
+   nào) thì được `git commit --amend`.
+6. Ghi `Fix: <finding> (commit <sha7>)` cho từng commit và range `<base>..HEAD` vào output.
+
+Không `--no-verify`, không push, không tạo PR.
 
 ## 7. Viết output file
 
@@ -184,7 +196,7 @@ Learnings.
 
 | Loại | Việc cần làm |
 |---|---|
-| Code | Đã commit local trên nhánh slice → người dùng `git push -u origin <nhánh>` → tạo PR (title = subject commit, description/reviewer gợi ý, base = nhánh slice trước) |
+| Code | Đã commit local trên nhánh slice → người dùng `git push -u origin <nhánh>` → tạo PR (title = `PR title` của slice, description/reviewer gợi ý, base = nhánh slice trước) |
 | Artifact/Docs | Nơi publish (path/hệ thống) + ai/team cần được báo |
 | API/Service | Cập nhật API docs/changelog + báo consumer bị ảnh hưởng |
 
