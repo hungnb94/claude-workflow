@@ -36,6 +36,7 @@ Thứ tự chi phí trong bậc 1 của fw: Sprout Method < Sprout Class < Wrap 
 ## Kỹ thuật
 
 ### Sprout Method
+
 - Bậc: 1
 - Mũ: feature
 - Khi dùng: hành vi mới độc lập và class cũ khởi tạo được trong test.
@@ -60,6 +61,7 @@ def legacy_invoice(order):
 Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unknown_region_raises`.
 
 ### Sprout Class
+
 - Bậc: 1
 - Mũ: feature
 - Khi dùng: class cũ không đưa vào harness được; class mới là class cụ thể, không interface.
@@ -69,6 +71,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: code cũ vẫn chưa test.
 
 ### Wrap Method
+
 - Bậc: 1
 - Mũ: feature
 - Khi dùng: hành vi mới phải chạy ngay trước/sau mọi lời gọi method cũ.
@@ -78,6 +81,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: code cũ vẫn chưa test; tên method dễ gây hiểu lầm.
 
 ### Wrap Class
+
 - Bậc: 1
 - Mũ: feature
 - Khi dùng: như Wrap Method nhưng không muốn làm to class cũ, hoặc nhiều nơi gọi cần cùng lớp bọc (decorator).
@@ -87,6 +91,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: code cũ vẫn chưa test.
 
 ### Parameterize Constructor
+
 - Bậc: 2
 - Mũ: chung
 - Khi dùng: constructor tự tạo dependency cứng nên không khởi tạo được trong test.
@@ -96,6 +101,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: constructor cũ còn tồn tại để tương thích.
 
 ### Extract Interface
+
 - Bậc: 2
 - Mũ: chung
 - Khi dùng: cần thay dependency bằng fake trong test.
@@ -105,6 +111,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: interface chỉ phục vụ seam, cần gỡ khi không còn cần.
 
 ### Extract and Override Call
+
 - Bậc: 2
 - Mũ: chung
 - Khi dùng: một lời gọi phụ thuộc ngoài (I/O, thời gian) chặn việc kiểm thử method.
@@ -114,6 +121,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: subclass test và method trích còn tồn tại.
 
 ### Branch by Abstraction
+
 - Bậc: 3
 - Mũ: chung
 - Khi dùng: thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice. Parallel Change (expand, migrate, contract) là biến thể nhỏ.
@@ -123,6 +131,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: hai đường cùng tồn tại cho tới bước xoá.
 
 ### Strangler Fig
+
 - Bậc: 4
 - Mũ: chung
 - Khi dùng: thay hệ thống con qua ranh giới ngoài, chuyển dần từng chức năng.
@@ -132,6 +141,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Nợ còn lại: hệ thống cũ chạy song song cho tới khi gỡ.
 
 ### Mikado Method
+
 - Bậc: lớp phủ
 - Mũ: chung
 - Khi dùng: một bước làm vỡ nhiều chỗ ngoài vùng dự kiến. Quy trình: đặt goal, thử đổi ngây thơ, nếu vỡ (build/test đỏ ngoài dự kiến) thì revert toàn bộ lần thử và ghi prerequisite làm node con, lặp lại, làm từ lá về goal, mỗi lá xanh.
