@@ -81,7 +81,7 @@ Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một b�
 
 Chi tiết từng kỹ thuật (Khi dùng, Các bước, Test bắt buộc, Nợ còn lại), quy ước chung và "Test đầy đủ
 cho code mới" nằm ở `legacy-techniques.md`; đọc theo tham số `LEGACY_CATALOG`, fallback Glob
-`**/legacy-techniques.md`, không thấy thì ghi 1 dòng trong output và dùng bảng bậc trên. Không chép lại
+`**/solution-brainstorm/legacy-techniques.md`, không thấy thì ghi 1 dòng trong output và dùng bảng bậc trên. Không chép lại
 nội dung catalog vào plan, chỉ ghi tên kỹ thuật + bậc.
 
 - Leo bậc phải ghi `Lý do bậc rẻ hơn không đủ` vào `04-plan.md`. Thiếu thông tin thì ghi câu hỏi, không
@@ -89,7 +89,7 @@ nội dung catalog vào plan, chỉ ghi tên kỹ thuật + bậc.
 - Bậc 2 là slice chuẩn bị (không đổi hành vi), tách khỏi slice thêm hành vi; đây là lý do chẻ slice
   hợp lệ dù chưa vượt ngân sách §5b.
 - Mikado: khi một bước dự kiến làm vỡ nhiều chỗ, ghi mục `### Mikado graph` trong `04-plan.md` (lá ánh
-  xạ vào deliverable/slice chuẩn bị); không cần thì bỏ mục.
+  xạ vào deliverable/slice chuẩn bị); không cần thì ghi "không áp dụng".
 
 ## 3. Choose approach
 

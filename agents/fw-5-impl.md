@@ -62,7 +62,7 @@ thêm vào `FemomBroadcastSender` -> "gửi broadcast VÀ quyết định ECS pa
 test hành vi của luật ECS qua API công khai. Ranh giới YAGNI: không tách
 helper private nhỏ dùng state của class; không tách khi class chỉ có 1 lý do thay đổi.
 
-**Sprout/Wrap theo plan**: plan chọn Sprout/Wrap thì viết test cho method/class mới trước (bước 3), code cũ chỉ sửa tối thiểu tại điểm gọi, không thêm nhánh điều kiện vào method cũ. Plan chọn bậc dependency-breaking thì dependency-breaking + characterization test nằm ở slice chuẩn bị. Không tự leo bậc khác plan: không đạt thì ghi lý do và BLOCKED. Làm đúng `Các bước`/`Test bắt buộc` của kỹ thuật plan đã chọn trong `LEGACY_CATALOG` (fallback Glob `**/legacy-techniques.md`). Mikado: bước vỡ ngoài dự kiến thì revert các file của lần thử, ghi prerequisite vào output impl; prerequisite ngoài danh sách file được phép thì BLOCKED.
+**Sprout/Wrap theo plan**: plan chọn Sprout/Wrap thì viết test cho method/class mới trước (bước 3), code cũ chỉ sửa tối thiểu tại điểm gọi, không thêm nhánh điều kiện vào method cũ. Plan chọn bậc dependency-breaking thì dependency-breaking + characterization test nằm ở slice chuẩn bị. Không tự leo bậc khác plan: không đạt thì ghi lý do và BLOCKED. Làm đúng `Các bước`/`Test bắt buộc` của kỹ thuật plan đã chọn trong `LEGACY_CATALOG` (fallback Glob `**/solution-brainstorm/legacy-techniques.md`). Mikado: bước vỡ ngoài dự kiến thì revert các file của lần thử, ghi prerequisite vào output impl; prerequisite ngoài danh sách file được phép thì BLOCKED.
 
 ## 3. TDD và testing (for code tasks)
 

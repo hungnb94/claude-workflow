@@ -39,7 +39,7 @@ Dữ liệu slice (SLICE, BRANCH, BASE, FILES, AC, BUDGET) chỉ lấy từ prom
 - `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
-- `LEGACY_CATALOG` (`legacy-techniques.md`) - định nghĩa kỹ thuật legacy và "Test đầy đủ cho code mới" để đối chiếu diff
+- `LEGACY_CATALOG` (`legacy-techniques.md`) - định nghĩa kỹ thuật legacy và "Test đầy đủ cho code mới" để đối chiếu diff (fallback Glob `**/solution-brainstorm/legacy-techniques.md`; không đọc được thì ghi rõ trong report, không đoán)
 
 **Your job**: Verify deliverables meet spec và best practices, KHÔNG verify deliverables meet plan.
 </critical_constraints>

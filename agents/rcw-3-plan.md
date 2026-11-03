@@ -69,7 +69,7 @@ Abstraction) và Fowler (Strangler Fig), không phải quy tắc chuẩn ngành.
 
 Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc. Chi tiết kỹ thuật (Các bước, Test
 bắt buộc) nằm ở `legacy-techniques.md`, chỉ dùng mục `Mũ: chung`; đọc theo tham số `LEGACY_CATALOG`,
-fallback Glob `**/legacy-techniques.md`, không thấy thì ghi 1 dòng và dùng bảng bậc trên.
+fallback Glob `**/solution-brainstorm/legacy-techniques.md`, không thấy thì ghi 1 dòng và dùng bảng bậc trên.
 
 - Mikado: khi một move dự kiến làm vỡ nhiều chỗ ngoài `Vùng thay đổi`, ghi `### Mikado graph` trong
   `03-plan.md` (lá ánh xạ vào micro-step/seam); không cần thì ghi "không áp dụng".

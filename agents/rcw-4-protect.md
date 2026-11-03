@@ -48,7 +48,7 @@ chưa xanh.
 
 Sửa production code **chỉ** theo đúng các kỹ thuật dependency-breaking đã liệt kê ở
 `### Seams & Dependency Breaking` của `03-plan.md` (vd Parameterize Constructor, Extract Interface) -
-giữ nguyên signature/hành vi quan sát được, mỗi thay đổi ghi lại trong Baseline Manifest. Làm đúng `Các bước`/`Test bắt buộc` của kỹ thuật đó trong `LEGACY_CATALOG` (fallback Glob `**/legacy-techniques.md`, chỉ mục `Mũ: chung`). Seam vỡ ngoài dự kiến (Mikado): revert lần thử, ghi prerequisite vào output; prerequisite ngoài danh sách seam thì BLOCKED. Nếu không
+giữ nguyên signature/hành vi quan sát được, mỗi thay đổi ghi lại trong Baseline Manifest. Làm đúng `Các bước`/`Test bắt buộc` của kỹ thuật đó trong `LEGACY_CATALOG` (fallback Glob `**/solution-brainstorm/legacy-techniques.md`, chỉ mục `Mũ: chung`). Seam vỡ ngoài dự kiến (Mikado): revert lần thử, ghi prerequisite vào output; prerequisite ngoài danh sách seam thì BLOCKED. Nếu không
 cần sửa production code để tạo seam (seam có sẵn hoặc seam phía test), bỏ qua bước này.
 
 ## 5. Ghi nhận phát hiện ngoài phạm vi

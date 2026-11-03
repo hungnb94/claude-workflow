@@ -418,21 +418,22 @@ def check_catalog_references(repo_root: Path) -> bool:
     """
     print("[INFO] Running Shared Catalog Reference Check...")
     all_valid = True
+    contents = {}
+    for pattern in SCANNED_GLOBS:
+        for md_file in sorted(repo_root.glob(pattern)):
+            try:
+                contents[md_file] = md_file.read_text(encoding="utf-8")
+            except Exception as e:
+                print(f"[FAIL] Could not read {md_file.relative_to(repo_root)}: {e}")
+                all_valid = False
+
     for name, rel_path in SHARED_REFERENCE_FILES.items():
         target = repo_root / rel_path
-        referrers = []
-        for pattern in SCANNED_GLOBS:
-            for md_file in sorted(repo_root.glob(pattern)):
-                if md_file == target:
-                    continue
-                try:
-                    content = md_file.read_text(encoding="utf-8")
-                except Exception as e:
-                    print(f"[FAIL] Could not read {md_file.relative_to(repo_root)}: {e}")
-                    all_valid = False
-                    continue
-                if name in content:
-                    referrers.append(md_file.relative_to(repo_root))
+        referrers = [
+            md_file.relative_to(repo_root)
+            for md_file, content in contents.items()
+            if md_file != target and name in content
+        ]
 
         if referrers and not target.is_file():
             listed = ", ".join(str(r) for r in referrers)

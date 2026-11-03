@@ -12,8 +12,8 @@ dùng mục `Mũ: chung`.
 | Bậc | fw (thêm tính năng) | rcw (refactor) | Đủ khi | Leo bậc kế khi |
 |---|---|---|---|---|
 | 1 | Sprout/Wrap | micro-step Fowler | Thay đổi nhỏ, độc lập, không cần sửa logic cũ | Phải sửa logic đang có, hoặc điểm gọi buộc thêm nhánh điều kiện |
-| 2 | dependency-breaking Feathers | dependency-breaking Feathers | Sửa được trong ngân sách slice | Phải thay thành phần có ≥2 consumer |
-| 3 | Branch by Abstraction | Branch by Abstraction | Đường cũ/mới cùng tồn tại qua nhiều slice | Thay cả hệ thống con qua ranh giới ngoài |
+| 2 | dependency-breaking Feathers | dependency-breaking Feathers | Sửa/tạo seam được trong ngân sách slice  | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice/increment |
+| 3 | Branch by Abstraction | Branch by Abstraction | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
 | 4 | Strangler Fig | Strangler Fig | Bậc cuối | Không có - đề nghị chẻ story |
 
 Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc.
