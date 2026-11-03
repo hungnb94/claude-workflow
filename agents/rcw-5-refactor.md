@@ -40,6 +40,7 @@ Theo Thang chi phí (§2b `rcw-3-plan`): move bậc 1 do bước này làm, mỗ
 bước, đỏ thì revert; seam bậc 2 đã do `rcw-4-protect` làm; bậc 3-4 chỉ làm đúng increment đã chỉ định.
 **Không tự leo bậc**: move trong Sequence không đạt mục tiêu thì ghi lý do và đánh dấu BLOCKED, không
 tự thêm abstraction hay đường chạy song song.
+Mikado: move vỡ ngoài dự kiến thì hoàn tác tay toàn bộ lần thử, ghi prerequisite vào output; prerequisite ngoài `Vùng thay đổi` thì BLOCKED. Chi tiết trong `LEGACY_CATALOG` (fallback Glob `**/solution-brainstorm/legacy-techniques.md`, chỉ mục `Mũ: chung`).
 
 ## 3. Giới hạn phạm vi sửa đổi
 
@@ -86,6 +87,7 @@ Ghi `[WORKFLOW_DIR]/05-refactor.md` theo cấu trúc `<output>` (không lặp l�
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md, 02-research.md, 03-plan.md, 04-protect.md
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>

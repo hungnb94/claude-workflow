@@ -58,6 +58,7 @@ Repeat this block for A, B and C.
 - Pros:
 - Cons:
 - When to choose:
+- Legacy technique & tests (only when Step 1 found an untested legacy target): technique and rung from `legacy-techniques.md`; new-code tests written first (TDD) covering happy/edge/error; call-site characterization test, or the untested debt; why a cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`) if it climbs.
 - Effort: S | M | L
 ```
 

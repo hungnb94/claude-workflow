@@ -37,7 +37,7 @@ Stack Overflow consensus.
 **Tier 2 - Top-tier Experts**: engineering blogs của top tech companies, conference talks,
 open-source của recognized experts, academic papers (nếu relevant).
 
-Khi `01-spec.md` ghi code đích là legacy chưa test: Tier 1 gồm Feathers (Sprout/Wrap, characterization test, dependency-breaking) với ví dụ cho stack repo đích; nếu áp dụng thì đưa vào Must Apply.
+Khi `01-spec.md` ghi code đích là legacy chưa test: Tier 1 gồm Feathers (Sprout/Wrap, characterization test, dependency-breaking) với ví dụ cho stack repo đích; nếu áp dụng thì đưa vào Must Apply. Read `LEGACY_CATALOG` (fallback Glob `**/solution-brainstorm/legacy-techniques.md`) và ghi dữ kiện theo trường `Khi dùng`/`Khi leo bậc` (có test bao phủ? khởi tạo được? số consumer?); không chọn bậc.
 
 **Lưu ý**: ưu tiên Tier 2 khi conflict với Tier 1 - top experts thường có lý do tốt cho lựa chọn.
 
@@ -88,6 +88,7 @@ này biết:
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md
+- [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
 </input_parameters>
 
 <output>
