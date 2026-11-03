@@ -18,7 +18,7 @@ Claude Workflow packages five structured workflow frameworks powered by 20 speci
 8. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
 9. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 10 options in one table and narrows them to 3 (Minimal, Balanced, Durable) with a fixed 6-criteria score table (1-5, no total). It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. For untested legacy code it maps each kept option to the shared legacy-techniques cost ladder and requires tests for the new code. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Written in English; the output follows your language.
 
-The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications).
+The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
 Each workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
 
@@ -283,6 +283,28 @@ Optional tools:
 
 A question asked through `AskUserQuestion` can trigger two alerts, one from the `PreToolUse` hook and one from the `Notification` hook.
 
+## Kotlin Formatting (ktlint)
+
+A `PostToolUse` hook (matcher `Edit|Write|MultiEdit`, timeout 30s) runs `hooks/ktlint-format.sh` after Claude writes a file. For `.kt` and `.kts` files (including `build.gradle.kts`) it runs `ktlint --format` on that single file; ktlint reads your `.editorconfig` and no style flags are passed. The hook is always on and has no flag to disable it.
+
+Install the tools: `brew install ktlint jq`. Alternatively, place an executable `ktlint` at the project root (`CLAUDE_PROJECT_DIR`, falling back to the `cwd` in the hook input).
+
+Binary lookup order: `ktlint` on `PATH` first, then `./ktlint` at the project root. `PATH` wins when both exist.
+
+The hook exits 0 and prints nothing when:
+
+- the file is not a Kotlin file, does not exist, or its path contains glob characters (`*`, `?`, `[`, `]`, `{`, `}`)
+- `jq` or `ktlint` is not installed, or the hook input is missing `file_path` or is not valid JSON
+- ktlint succeeds (the file is fixed in place)
+- ktlint fails without printing anything
+
+When ktlint still reports violations it cannot autocorrect, the hook exits 2 and sends the report to Claude on stderr, truncated to 20 lines (with a `... (N more lines truncated)` marker).
+
+Notes:
+
+- The file changes right after Claude writes it, so Claude may need to re-read it before its next edit.
+- The hook runs for every project. If a project does not use ktlint (for example it uses ktfmt or Spotless, or has no `.editorconfig`), ktlint's default style is applied and may produce noisy diffs.
+
 ## Subagents Reference
 
 ### Feature Workflow Subagents
@@ -381,7 +403,8 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── rcw-6-review.md          # Refactor Auditor: Behavior Preservation Audit (no Edit)
 │   └── rcw-7-fix.md             # Refactor Remediation: Oracle restore and root-cause fix
 ├── hooks/
-│   ├── hooks.json               # Desktop notification hooks (Stop, AskUserQuestion, Notification)
+│   ├── hooks.json               # Hooks (Stop, AskUserQuestion, Notification notifiers; PostToolUse ktlint format)
+│   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)
 │   └── notify.sh                # POSIX sh notifier for macOS/Linux (opt-out: CLAUDE_WORKFLOW_NOTIFY=0)
 ├── scripts/
 │   ├── bump-version.py          # Semantic version calculation and manifest sync
@@ -418,6 +441,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │       └── templates.md         # Fixed 6 criteria and output format
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
+│   ├── test_ktlint_format_hook.py # Unit tests for the ktlint format hook
 │   ├── test_notify_hooks.py     # Unit tests for notification hooks
 │   └── test_verify_integrity.py # Unit tests for integrity gate
 ├── .gitignore                   # Ignore rules (.workflows, .idea, OS files)
