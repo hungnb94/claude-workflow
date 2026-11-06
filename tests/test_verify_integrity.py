@@ -739,11 +739,12 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("legacy-techniques.md", skill)
         self.assertIn("Read-only", skill)
-        self.assertIn("exactly 10", skill)
-        self.assertIn("Do not add the scores up", skill)
+        self.assertIn("exactly 12", skill)
+        self.assertIn("Total row", skill)
         self.assertIn("Lý do bậc rẻ hơn không đủ", skill)
 
         self.assertIn("Legacy technique & tests", templates)
+        self.assertIn("**Total (/30)**", templates)
         criteria = re.findall(r"^(\d+)\. ", templates.split("## Output", 1)[0], flags=re.MULTILINE)
         self.assertEqual(criteria, ["1", "2", "3", "4", "5", "6"])
 

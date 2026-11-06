@@ -1,12 +1,12 @@
 ---
 name: solution-brainstorm
 disable-model-invocation: true
-description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 10 options, narrows them to 3 (Minimal, Balanced, Durable) with a fixed scoring table, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
+description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 12 options, narrows them to 3 (Minimal, Balanced, Durable) with a fixed scoring table and a total per option, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
 ---
 
 # Solution Brainstorm
 
-Think through a coding task before any code is written. Produce 10 options, keep the best 3, recommend one, and stop to ask the user.
+Think through a coding task before any code is written. Produce 12 options, keep the best 3, recommend one, and stop to ask the user.
 
 The output follows the user's language. Keep technical terms in English.
 
@@ -49,13 +49,13 @@ Compare the project with the **Outdated signals** line of the section and with t
 
 Ask everything in one message, then wait: the migration question from Step 2 (if any) plus only what blocks option design, at most 5 questions in total. If nothing blocks, ask none and continue. If the user says to just go, write an **Assumptions** list (including the migration choice you assumed) and continue.
 
-### Step 4. Diverge: 10 options
+### Step 4. Diverge: 12 options
 
-Always write exactly 10 options. No shortcut for easy tasks. Aim for a different main pattern in each row. If an idea turns out to share the main pattern of an earlier row, keep it as its own row and mark it `Merged into #n`, where #n is that earlier row. The table always has 10 rows.
+Always write exactly 12 options. No shortcut for easy tasks. Aim for a different main pattern in each row. If an idea turns out to share the main pattern of an earlier row, keep it as its own row and mark it `Merged into #n`, where #n is that earlier row. The table always has 12 rows.
 
 ### Step 5. Converge: best 3
 
-Judge all 10 options against the criteria in `templates.md` and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Do not add the scores up.
+Judge all 12 options against the criteria in `templates.md` and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
 
 Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. B or C that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
 
