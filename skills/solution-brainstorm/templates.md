@@ -33,7 +33,7 @@ Always 12 rows. One or two lines per row.
 |---|---|---|---|---|
 | 1 | Name (pattern) | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
 
-Exactly 3 rows are `Kept`, one per investment level. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
+Exactly 3 rows are `Kept`, one per investment level, or the closest option when a level has no fit (Step 5). Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
 ### 4. Scores
 
@@ -42,6 +42,7 @@ Only the 3 kept options. One row per criterion, in the order of the Criteria lis
 | Criterion | A (Minimal) | B (Balanced) | C (Durable) |
 |---|---|---|---|
 | Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 |
+| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 |
 | **Total (/30)** | **sum** | **sum** | **sum** |
 
 ### 5. The 3 options in detail

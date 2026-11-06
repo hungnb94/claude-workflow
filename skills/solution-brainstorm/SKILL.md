@@ -55,12 +55,12 @@ Always write exactly 12 options. No shortcut for easy tasks. Aim for a different
 
 ### Step 5. Converge: best 3
 
-Judge all 12 options against the criteria in `templates.md` and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
+Read `templates.md`. Judge all 12 options against its criteria and give each a verdict. Keep exactly 3 that differ in main pattern and span the investment levels: A Minimal (Low), B Balanced (Mid), C Durable (High). If no fitting option exists for a level, keep the closest one and say why in its Reason cell. Score only the 3 kept options, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
 
 Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. B or C that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
 
 ### Step 6. Write and stop
 
-Read `templates.md` (next to this file) and fill it in. Use the project language for skeletons. Keep each skeleton short; mark `// pseudo` when you are unsure of an API.
+Fill in the `templates.md` output. Use the project language for skeletons. Keep each skeleton short; mark `// pseudo` when you are unsure of an API.
 
 End with the recommendation and ask the user which option to choose. Then stop. Offer to implement it or to hand it to `/feature-workflow`, but do neither on your own.
