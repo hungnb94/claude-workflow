@@ -739,16 +739,22 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("legacy-techniques.md", skill)
         self.assertIn("Read-only", skill)
-        self.assertIn("exactly 10", skill)
-        self.assertIn("Do not add the scores up", skill)
+        self.assertIn("exactly 12", skill)
+        self.assertIn("Add up each option's scores into the Total row", skill)
+        self.assertNotIn("Do not add", skill)
         self.assertIn("Lý do bậc rẻ hơn không đủ", skill)
 
         self.assertIn("Legacy technique & tests", templates)
+        self.assertIn("Always 12 rows", templates)
+        self.assertIn("**Total (/30)**", templates)
+        self.assertIn("does not have the highest Total", templates)
         criteria = re.findall(r"^(\d+)\. ", templates.split("## Output", 1)[0], flags=re.MULTILINE)
         self.assertEqual(criteria, ["1", "2", "3", "4", "5", "6"])
 
         self.assertIn("legacy-techniques.md", readme)
         self.assertIn("cost ladder", readme)
+        self.assertIn("lists 12 options", readme)
+        self.assertIn("total out of 30", readme)
 
 
 if __name__ == "__main__":
