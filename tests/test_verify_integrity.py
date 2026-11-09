@@ -474,122 +474,8 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("stacked", read("README.md"))
 
-    def test_refactor_code_workflow_guardrails(self):
-        """Verify refactor-code-workflow embeds the 7 safe-refactor disciplines end-to-end."""
-        skill_content = (ROOT_DIR / "skills" / "refactor-code-workflow" / "SKILL.md").read_text(
-            encoding="utf-8"
-        )
-        fm = vi.parse_frontmatter(skill_content)
-        self.assertEqual(fm.get("name"), "refactor-code-workflow")
-        self.assertIn("Chỉ dùng khi", fm.get("description", ""))
-        self.assertIn("Không tự kích hoạt", fm.get("description", ""))
-
-        # Opening line, guard clauses, Two Hats rationale, no-fork rationale, output layout
-        self.assertIn(
-            "Tôi đang dùng skill refactor-code-workflow, gồm 7 bước.", skill_content
-        )
-        self.assertIn("feature-workflow", skill_content)
-        self.assertIn("reproduce", skill_content)
-        self.assertIn("Two Hats", skill_content)
-        self.assertIn("Branch by Abstraction", skill_content)
-        self.assertIn("Strangler Fig", skill_content)
-        self.assertIn("fork", skill_content)
-        self.assertIn("04-baseline", skill_content)
-        self.assertIn("## TÓM TẮT", skill_content)
-        self.assertIn("## CHI TIẾT", skill_content)
-
-        agent_names = [
-            "rcw-1-spec",
-            "rcw-2-research",
-            "rcw-3-plan",
-            "rcw-4-protect",
-            "rcw-5-refactor",
-            "rcw-6-review",
-            "rcw-7-fix",
-        ]
-        for name in agent_names:
-            self.assertIn(name, skill_content)
-            agent_path = ROOT_DIR / "agents" / f"{name}.md"
-            self.assertTrue(agent_path.exists(), f"missing agent file {name}.md")
-
-        agent_contents = {
-            name: (ROOT_DIR / "agents" / f"{name}.md").read_text(encoding="utf-8")
-            for name in agent_names
-        }
-
-        # Model routing: only rcw-3-plan uses opus, rest use sonnet
-        for name in agent_names:
-            fm_agent = vi.parse_frontmatter(agent_contents[name])
-            expected_model = "opus" if name == "rcw-3-plan" else "sonnet"
-            self.assertEqual(fm_agent.get("model"), expected_model, f"{name} model mismatch")
-
-        # rcw-6-review must not declare Edit tool (least privilege)
-        rcw6_content = agent_contents["rcw-6-review"]
-        rcw6_tools = vi.parse_frontmatter(rcw6_content).get("tools", [])
-        self.assertNotIn("Edit", rcw6_tools)
-
-        # Discipline 1: characterization test / Golden Master before any fix
-        rcw4_content = agent_contents["rcw-4-protect"]
-        self.assertIn("characterization test", rcw4_content)
-        self.assertIn("Golden Master", rcw4_content)
-        self.assertIn("### Baseline Manifest", rcw4_content)
-        self.assertIn("04-baseline", rcw4_content)
-
-        # Discipline 2: seams to cut dependencies without touching code in place
-        rcw3_content = agent_contents["rcw-3-plan"]
-        self.assertIn("### Seams & Dependency Breaking", rcw3_content)
-        self.assertIn("### Micro-step Sequence", rcw3_content)
-        self.assertIn("Branch by Abstraction", rcw3_content)
-        self.assertIn("Strangler Fig", rcw3_content)
-        self.assertIn("Second-order", rcw3_content)
-
-        # Discipline 3/5: smallest scoped change, micro-step with revert on red
-        rcw5_content = agent_contents["rcw-5-refactor"]
-        self.assertIn("micro-step", rcw5_content)
-        self.assertIn("revert", rcw5_content)
-        self.assertIn("04-baseline", rcw5_content)
-        self.assertIn("Two Hats", rcw5_content)
-
-        # Discipline 4: never mix bugfix/refactor/feature (Two Hats) at spec level
-        rcw1_content = agent_contents["rcw-1-spec"]
-        self.assertIn("Vùng thay đổi", rcw1_content)
-        self.assertIn("Hành vi quan sát được", rcw1_content)
-        self.assertIn("seam", rcw1_content)
-        self.assertIn("Phát hiện ngoài phạm vi", rcw1_content)
-
-        # Discipline 6/7 verified via review's Behavior Preservation Audit rubric
-        self.assertIn("Behavior Preservation Audit", rcw6_content)
-        self.assertIn("test loosening", rcw6_content)
-        self.assertIn("Blocker", rcw6_content)
-        self.assertIn("Major", rcw6_content)
-        self.assertIn("diff coverage", rcw6_content)
-        self.assertIn("03-plan.md", rcw6_content)
-        self.assertIn("05-refactor.md", rcw6_content)
-
-        # rcw-7-fix restores oracle instead of loosening tests to hide the fix
-        rcw7_content = agent_contents["rcw-7-fix"]
-        self.assertIn("Root-cause", rcw7_content)
-        self.assertIn("04-baseline", rcw7_content)
-        self.assertIn("restore", rcw7_content)
-        self.assertIn("test loosening", rcw7_content)
-        self.assertIn("refactor:", rcw7_content)
-
-        # No external URLs in any rcw-* agent or the SKILL.md (avoid lychee flakiness)
-        for name in agent_names:
-            self.assertNotIn("http://", agent_contents[name])
-            self.assertNotIn("https://", agent_contents[name])
-        self.assertNotIn("http://", skill_content)
-        self.assertNotIn("https://", skill_content)
-
-        # README synced: overview, usage, subagents reference
-        readme_content = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
-        self.assertIn("/refactor-code-workflow", readme_content)
-        self.assertIn("/workflow:refactor-code-workflow", readme_content)
-        self.assertIn("rcw-1-spec", readme_content)
-        self.assertIn("rcw-6-review", readme_content)
-
     def test_cost_ladder_guardrails(self):
-        """Verify the cheapest-first cost ladders in refactor-code-workflow and feature-workflow."""
+        """Verify the cheapest-first cost ladder in feature-workflow."""
 
         def read(*parts):
             return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
@@ -605,55 +491,6 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertEqual(positions, sorted(positions))
 
         reason = "Lý do bậc rẻ hơn không đủ"
-        rcw3 = read("agents", "rcw-3-plan.md")
-        ladder = section(rcw3, "## 2b. Thang chi phí refactor", "## 3.")
-        assert_ordered(
-            ladder,
-            [
-                "| 1. micro-step Fowler",
-                "| 2. dependency-breaking Feathers",
-                "| 3. Branch by Abstraction",
-                "| 4. Strangler Fig",
-            ],
-        )
-        for token in (
-            "Parameterize Constructor",
-            "Extract Interface",
-            "Extract and Override Call",
-            "make the change easy",
-            "feature-workflow",
-        ):
-            self.assertIn(token, ladder)
-        self.assertIn(reason, section(rcw3, "<constraints>", "</constraints>"))
-        self.assertIn(reason, rcw3.split("<output>", 1)[1])
-
-        rcw_skill = read("skills", "refactor-code-workflow", "SKILL.md")
-        self.assertIn("Thang chi phí", rcw_skill)
-        self.assertIn("Thang chi phí", read("agents", "rcw-1-spec.md"))
-        self.assertIn("Thang chi phí", read("agents", "rcw-2-research.md"))
-
-        for name in (
-            "rcw-1-spec",
-            "rcw-2-research",
-            "rcw-4-protect",
-            "rcw-5-refactor",
-            "rcw-6-review",
-            "rcw-7-fix",
-        ):
-            content = read("agents", f"{name}.md")
-            self.assertNotIn("Sprout", content)
-            self.assertNotIn("Wrap Method", content)
-        self.assertNotIn("Sprout", rcw_skill)
-
-        self.assertIn("Không tự leo bậc", read("agents", "rcw-5-refactor.md"))
-        rcw6 = read("agents", "rcw-6-review.md")
-        self.assertIn("bậc thấp nhất đủ dùng", rcw6)
-        cost_audit = section(rcw6, "## 5b. Method Cost Audit", "## 6.")
-        self.assertIn("Baseline Manifest", cost_audit)
-        self.assertIn("Track=micro", cost_audit)
-        self.assertIn("increment đầu của Branch by Abstraction", cost_audit)
-        self.assertNotIn("Edit", vi.parse_frontmatter(rcw6).get("tools"))
-
         fw4 = read("agents", "fw-4-plan.md")
         ladder = section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3.")
         assert_ordered(
@@ -693,38 +530,15 @@ class TestVerifyIntegrity(unittest.TestCase):
         catalog = read("skills", "solution-brainstorm", "legacy-techniques.md")
         mikado_heading = "### Mikado graph"
         self.assertIn(mikado_heading, catalog)
-        for text in (fw4, rcw3):
-            self.assertIn(mikado_heading, text)
-        for ladder_text in (
-            section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3."),
-            section(rcw3, "## 2b. Thang chi phí refactor", "## 3."),
-        ):
-            self.assertIn("legacy-techniques.md", ladder_text)
-            self.assertIn("Mikado", ladder_text)
-        for name in ("fw-5-impl", "fw-6-review", "rcw-5-refactor", "rcw-6-review"):
+        self.assertIn(mikado_heading, fw4)
+        fw4_ladder = section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3.")
+        self.assertIn("legacy-techniques.md", fw4_ladder)
+        self.assertIn("Mikado", fw4_ladder)
+        for name in ("fw-5-impl", "fw-6-review"):
             self.assertIn("Mikado", read("agents", f"{name}.md"))
-        for skill_text in (rcw_skill, fw_skill):
-            self.assertIn("LEGACY_CATALOG", skill_text)
+        self.assertIn("LEGACY_CATALOG", fw_skill)
 
-        feature_hat = re.findall(
-            r"^### (.+?)\s*\n- Bậc:.*\n- Mũ: feature", catalog, flags=re.MULTILINE
-        )
-        self.assertTrue(feature_hat)
-        for name in (
-            "rcw-1-spec",
-            "rcw-2-research",
-            "rcw-4-protect",
-            "rcw-5-refactor",
-            "rcw-6-review",
-            "rcw-7-fix",
-        ):
-            content = read("agents", f"{name}.md")
-            for technique in feature_hat:
-                self.assertNotIn(technique, content)
-        for technique in feature_hat:
-            self.assertNotIn(technique, rcw_skill)
-
-        for text in (rcw3, fw4, rcw_skill, fw_skill):
+        for text in (fw4, fw_skill):
             self.assertNotIn("http://", text)
             self.assertNotIn("https://", text)
 

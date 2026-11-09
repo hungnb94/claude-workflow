@@ -254,7 +254,7 @@ def check_agent_references(repo_root: Path) -> bool:
 
 def check_review_tool_isolation(repo_root: Path) -> bool:
     """
-    Check that review subagents (e.g., fw-6-review, gtw-5-review) adhere to the
+    Check that review subagents (e.g., fw-6-review) adhere to the
     least privilege principle and MUST NOT declare the Edit tool.
     """
     print("[INFO] Running Least Privilege Tool Isolation Audit...")
