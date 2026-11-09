@@ -58,10 +58,6 @@ jobs:
         run: |
           python3 scripts/verify-integrity.py --check-tag "v${{ steps.bump.outputs.next_version }}"
 
-      # Commit and tag locally, then push both refs in ONE atomic push.
-      # Pushing the tag in a separate push right after the branch push races
-      # GitHub's object replication and fails with
-      # "remote rejected ... (missing necessary objects)".
       - name: Commit manifests, tag, and push atomically
         if: steps.bump.outputs.should_release == 'true'
         env:
