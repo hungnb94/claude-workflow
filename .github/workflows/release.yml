@@ -58,27 +58,26 @@ jobs:
         run: |
           python3 scripts/verify-integrity.py --check-tag "v${{ steps.bump.outputs.next_version }}"
 
-      - name: Commit and push updated manifests
+      # Commit and tag locally, then push both refs in ONE atomic push.
+      # Pushing the tag in a separate push right after the branch push races
+      # GitHub's object replication and fails with
+      # "remote rejected ... (missing necessary objects)".
+      - name: Commit manifests, tag, and push atomically
         if: steps.bump.outputs.should_release == 'true'
+        env:
+          TAG: v${{ steps.bump.outputs.next_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore(release): v${{ steps.bump.outputs.next_version }} [skip ci]"
+            git commit -m "chore(release): ${TAG} [skip ci]"
             git pull --rebase origin main
-            git push origin main
           else
             echo "Manifest files are already up-to-date; skipping commit."
           fi
-
-      - name: Create and push git tag
-        if: steps.bump.outputs.should_release == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.bump.outputs.next_version }}" -m "Release v${{ steps.bump.outputs.next_version }}"
-          git push origin "v${{ steps.bump.outputs.next_version }}"
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          git push --atomic origin HEAD:refs/heads/main "refs/tags/${TAG}"
 
       - name: Publish GitHub Release
         if: steps.bump.outputs.should_release == 'true'
