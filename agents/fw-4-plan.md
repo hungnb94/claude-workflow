@@ -75,7 +75,7 @@ hợp từ Feathers (Working Effectively with Legacy Code) và Fowler, không ph
 | 1. Sprout/Wrap | Hành vi mới ở method/class mới viết test-first; legacy chỉ thêm MỘT điểm gọi tối thiểu. Thứ tự chi phí: Sprout Method < Sprout Class < Wrap Method < Wrap Class | Hành vi mới độc lập, hoặc chạy trước/sau lời gọi cũ | Phải sửa logic đang có, sprout/wrap không đạt được hành vi, hoặc điểm gọi buộc thêm nhánh điều kiện vào method cũ |
 | 2. dependency-breaking Feathers | Dependency-breaking nhỏ có tên (Parameterize Constructor, Extract Interface, Extract and Override Call) + characterization test ở slice chuẩn bị, rồi sửa trực tiếp ở slice hành vi | Sửa được trong ngân sách slice | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice |
 | 3. Branch by Abstraction | Abstraction bọc implementation cũ rồi thay dần (Parallel Change là biến thể nhỏ) | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
-| 4. Strangler Fig | Hệ thống cũ/mới cùng tồn tại sau một ranh giới, chuyển dần từng chức năng | Bậc cuối | Không có - đề nghị chẻ story; phần refactor lớn có thể chạy `/refactor-code-workflow` trước |
+| 4. Strangler Fig | Hệ thống cũ/mới cùng tồn tại sau một ranh giới, chuyển dần từng chức năng | Bậc cuối | Không có - đề nghị chẻ story; phần refactor lớn chẻ thành story riêng qua `/feature-workflow` trước |
 
 Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc.
 

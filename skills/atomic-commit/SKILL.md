@@ -11,7 +11,7 @@ Write in plain English. Use short sentences.
 
 If you are running as a step inside a workflow that has its own commit rules, follow that workflow. Example: feature-workflow commits once per planned task, so one slice has several commits. Use only the message rules and the staging safety rules from this skill. Do not stop for plan approval.
 
-A workflow that has already finished does not count. When the user runs this skill after a workflow ends (for example, refactor-code-workflow suggests `/atomic-commit` for its `test:` and `refactor:` commits), use the full workflow below, including the plan approval.
+A workflow that has already finished does not count. When the user runs this skill after a workflow ends (for example, after feature-workflow finishes and leftover changes remain uncommitted), use the full workflow below, including the plan approval.
 
 ## When to use
 
