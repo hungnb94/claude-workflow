@@ -161,13 +161,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertFalse(vi.check_agent_references(self.repo_root))
 
     def test_agent_references_generic_prefix_pass(self):
-        # A skill using an arbitrary prefix (not fw/gtw) must be detected without
+        # A skill using an arbitrary prefix (not fw) must be detected without
         # hardcoding, so a new workflow's SKILL.md never silently produces
         # "No subagent references found" simply because its prefix is unknown.
         (self.repo_root / "skills" / "another-workflow").mkdir(parents=True)
-        rcw_agent = (
+        zzz_agent = (
             "---\n"
-            "name: rcw-1-spec\n"
+            "name: zzz-1-spec\n"
             "description: Senior Business Analyst - Survey refactor scope\n"
             "tools:\n"
             "  - Read\n"
@@ -176,14 +176,14 @@ class TestVerifyIntegrity(unittest.TestCase):
             "---\n"
             "Content here\n"
         )
-        (self.repo_root / "agents" / "rcw-1-spec.md").write_text(rcw_agent, encoding="utf-8")
+        (self.repo_root / "agents" / "zzz-1-spec.md").write_text(zzz_agent, encoding="utf-8")
         skill_content = (
             "---\n"
             "name: another-workflow\n"
             "description: Sample\n"
             "---\n"
             "| Bước | Agent |\n"
-            "| 1 | `rcw-1-spec` |\n"
+            "| 1 | `zzz-1-spec` |\n"
         )
         (self.repo_root / "skills" / "another-workflow" / "SKILL.md").write_text(
             skill_content, encoding="utf-8"
@@ -200,7 +200,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "description: Sample\n"
             "---\n"
             "| Bước | Agent |\n"
-            "| 9 | `rcw-9-ghost` |\n"
+            "| 9 | `zzz-9-ghost` |\n"
         )
         (self.repo_root / "skills" / "another-workflow" / "SKILL.md").write_text(
             skill_content, encoding="utf-8"
@@ -243,7 +243,7 @@ class TestVerifyIntegrity(unittest.TestCase):
     def test_token_budgets_folded_scalar(self):
         folded_agent = (
             "---\n"
-            "name: gtw-1-spec\n"
+            "name: zzz-1-spec\n"
             "description: >\n"
             "  Line one of description.\n"
             "  Line two of description.\n"
@@ -251,7 +251,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "  - Read\n"
             "---\n"
         )
-        (self.repo_root / "agents" / "gtw-1-spec.md").write_text(folded_agent, encoding="utf-8")
+        (self.repo_root / "agents" / "zzz-1-spec.md").write_text(folded_agent, encoding="utf-8")
         self.assertTrue(vi.check_token_budgets(self.repo_root, max_words=40))
 
     def test_real_codebase(self):
