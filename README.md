@@ -2,21 +2,19 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development, generic tasks, and behavior-preserving refactoring in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, and solution brainstorming.
+Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, and solution brainstorming.
 
 ## Overview
 
-Claude Workflow packages five structured workflow frameworks powered by 20 specialized subagents, plus four lightweight skills (issue writing, PR explainer, atomic commit, and solution brainstorm), into an official Claude Code Plugin:
+Claude Workflow packages three structured workflow frameworks powered by 7 specialized subagents, plus four lightweight skills (issue writing, PR explainer, atomic commit, and solution brainstorm), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local branch per slice and one or more commits per planned task (refactor, add, change, switch, remove), never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then Feathers dependency-breaking with a characterization harness, then Branch by Abstraction, then Strangler Fig, with the Mikado Method as an overlay; details in the shared `legacy-techniques.md` catalog) and records why cheaper rungs fall short.
-2. **Generic Task Workflow** (`/generic-task-workflow`) - A 6-phase analytical workflow for non-code tasks: requirement specification, methodology research, deliverable planning, content execution, independent quality audit, and automated remediation.
-3. **Refactor Code Workflow** (`/refactor-code-workflow`) - A 7-phase workflow for behavior-preserving refactoring: scope & observable-behavior survey, refactoring/Golden Master research, seam & micro-step planning, characterization testing, micro-step refactoring, independent Behavior Preservation Audit review, and automated remediation. Phase 3 picks the cheapest sufficient method on a cost ladder (Fowler micro-steps, Feathers dependency-breaking, Branch by Abstraction, Strangler Fig) and records why cheaper rungs fall short.
-4. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
-5. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
-6. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
-7. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
-8. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
-9. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 12 options in one table and narrows them to 3 (Minimal, Balanced, Durable) with a fixed 6-criteria score table (1-5, with a total out of 30 for each option). It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. For untested legacy code it maps each kept option to the shared legacy-techniques cost ladder and requires tests for the new code. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Written in English; the output follows your language.
+2. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
+3. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
+4. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
+5. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
+6. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
+7. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 12 options in one table and narrows them to 3 (Minimal, Balanced, Durable) with a fixed 6-criteria score table (1-5, with a total out of 30 for each option). It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. For untested legacy code it maps each kept option to the shared legacy-techniques cost ladder and requires tests for the new code. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Written in English; the output follows your language.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
@@ -102,42 +100,12 @@ Phase 5: Impl    Phase 6: Review     Phase 7: Fix   (each runs per slice)
  05-impl-<n>.md  06-review-<n>.md     07-fix-<n>.md
 ```
 
-*Generic Task Workflow (`/generic-task-workflow`) keeps the original six-phase pipeline
-(`gtw-1-spec` → `gtw-2-research` → `gtw-3-plan` → `gtw-4-impl` → `gtw-5-review` → `gtw-6-fix`,
-writing `01-spec.md` .. `06-fix.md`) — it has no role-model phase.*
-
-### Seven-Phase Refactor Code Workflow Pipeline
-
-```text
-Phase 1: Spec    Phase 2: Research   Phase 3: Plan         Phase 4: Protect
-[rcw-1-spec]     [rcw-2-research]    [rcw-3-plan]          [rcw-4-protect]
- (Sonnet)   -->   (Sonnet)      -->   (Opus)          -->   (Sonnet)
-      |                |                     |                   |
-      v                v                     v                   v
- 01-spec.md      02-research.md      03-plan.md            04-protect.md
-                                                             + 04-baseline/
-                                                                  |
-+-----------------------------------------------------------------+
-|
-v
-Phase 5: Refactor  Phase 6: Review          Phase 7: Fix
-[rcw-5-refactor]-->[rcw-6-review]     -->  [rcw-7-fix]
- (Sonnet)           (Sonnet, NO Edit)        (Sonnet)
-      |                |                         |
-      v                v                         v
- 05-refactor.md   06-review.md               07-fix.md
-```
-
-`04-baseline/` snapshots every baseline test file verbatim right after Phase 4 - it is the fixed
-oracle that Phase 6's Behavior Preservation Audit diffs against to catch test loosening, and that
-Phase 7 restores from when a violation is found.
-
 ### Architectural Principles
 
 1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
-3. **Independent Quality Gate (Least Privilege)**: Review agents (`fw-6-review`, `gtw-5-review`, `rcw-6-review`) are strictly prohibited from using the `Edit` tool. They can only read, search, execute tests, and report findings to prevent self-grading bias. `rcw-6-review` additionally cannot read `03-plan.md`/`05-refactor.md`, so its Behavior Preservation Audit relies only on objective evidence (re-running tests, diffing against the `04-baseline/` oracle) instead of the refactoring author's rationale.
-4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents in Feature Workflow, `gtw-3-plan` in Generic Task Workflow, and `rcw-3-plan` in Refactor Code Workflow use `model: opus` for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning (seam/track/micro-step selection for `rcw-3-plan`). All other phases use `model: sonnet` for speed and deterministic execution.
+3. **Independent Quality Gate (Least Privilege)**: The review agent (`fw-6-review`) is strictly prohibited from using the `Edit` tool. It can only read, search, execute tests, and report findings to prevent self-grading bias.
+4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents in Feature Workflow use `model: opus` for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning. All other phases use `model: sonnet` for speed and deterministic execution.
 5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice). Rule of three: no abstraction before ≥2 real consumers.
 6. **Small Stacked PRs**: Feature Workflow plans slices in Phase 4 and runs Phases 5-7 per slice. Each slice is one local branch `<slug>/<n>-<slice-name>`, based on the previous slice, within the size budget. Inside a slice, Phase 4 plans tasks: each task is the smallest unit with its own test cycle and ends with its own commit of one kind (`refactor`, `add`, `change`, `switch`, `remove`). Phase 6 reviews each commit against the task list, and Phase 7 adds each fix as a new commit of one kind instead of rewriting history. The workflow never pushes or opens PRs.
 
@@ -145,8 +113,7 @@ Phase 7 restores from when a violation is found.
 
 ### Running Feature Workflow
 
-For software feature development and code tasks that change observable behavior (use Refactor Code
-Workflow instead for behavior-preserving refactoring):
+For software feature development and code tasks that change observable behavior:
 
 ```bash
 # Direct slash command (when installed or running in workspace)
@@ -157,31 +124,6 @@ Workflow instead for behavior-preserving refactoring):
 ```
 
 With no plan-approval stop (Phase 4 flows straight into Phase 5), the workflow commits each slice locally on its own stacked branch and finally prints the `git push -u origin <branch>` commands with suggested PR titles and descriptions; nothing is pushed.
-
-### Running Generic Task Workflow
-
-For standalone non-code tasks, documentation, project planning, and research:
-
-```bash
-# Direct slash command (when installed or running in workspace)
-/generic-task-workflow "<task description, Jira key, or .md path>"
-
-# Canonical plugin-namespaced command
-/workflow:generic-task-workflow "<task description, Jira key, or .md path>"
-```
-
-### Running Refactor Code Workflow
-
-For deliberate, behavior-preserving refactoring that must not change observable behavior (not for new
-features or bug investigation):
-
-```bash
-# Direct slash command (when installed or running in workspace)
-/refactor-code-workflow "<refactor description, Jira key, or .md path>"
-
-# Canonical plugin-namespaced command
-/workflow:refactor-code-workflow "<refactor description, Jira key, or .md path>"
-```
 
 ### Running Android Standards Workflow
 
@@ -319,32 +261,7 @@ Notes:
 | `fw-6-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings, and audit OCP extensibility (No Edit tool) |
 | `fw-7-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings at root cause without branching hotfixes |
 
-### Generic Task Workflow Subagents
-
-| Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
-|---|---|---|---|---|---|
-| `gtw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~50 | Survey non-code requirements and establish acceptance criteria |
-| `gtw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~50 | Research methodologies and benchmark against standards |
-| `gtw-3-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~50 | Structure deliverables and evaluate trade-offs |
-| `gtw-4-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~60 | Author and generate target deliverables |
-| `gtw-5-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~60 | Independent quality audit (No Edit tool) |
-| `gtw-6-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~50 | Remediate audit findings and prepare final handoff |
-
-### Refactor Code Workflow Subagents
-
-| Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
-|---|---|---|---|---|---|
-| `rcw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey change area, pin observable behavior, and define behavior-preserving acceptance criteria |
-| `rcw-2-research` | Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~21 | Research refactoring moves, Golden Master technique, and tools already available in target repo |
-| `rcw-3-plan` | Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Choose seams, chart micro-step sequence, and evaluate second-order effects of refactor track |
-| `rcw-4-protect` | Characterization Test Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Pin current behavior with characterization tests before any refactor move begins |
-| `rcw-5-refactor` | Refactoring Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~19 | Execute micro-step sequence, revert immediately on red, never touch baseline oracle |
-| `rcw-6-review` | Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~19 | Independent Behavior Preservation Audit detecting test loosening and unauthorized behavior change (No Edit tool) |
-| `rcw-7-fix` | Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Restore oracle from baseline on test loosening, never fix by loosening tests |
-
-*Note: `fw-*`/`gtw-*` footprint values measured via `claude plugin details`. `rcw-*` values are
-estimated from description word counts (words x ~1.3) since Refactor Code Workflow was added after
-the last live measurement; re-run `claude plugin details` to get an exact total.*
+*Note: footprint values measured via `claude plugin details`.*
 
 ## Automated Release Lifecycle
 
@@ -388,20 +305,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── fw-4-plan.md             # Architect: Second-order effects analysis (Opus)
 │   ├── fw-5-impl.md             # Execution: Implementation and unit tests
 │   ├── fw-6-review.md           # Auditor: Independent review (no Edit)
-│   ├── fw-7-fix.md              # Remediation: Issue resolution
-│   ├── gtw-1-spec.md            # Generic BA: Task scope and boundaries
-│   ├── gtw-2-research.md        # Generic Research: Methodology benchmarks
-│   ├── gtw-3-plan.md            # Generic Architect: Deliverable planning (Opus)
-│   ├── gtw-4-impl.md            # Generic Execution: Content generation
-│   ├── gtw-5-review.md          # Generic Auditor: Quality audit (no Edit)
-│   ├── gtw-6-fix.md             # Generic Remediation: Finding remediation
-│   ├── rcw-1-spec.md            # Refactor BA: Change area and behavior boundary
-│   ├── rcw-2-research.md        # Refactor Research: Refactoring moves and Golden Master
-│   ├── rcw-3-plan.md            # Refactor Architect: Seams and micro-step sequence (Opus)
-│   ├── rcw-4-protect.md         # Refactor Protect: Characterization tests and baseline
-│   ├── rcw-5-refactor.md        # Refactor Engineer: Micro-step execution
-│   ├── rcw-6-review.md          # Refactor Auditor: Behavior Preservation Audit (no Edit)
-│   └── rcw-7-fix.md             # Refactor Remediation: Oracle restore and root-cause fix
+│   └── fw-7-fix.md              # Remediation: Issue resolution
 ├── hooks/
 │   ├── hooks.json               # Hooks (Stop, AskUserQuestion, Notification notifiers; PostToolUse ktlint format)
 │   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)
@@ -412,10 +316,6 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 ├── skills/
 │   ├── feature-workflow/
 │   │   └── SKILL.md             # Orchestrator for /feature-workflow
-│   ├── generic-task-workflow/
-│   │   └── SKILL.md             # Orchestrator for /generic-task-workflow
-│   ├── refactor-code-workflow/
-│   │   └── SKILL.md             # Orchestrator for /refactor-code-workflow
 │   ├── android-standards-workflow/
 │   │   ├── SKILL.md             # Orchestrator for /android-standards-workflow
 │   │   └── standards.md         # Android/Kotlin best practices reference
@@ -437,7 +337,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   └── solution-brainstorm/
 │       ├── SKILL.md             # Skill for /solution-brainstorm (single pass, no subagents)
 │       ├── platforms.md         # Platform registry: detect signals, architecture, patterns
-│       ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm and the fw/rcw workflows
+│       ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm and the feature workflow
 │       └── templates.md         # Fixed 6 criteria and output format
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
