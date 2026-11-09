@@ -462,7 +462,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("git rev-list --count <base>..HEAD` = 1", fw7)
 
         standards = read("skills", "android-standards-workflow", "standards.md")
-        for token in ("tách slice riêng", "/refactor-code-workflow", ":core:ui"):
+        for token in ("tách slice riêng", "/feature-workflow", ":core:ui"):
             self.assertIn(token, standards)
         self.assertNotIn("CÙNG commit đầu", standards)
 

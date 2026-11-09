@@ -95,7 +95,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 ## 7. Migrate Java -> Kotlin dần dần
 
-- Chỉ migrate file khi story sửa logic đáng kể trong file đó (không migrate chỉ vì đổi 1-2 dòng). Migrate nằm trong ngân sách thì thành slice chuẩn bị đứng đầu chồng; vượt ngân sách thì tách thành story riêng (gợi ý `/refactor-code-workflow`).
+- Chỉ migrate file khi story sửa logic đáng kể trong file đó (không migrate chỉ vì đổi 1-2 dòng). Migrate nằm trong ngân sách thì thành slice chuẩn bị đứng đầu chồng; vượt ngân sách thì tách thành story riêng (chạy `/feature-workflow` cho story đó).
 - Nguyên tắc strangler/boy-scout: chỉ migrate phần đang chạm trong story, không thêm code theo pattern cũ, không big-bang rewrite. [9]
 - Đơn vị migrate là file/class/package, không phải cả module một lúc. [8,9]
 - Viết/giữ test trước khi convert, dùng test hiện có làm lưới an toàn; mỗi bước convert phải build và test xanh trước khi sang bước tiếp theo, tách slice riêng cho bước convert tự động (J2K) và phần chỉnh tay để dễ review. [9]
