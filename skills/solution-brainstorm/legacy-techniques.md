@@ -9,12 +9,12 @@ dùng mục `Mũ: chung`.
 
 ## Thang chi phí
 
-| Bậc | fw (thêm tính năng) | rcw (refactor) | Đủ khi | Leo bậc kế khi |
-|---|---|---|---|---|
-| 1 | Sprout/Wrap | micro-step Fowler | Thay đổi nhỏ, độc lập, không cần sửa logic cũ | Phải sửa logic đang có, hoặc điểm gọi buộc thêm nhánh điều kiện |
-| 2 | dependency-breaking Feathers | dependency-breaking Feathers | Sửa/tạo seam được trong ngân sách slice  | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice/increment |
-| 3 | Branch by Abstraction | Branch by Abstraction | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
-| 4 | Strangler Fig | Strangler Fig | Bậc cuối | Không có - đề nghị chẻ story |
+| Bậc | fw (thêm tính năng) | Đủ khi | Leo bậc kế khi |
+|---|---|---|---|
+| 1 | Sprout/Wrap | Thay đổi nhỏ, độc lập, không cần sửa logic cũ | Phải sửa logic đang có, hoặc điểm gọi buộc thêm nhánh điều kiện |
+| 2 | dependency-breaking Feathers | Sửa/tạo seam được trong ngân sách slice  | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice |
+| 3 | Branch by Abstraction | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
+| 4 | Strangler Fig | Bậc cuối | Không có - đề nghị chẻ story |
 
 Mikado Method là lớp phủ áp dụng ở mọi bậc, không phải một bậc.
 Thứ tự chi phí trong bậc 1 của fw: Sprout Method < Sprout Class < Wrap Method < Wrap Class.
@@ -146,6 +146,6 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 - Mũ: chung
 - Khi dùng: một bước làm vỡ nhiều chỗ ngoài vùng dự kiến. Quy trình: đặt goal, thử đổi ngây thơ, nếu vỡ (build/test đỏ ngoài dự kiến) thì revert toàn bộ lần thử và ghi prerequisite làm node con, lặp lại, làm từ lá về goal, mỗi lá xanh.
 - Khi leo bậc: không áp dụng, Mikado đi kèm bậc đã chọn.
-- Các bước: ghi graph dạng checklist lồng `- [ ] Goal` / `- [ ] Prereq` / `- [x] ... (xanh)`; revert theo cách hoàn tác của workflow; fw ghi graph ở `04-plan.md` mục `### Mikado graph`, rcw ở `03-plan.md` mục `### Mikado graph`; graph phát hiện thêm khi thực thi ghi ở output impl.
+- Các bước: ghi graph dạng checklist lồng `- [ ] Goal` / `- [ ] Prereq` / `- [x] ... (xanh)`; revert theo cách hoàn tác của workflow; fw ghi graph ở `04-plan.md` mục `### Mikado graph`; graph phát hiện thêm khi thực thi ghi ở output impl.
 - Test bắt buộc: mỗi lá xanh trước khi sang lá kế; review kiểm qua diff không còn sửa dở của lần thử hỏng (call site nửa cũ nửa mới, code chết, TODO tạm).
 - Nợ còn lại: không có nếu mọi lá xanh.
