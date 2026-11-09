@@ -5,7 +5,7 @@
     "name": "Hung Nguyen",
     "email": "hungnb94@gmail.com"
   },
-  "description": "Seven-phase structured agent workflow for story development, plus issue writing, PR explanation, atomic commit, and solution brainstorm skills",
+  "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, and solution brainstorm skills",
   "plugins": [
     {
       "name": "workflow",
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hungnb94/claude-workflow"
       },
-      "description": "Seven-phase structured agent workflow for story development, plus issue writing, PR explanation, atomic commit, and solution brainstorm skills",
+      "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, and solution brainstorm skills",
       "version": "1.20.0",
       "author": {
         "name": "Hung Nguyen",
