@@ -538,6 +538,13 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn("Mikado", read("agents", f"{name}.md"))
         self.assertIn("LEGACY_CATALOG", fw_skill)
 
+        # Two Hats: solution-brainstorm filters techniques by hat for pure refactors
+        self.assertIn("- Mũ: feature", catalog)
+        self.assertIn("- Mũ: chung", catalog)
+        brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
+        for token in ("`Mũ: feature`", "`Mũ: chung`", "Two Hats"):
+            self.assertIn(token, brainstorm)
+
         for text in (fw4, fw_skill):
             self.assertNotIn("http://", text)
             self.assertNotIn("https://", text)

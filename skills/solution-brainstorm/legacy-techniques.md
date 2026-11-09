@@ -4,8 +4,8 @@ Nguồn duy nhất cho thang chi phí và định nghĩa kỹ thuật. Chỉ đ�
 (không có test bao phủ, hoặc không khởi tạo được trong test). Đây là heuristic tổng hợp từ Feathers,
 Fowler, Hammant, Ellnestam/Brolund, không phải quy tắc chuẩn ngành.
 
-Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho workflow thêm tính năng; workflow refactor chỉ
-dùng mục `Mũ: chung`.
+Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính năng; task refactor thuần
+(ví dụ phương án refactor của `/solution-brainstorm`) chỉ dùng mục `Mũ: chung`.
 
 ## Thang chi phí
 
