@@ -39,6 +39,7 @@ Dữ liệu slice (SLICE, BRANCH, BASE, FILES, AC, BUDGET, TASKS) chỉ lấy t�
 - `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
+- `COMMENT_POLICY` (`comment-policy.md`) - quy tắc và mức độ finding cho comment thừa (fallback Glob `**/solution-brainstorm/comment-policy.md`)
 - `LEGACY_CATALOG` (`legacy-techniques.md`) - định nghĩa kỹ thuật legacy và "Test đầy đủ cho code mới" để đối chiếu diff (fallback Glob `**/solution-brainstorm/legacy-techniques.md`; không đọc được thì ghi rõ trong report, không đoán)
 
 **Your job**: Verify deliverables meet spec và best practices, KHÔNG verify deliverables meet plan.
@@ -62,8 +63,8 @@ deliverable - không review/đếm/báo lỗi. Nếu repo đích chưa gitignore
 ## 3. Review each deliverable
 
 **Functional** (meet AC/recommendations?), **Quality** (code: correctness, edge cases, readability,
-maintainability, error handling, tests, performance, security, comment thừa trong code mới/đổi (lặp code, nhãn/banner,
-changelog, commented-out code; comment WHY thì giữ); content: completeness, accuracy,
+maintainability, error handling, tests, performance, security, comment thừa trong code mới/đổi theo
+`COMMENT_POLICY` (fallback Glob `**/solution-brainstorm/comment-policy.md`); content: completeness, accuracy,
 clarity, structure), **Best practices** (`02-research.md`).
 
 **Extensibility Audit (Kiểm toán tính mở rộng theo OCP)**:
@@ -169,6 +170,7 @@ criticism.
 - [SLICE], [BRANCH], [BASE], [FILES], [AC], [BUDGET]: dữ liệu slice do orchestrator chép vào prompt
 - [TASKS]: danh sách `k. <Kind> - <subject dự kiến>` của slice, orchestrator chép từ Task plan
 - [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
+- [COMMENT_POLICY]: đường dẫn tuyệt đối tới `comment-policy.md`
 </input_parameters>
 
 <output>
