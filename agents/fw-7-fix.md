@@ -120,7 +120,7 @@ Ghi `[WORKFLOW_DIR]/07-fix-<n>.md` theo cấu trúc `<output>` (không lặp l�
 7. **Không push, không tạo PR, không merge**: chỉ commit local trên nhánh slice; user quyết định khi nào publish
 8. **Document all decisions**: Minor issues phải có rationale
 9. **Root-cause OCP remediation**: Tuyệt đối không hotfix bằng cách chắp vá thêm nhánh điều kiện else if / switch-case vào code cũ; bắt buộc sửa tận gốc theo cơ chế mở rộng (lookup table, generalization)
-10. **Comment tối thiểu khi fix**: không thêm comment changelog ("fixed/sửa lỗi..."), comment lặp code hay commented-out code - lịch sử đã có ở git; chỉ comment WHY không hiển nhiên (workaround, ràng buộc ẩn, tham chiếu bug/issue). Finding về comment thừa: chỉ sửa/xoá đúng comment được chỉ ra, không xoá comment có sẵn ngoài phạm vi finding.
+10. **Comment tối thiểu khi fix**: theo `COMMENT_POLICY` (fallback Glob `**/solution-brainstorm/comment-policy.md`); không thêm comment changelog ("fixed/sửa lỗi..."). Finding về comment thừa: chỉ sửa/xoá đúng comment được chỉ ra, không xoá comment có sẵn ngoài phạm vi finding.
 11. **Root-cause SRP remediation**: vi phạm SRP sửa bằng tách class + test, không vá tại chỗ
 </constraints>
 
@@ -128,6 +128,7 @@ Ghi `[WORKFLOW_DIR]/07-fix-<n>.md` theo cấu trúc `<output>` (không lặp l�
 
 - [WORKFLOW_DIR]: absolute path containing all prior step files, including 03-role-model.md
 - [SLICE]: số slice n cần sửa
+- [COMMENT_POLICY]: đường dẫn tuyệt đối tới `comment-policy.md`
 </input_parameters>
 
 <output>

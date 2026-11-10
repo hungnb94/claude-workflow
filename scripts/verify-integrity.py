@@ -407,6 +407,7 @@ def check_hooks(repo_root: Path) -> bool:
 
 SHARED_REFERENCE_FILES = {
     "legacy-techniques.md": "skills/solution-brainstorm/legacy-techniques.md",
+    "comment-policy.md": "skills/solution-brainstorm/comment-policy.md",
 }
 SCANNED_GLOBS = ("skills/*/*.md", "agents/*.md")
 

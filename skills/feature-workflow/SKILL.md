@@ -47,7 +47,9 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   khảo sát ghi `Điểm tích hợp`; Bước 6 lấy diff; Bước 7 lấy phát hiện trong `06-review-<n>.md`).
 - `[LEGACY_CATALOG]` = `<Base directory của skill này>/../solution-brainstorm/legacy-techniques.md`,
   chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
-- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG` và `STORY` (chỉ Bước 1) - subagent tự đọc
+- `[COMMENT_POLICY]` = `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`,
+  chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
+- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG`, `COMMENT_POLICY` (chỉ Bước 3, 5, 6, 7) và `STORY` (chỉ Bước 1) - subagent tự đọc
   hướng dẫn từ definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
   BUDGET, TASKS`, do orchestrator chép từ bảng slice và Task plan trong `## TÓM TẮT` của `04-plan.md`.
 
@@ -139,6 +141,7 @@ Làm theo hướng dẫn trong definition của bạn (agent fw-<N>-<tên>).
 Tham số:
 - WORKFLOW_DIR: <đường dẫn tuyệt đối>
 - LEGACY_CATALOG: <đường dẫn tuyệt đối tới legacy-techniques.md>
+- COMMENT_POLICY: <chỉ Bước 3, 5, 6, 7: đường dẫn tuyệt đối tới comment-policy.md>
 - STORY: <chỉ Bước 1: nội dung story đã lấy được>
 - SLICE: <chỉ Bước 5-7: số slice n>
 - BRANCH, BASE, FILES, AC, BUDGET, TASKS: <chỉ Bước 6: chép từ bảng slice và Task plan của 04-plan.md>

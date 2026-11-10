@@ -47,7 +47,7 @@ rẽ nhánh cứng switch-case / cascading if-else kiểm tra `==` cụ thể tr
 hàm cũ khi thêm trường hợp mới, rủi ro hồi quy) → test minh hoạ (nếu áp dụng) → điều kiện áp dụng/khi nào KHÔNG dùng.
 
 Chất lượng code mẫu: self-contained (đọc là hiểu, không cần class nội bộ trừ khi nêu ở Giả định);
-đúng cú pháp, đặt tên theo domain story (không `Foo`/`Bar`); xử lý lỗi/biên rõ ràng - phần hay bị bỏ
+đúng cú pháp, đặt tên theo domain story (không `Foo`/`Bar`); comment trong code mẫu theo `COMMENT_POLICY` (fallback Glob `**/solution-brainstorm/comment-policy.md`) - giải thích đặt ở phần "vì sao đúng", không nhét vào code vì bước impl sẽ bắt chước; xử lý lỗi/biên rõ ràng - phần hay bị bỏ
 qua khi copy mẫu; ≤ 60 dòng/mẫu.
 
 ## 4. Ghi rõ giới hạn của bản mẫu
@@ -77,6 +77,7 @@ Ghi `[WORKFLOW_DIR]/03-role-model.md` theo cấu trúc ở `<output>`.
 <input_parameters>
 
 - [WORKFLOW_DIR]: absolute path containing 01-spec.md and 02-research.md
+- [COMMENT_POLICY]: đường dẫn tuyệt đối tới `comment-policy.md`
 </input_parameters>
 
 <output>

@@ -39,6 +39,7 @@ Dữ liệu slice (SLICE, BRANCH, BASE, FILES, AC, BUDGET, TASKS) chỉ lấy t�
 - `[WORKFLOW_DIR]/01-spec.md` - Source of truth cho acceptance criteria
 - `[WORKFLOW_DIR]/02-research.md` - Best practices to verify against
 - **Actual deliverables** - Code, docs, configs được implement
+- `COMMENT_POLICY` (`comment-policy.md`) - quy tắc và mức độ finding cho comment thừa (fallback Glob `**/solution-brainstorm/comment-policy.md`; không đọc được thì ghi rõ trong report, không đoán)
 - `LEGACY_CATALOG` (`legacy-techniques.md`) - định nghĩa kỹ thuật legacy và "Test đầy đủ cho code mới" để đối chiếu diff (fallback Glob `**/solution-brainstorm/legacy-techniques.md`; không đọc được thì ghi rõ trong report, không đoán)
 
 **Your job**: Verify deliverables meet spec và best practices, KHÔNG verify deliverables meet plan.
@@ -62,8 +63,8 @@ deliverable - không review/đếm/báo lỗi. Nếu repo đích chưa gitignore
 ## 3. Review each deliverable
 
 **Functional** (meet AC/recommendations?), **Quality** (code: correctness, edge cases, readability,
-maintainability, error handling, tests, performance, security, comment thừa trong code mới/đổi (lặp code, nhãn/banner,
-changelog, commented-out code; comment WHY thì giữ); content: completeness, accuracy,
+maintainability, error handling, tests, performance, security, comment thừa trong code mới/đổi theo
+`COMMENT_POLICY` (fallback Glob `**/solution-brainstorm/comment-policy.md`); content: completeness, accuracy,
 clarity, structure), **Best practices** (`02-research.md`).
 
 **Extensibility Audit (Kiểm toán tính mở rộng theo OCP)**:
@@ -112,8 +113,8 @@ Mỗi issue classify theo bảng, anchor vào AC/Must Apply/Should Apply (không
 | Severity | Khi nào dùng | Ví dụ |
 |---|---|---|
 | 🔴 Blocker | Vi phạm AC/"Must Apply"; bug nghiêm trọng (crash/mất data/security); vi phạm OCP nghiêm trọng (rẽ nhánh đóng cứng phá vỡ extension points hoặc chắp vá nhánh `==` vi phạm AC/Must Apply); diff mới thêm trách nhiệm thứ hai vào class (SRP Audit) | AC không đạt, SQL injection, chuỗi cascading if-elif `==` ở core router/handler thay vì dispatch table; thêm `isEcsPass()` vào `FemomBroadcastSender` |
-| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai); class đã lẫn trách nhiệm từ trước, diff chỉ chạm vào (SRP Audit); hàm/class có logic mới thiếu test hành vi; thêm nhánh điều kiện/logic mới vào method legacy chưa test mà diff không có characterization test hoặc code sprout/wrap có test; vượt BUDGET; chạm file ngoài FILES; thay đổi không gắn AC của slice; abstraction (interface/strategy/registry/gateway/module dùng chung) chỉ 1 impl hoặc 1 consumer (trừ seam Extract Interface của bậc 2 legacy); task không có commit riêng hoặc hai task gộp một commit; commit trộn nhiều `Kind`; thay đổi hành vi trong commit `remove`; test tách khỏi commit của code; commit rõ ràng không build được | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table; commented-out code hoặc comment thừa lặp lại có hệ thống (từ 3 chỗ trong diff); hàm có rẽ nhánh mới không có test |
-| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng; commit vượt ~200 dòng production không ghi lý do trong body; subject commit lệch chuẩn `atomic-commit` | Style, optimization, comment thừa lẻ tẻ |
+| 🟡 Major | Ảnh hưởng chất lượng rõ rệt, chưa chặn dùng; vi phạm "Should Apply"; vi phạm OCP cục bộ (cascading conditionals đóng kín hạn chế khả năng mở rộng trong tương lai); class đã lẫn trách nhiệm từ trước, diff chỉ chạm vào (SRP Audit); hàm/class có logic mới thiếu test hành vi; thêm nhánh điều kiện/logic mới vào method legacy chưa test mà diff không có characterization test hoặc code sprout/wrap có test; vượt BUDGET; chạm file ngoài FILES; thay đổi không gắn AC của slice; abstraction (interface/strategy/registry/gateway/module dùng chung) chỉ 1 impl hoặc 1 consumer (trừ seam Extract Interface của bậc 2 legacy); task không có commit riêng hoặc hai task gộp một commit; commit trộn nhiều `Kind`; thay đổi hành vi trong commit `remove`; test tách khỏi commit của code; commit rõ ràng không build được | Silent failure, thiếu test, chuỗi if-else so khớp giá trị có thể chuyển thành lookup table; comment thừa mức Major theo `COMMENT_POLICY`; hàm có rẽ nhánh mới không có test |
+| 🔵 Minor | Cải thiện nhỏ, không ảnh hưởng chức năng; commit vượt ~200 dòng production không ghi lý do trong body; subject commit lệch chuẩn `atomic-commit` | Style, optimization, comment thừa mức Minor theo `COMMENT_POLICY` |
 
 **Quy tắc quyết định**: khớp nhiều mức → lấy mức CAO nhất; nghi ngờ giữa hai mức → escalate, ghi lý
 do; thiếu evidence `file:line` → KHÔNG được gán Blocker/Major.
@@ -169,6 +170,7 @@ criticism.
 - [SLICE], [BRANCH], [BASE], [FILES], [AC], [BUDGET]: dữ liệu slice do orchestrator chép vào prompt
 - [TASKS]: danh sách `k. <Kind> - <subject dự kiến>` của slice, orchestrator chép từ Task plan
 - [LEGACY_CATALOG]: (tuỳ chọn) đường dẫn tuyệt đối tới `legacy-techniques.md`
+- [COMMENT_POLICY]: đường dẫn tuyệt đối tới `comment-policy.md`
 </input_parameters>
 
 <output>

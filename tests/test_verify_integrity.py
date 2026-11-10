@@ -577,6 +577,28 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("lists 12 options", readme)
         self.assertIn("total out of 30", readme)
 
+    def test_comment_policy_is_single_source(self):
+        """Verify every code-writing step reads the shared comment policy instead of copying it."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        policy = read("skills", "solution-brainstorm", "comment-policy.md")
+        for heading in ("## Mặc định", "## Được giữ (chỉ WHY)", "## Không viết", "## Phạm vi", "## Mức độ khi review"):
+            self.assertIn(heading, policy)
+
+        self.assertIn("comment-policy.md", read("skills", "solution-brainstorm", "SKILL.md"))
+        self.assertIn("comment-policy.md", read("skills", "solution-brainstorm", "templates.md"))
+        self.assertIn("COMMENT_POLICY", read("skills", "feature-workflow", "SKILL.md"))
+        for name in ("fw-3-role-model", "fw-5-impl", "fw-6-review", "fw-7-fix"):
+            agent = read("agents", f"{name}.md")
+            self.assertIn("COMMENT_POLICY", agent, name)
+            self.assertIn("**/solution-brainstorm/comment-policy.md", agent, name)
+            self.assertNotIn("nhãn/banner", agent, name)
+            self.assertNotIn("từ 3 chỗ trong diff", agent, name)
+        self.assertIn("comment-policy.md", vi.SHARED_REFERENCE_FILES)
+        self.assertIn("comment-policy.md", read("README.md"))
+
 
 if __name__ == "__main__":
     unittest.main()
