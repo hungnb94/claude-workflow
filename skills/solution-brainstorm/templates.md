@@ -56,7 +56,7 @@ Repeat this block for A, B and C.
 
 - How it works: 3-5 sentences.
 - Layers/files: a short tree.
-- Skeleton: at most about 20 lines in the project language. Mark `// pseudo` if you are unsure of an API.
+- Skeleton: at most about 20 lines in the project language. No comments (`comment-policy.md`); mark `// pseudo` if you are unsure of an API.
 - Pros:
 - Cons:
 - When to choose:

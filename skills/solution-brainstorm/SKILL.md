@@ -61,6 +61,8 @@ Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladde
 
 ### Step 6. Write and stop
 
-Fill in the `templates.md` output. Use the project language for skeletons. Keep each skeleton short; mark `// pseudo` when you are unsure of an API.
+Read `comment-policy.md` (next to this file). Fill in the `templates.md` output. Use the project language for skeletons. Keep each skeleton short and follow the comment policy: no comments except `// pseudo` when you are unsure of an API.
 
 End with the recommendation and ask the user which option to choose. Then stop. Offer to implement it or to hand it to `/feature-workflow`, but do neither on your own.
+
+If the user later asks you to implement the chosen option in this session, write the code by `comment-policy.md`.
