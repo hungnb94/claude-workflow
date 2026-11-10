@@ -49,7 +49,7 @@ Kiểm tra 3 điều này **trước** khi tạo thư mục hay spawn gì:
   chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
 - `[COMMENT_POLICY]` = `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`,
   chuẩn hoá thành đường dẫn tuyệt đối, tính một lần.
-- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG`, `COMMENT_POLICY` và `STORY` (chỉ Bước 1) - subagent tự đọc
+- Spawn subagent chỉ truyền `WORKFLOW_DIR`, `LEGACY_CATALOG`, `COMMENT_POLICY` (chỉ Bước 3, 5, 6, 7) và `STORY` (chỉ Bước 1) - subagent tự đọc
   hướng dẫn từ definition của mình. Bước 5/7 nhận thêm `SLICE`; Bước 6 nhận thêm `SLICE, BRANCH, BASE, FILES, AC,
   BUDGET, TASKS`, do orchestrator chép từ bảng slice và Task plan trong `## TÓM TẮT` của `04-plan.md`.
 

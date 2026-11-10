@@ -595,6 +595,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn("COMMENT_POLICY", agent, name)
             self.assertIn("**/solution-brainstorm/comment-policy.md", agent, name)
             self.assertNotIn("nhãn/banner", agent, name)
+            self.assertNotIn("từ 3 chỗ trong diff", agent, name)
         self.assertIn("comment-policy.md", vi.SHARED_REFERENCE_FILES)
         self.assertIn("comment-policy.md", read("README.md"))
 
