@@ -5,7 +5,7 @@ Fill these in at Step 6. The counts and criteria below are the only ones. Change
 ## Counts
 
 - Options: 15
-- Kept: 5
+- Kept: 6
 
 Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option, the last one is the most durable High option, and at least one kept option is Mid. If no fitting option exists for a level, keep the closest one and say why in its Reason cell.
 
@@ -46,11 +46,11 @@ Exactly **Kept** rows are `Kept`, following the investment rule in Counts. Use `
 
 Only the kept options, one column each in label order. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
 
-| Criterion | A (Low) | B | C | D | E (High) |
-|---|---|---|---|---|---|
-| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
-| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
-| **Total (/30)** | **sum** | **sum** | **sum** | **sum** | **sum** |
+| Criterion | A (Low) | B | C | D | E | F (High) |
+|---|---|---|---|---|---|---|
+| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| **Total (/30)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
 
 ### 5. Kept options in detail
 
