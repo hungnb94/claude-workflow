@@ -40,11 +40,11 @@ Always one row per option, as many rows as **Options** in Counts. One or two lin
 |---|---|---|---|---|
 | 1 | Name (pattern) | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
 
-Exactly **Kept** rows are `Kept`, following the investment rule in Counts. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
+As many rows as **Kept** in Counts are `Kept`, following the investment rule in Counts. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
 ### 4. Scores
 
-Only the kept options, one column each in label order. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
+Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
 
 | Criterion | A (Low) | B | C | D | E | F (High) |
 |---|---|---|---|---|---|---|

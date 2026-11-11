@@ -594,6 +594,10 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(f"lists {options} options", text)
             self.assertIn(f"narrows them to {kept}", text)
 
+        scores = templates.split("### 4. Scores", 1)[1].split("### 5.", 1)[0]
+        header = next(line for line in scores.splitlines() if line.startswith("| Criterion"))
+        self.assertEqual(header.strip("|").count("|"), kept)
+
         body = skill.split("---", 2)[2]
         self.assertNotRegex(body, r"\b\d+ options\b")
         self.assertNotRegex(body, r"best \d+\b")

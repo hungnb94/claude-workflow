@@ -1,7 +1,7 @@
 ---
 name: solution-brainstorm
 disable-model-invocation: true
-description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 15 options, narrows them to 6 (from Minimal to Durable) with a fixed scoring table and a total per option, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
+description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 15 options, narrows them to 6 (sorted from Low to High investment) with a fixed scoring table and a total per option, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
 ---
 
 # Solution Brainstorm
