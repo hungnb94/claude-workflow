@@ -560,13 +560,14 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("legacy-techniques.md", skill)
         self.assertIn("Read-only", skill)
-        self.assertIn("exactly 12", skill)
+        self.assertIn("**Options** in its Counts", skill)
+        self.assertIn("**Kept** in its Counts", skill)
         self.assertIn("Add up each option's scores into the Total row", skill)
         self.assertNotIn("Do not add", skill)
         self.assertIn("Lý do bậc rẻ hơn không đủ", skill)
 
         self.assertIn("Legacy technique & tests", templates)
-        self.assertIn("Always 12 rows", templates)
+        self.assertIn("Always one row per option", templates)
         self.assertIn("**Total (/30)**", templates)
         self.assertIn("does not have the highest Total", templates)
         criteria = re.findall(r"^(\d+)\. ", templates.split("## Output", 1)[0], flags=re.MULTILINE)
@@ -574,8 +575,32 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("legacy-techniques.md", readme)
         self.assertIn("cost ladder", readme)
-        self.assertIn("lists 12 options", readme)
         self.assertIn("total out of 30", readme)
+
+    def test_solution_brainstorm_counts_are_single_source(self):
+        """Verify option counts live only in templates.md and the summaries quote them."""
+        base = ROOT_DIR / "skills" / "solution-brainstorm"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        templates = (base / "templates.md").read_text(encoding="utf-8")
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+
+        counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
+        options = int(re.search(r"^- Options: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        kept = int(re.search(r"^- Kept: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        self.assertLess(kept, options)
+
+        description = vi.parse_frontmatter(skill)["description"]
+        for text in (description, readme):
+            self.assertIn(f"lists {options} options", text)
+            self.assertIn(f"narrows them to {kept}", text)
+
+        scores = templates.split("### 4. Scores", 1)[1].split("### 5.", 1)[0]
+        header = next(line for line in scores.splitlines() if line.startswith("| Criterion"))
+        self.assertEqual(header.strip("|").count("|"), kept)
+
+        body = skill.split("---", 2)[2]
+        self.assertNotRegex(body, r"\b\d+ options\b")
+        self.assertNotRegex(body, r"best \d+\b")
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""

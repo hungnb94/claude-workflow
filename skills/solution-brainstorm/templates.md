@@ -1,6 +1,13 @@
 # Templates
 
-Fill these in at Step 6. The criteria below are the only scoring criteria. Change a criterion here, not in `SKILL.md`.
+Fill these in at Step 6. The counts and criteria below are the only ones. Change a count or a criterion here, not in `SKILL.md`.
+
+## Counts
+
+- Options: 15
+- Kept: 6
+
+Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option, the last one is the most durable High option, and at least one kept option is Mid. If no fitting option exists for a level, keep the closest one and say why in its Reason cell.
 
 ## Criteria
 
@@ -25,32 +32,32 @@ Two or three lines: the task, the detected platform, the architecture you found,
 
 Only if the user said to just go. One bullet per assumption.
 
-### 3. The 12 options
+### 3. All options
 
-Always 12 rows. One or two lines per row.
+Always one row per option, as many rows as **Options** in Counts. One or two lines per row.
 
 | # | Option (main pattern) | Investment | Verdict | Reason |
 |---|---|---|---|---|
 | 1 | Name (pattern) | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
 
-Exactly 3 rows are `Kept`, one per investment level, or the closest option when a level has no fit (Step 5). Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
+As many rows as **Kept** in Counts are `Kept`, following the investment rule in Counts. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
 ### 4. Scores
 
-Only the 3 kept options. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
+Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
 
-| Criterion | A (Minimal) | B (Balanced) | C (Durable) |
-|---|---|---|---|
-| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 |
-| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 |
-| **Total (/30)** | **sum** | **sum** | **sum** |
+| Criterion | A (Low) | B | C | D | E | F (High) |
+|---|---|---|---|---|---|---|
+| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| **Total (/30)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
 
-### 5. The 3 options in detail
+### 5. Kept options in detail
 
-Repeat this block for A, B and C.
+Repeat this block for each kept option, in label order.
 
 ```markdown
-#### Option A - <name> (<main pattern>)
+#### Option <label> - <name> (<main pattern>, <Low / Mid / High>)
 
 **Trade-off:** <only if it goes against the current architecture: which convention it breaks>
 
