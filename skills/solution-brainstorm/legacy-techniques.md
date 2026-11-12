@@ -1,11 +1,19 @@
 # Catalog kỹ thuật legacy / incremental refactoring
 
-Nguồn duy nhất cho thang chi phí và định nghĩa kỹ thuật. Chỉ đọc khi code đích là legacy chưa test
-(không có test bao phủ, hoặc không khởi tạo được trong test). Đây là heuristic tổng hợp từ Feathers,
+Nguồn duy nhất cho thang chi phí, Kiểm tra SRP và định nghĩa kỹ thuật. Đọc khi code đích là legacy
+chưa test (không có test bao phủ, hoặc không khởi tạo được trong test), hoặc khi cần Kiểm tra SRP. Đây là heuristic tổng hợp từ Feathers,
 Fowler, Hammant, Ellnestam/Brolund, không phải quy tắc chuẩn ngành.
 
 Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính năng; task refactor thuần
 (ví dụ phương án refactor của `/solution-brainstorm`) chỉ dùng mục `Mũ: chung`.
+
+## Kiểm tra SRP
+
+- Phạm vi: class/module và function mà task sửa hoặc thêm code vào, có test hay chưa (không tính code chỉ đọc/gọi tới). Đích lẫn trách nhiệm khi có ≥2 lý do thay đổi độc lập; ranh giới YAGNI: không tính helper private nhỏ dùng state, không tách chỉ vì file dài.
+- Quy tắc cứng: không đặt trách nhiệm MỚI vào đích; trách nhiệm mới ở class mới (Sprout Class/Wrap Class, không Sprout/Wrap Method).
+- Task sửa logic trong vùng lẫn, đích có lưới test và phần tách vừa ngân sách: Extract Method/Class (Fowler) ở commit `refactor` riêng trước, code tách ra có unit test happy/edge/error, rồi mới sửa ở code mới.
+- Không có lưới test hoặc tách vượt ngân sách: sửa tại chỗ tối thiểu, ghi `nợ SRP: <đích> - <lý do không tách>`. Không Extract Class bằng tay trên code chưa có test.
+- Chỉ tách trách nhiệm task chạm tới; trách nhiệm còn lại ghi vào `Đề xuất refactor tiếp` (trách nhiệm, file:line, kỹ thuật).
 
 ## Thang chi phí
 

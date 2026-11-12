@@ -19,6 +19,7 @@ Score each option 1-5 per criterion. 5 is always the best end.
 4. Extensibility without over-engineering
 5. Risk and migration cost (5 = lowest)
 6. Performance and operations
+7. Maintainability (SRP, cohesion): 5 = every touched class and function keeps one reason to change
 
 ## Output
 
@@ -44,13 +45,13 @@ As many rows as **Kept** in Counts are `Kept`, following the investment rule in 
 
 ### 4. Scores
 
-Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 30 (5 x 6 criteria). All criteria weigh the same.
+Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
 
 | Criterion | A (Low) | B | C | D | E | F (High) |
 |---|---|---|---|---|---|---|
 | Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
 | (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
-| **Total (/30)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
+| **Total (/35)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
 
 ### 5. Kept options in detail
 
@@ -67,7 +68,7 @@ Repeat this block for each kept option, in label order.
 - Pros:
 - Cons:
 - When to choose:
-- Legacy technique & tests (only when Step 1 found an untested legacy target): technique and rung from `legacy-techniques.md`; new-code tests written first (TDD) covering happy/edge/error; call-site characterization test, or the untested debt; why a cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`) if it climbs.
+- Legacy technique & tests (only when Step 1 found an untested legacy target or the SRP check fired): technique and rung from `legacy-techniques.md`; new-code tests written first (TDD) covering happy/edge/error; call-site characterization test, or the untested debt; why a cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`) if it climbs.
 - Effort: S | M | L
 ```
 
@@ -77,6 +78,8 @@ Repeat this block for each kept option, in label order.
 **Recommendation:** Option <X>, because <reason tied to this project>.
 
 <only if X does not have the highest Total: why it still wins over the higher-scoring option>
+
+<only if the SRP check fired: Follow-up refactors, one line per responsibility left in the target (file:line, technique); they can become tickets with `/issue-writing`>
 
 Which option do you choose? After that I can implement it, or you can hand it to `/feature-workflow`.
 ```
