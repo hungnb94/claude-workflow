@@ -541,6 +541,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         for name in ("fw-5-impl", "fw-6-review"):
             self.assertIn("Mikado", read("agents", f"{name}.md"))
         self.assertIn("LEGACY_CATALOG", fw_skill)
+        self.assertIn("## Kiểm tra SRP", ladder)
+        self.assertIn("Đề xuất refactor tiếp", fw4.split("<output>", 1)[1])
+        self.assertIn("nợ SRP", fw6)
 
         # Two Hats: solution-brainstorm filters techniques by hat for pure refactors
         self.assertIn("- Mũ: feature", catalog)

@@ -70,6 +70,8 @@ Chỉ áp dụng khi `01-spec.md` ghi code đích là legacy chưa test (không 
 trong test); nếu không, ghi "không áp dụng" và giữ quy trình cũ. Đây là heuristic của workflow, tổng
 hợp từ Feathers (Working Effectively with Legacy Code) và Fowler, không phải quy tắc chuẩn ngành.
 
+Dù có test hay chưa, áp `## Kiểm tra SRP` của `LEGACY_CATALOG` cho mỗi class/function story sửa: approach đặt trách nhiệm mới vào đích là không hợp lệ; Extract là task `refactor` riêng trước task hành vi.
+
 | Bậc | Kỹ thuật | Đủ khi | Leo bậc kế khi |
 |---|---|---|---|
 | 1. Sprout/Wrap | Hành vi mới ở method/class mới viết test-first; legacy chỉ thêm MỘT điểm gọi tối thiểu. Thứ tự chi phí: Sprout Method < Sprout Class < Wrap Method < Wrap Class | Hành vi mới độc lập, hoặc chạy trước/sau lời gọi cũ | Phải sửa logic đang có, sprout/wrap không đạt được hành vi, hoặc điểm gọi buộc thêm nhánh điều kiện vào method cũ |
@@ -222,7 +224,7 @@ Mỗi approach đã brainstorm (≥ 2) theo bảng:
 ### Chosen Approach & Rationale
 
 Rationale, Trade-offs Accepted, Alternatives Rejected (mỗi approach loại kèm lý do) - evidence quyết
-định, không giới hạn dòng. Code đích là legacy chưa test: ghi bậc + kỹ thuật theo §2b, `Lý do bậc rẻ hơn không đủ` nếu bậc >1, và nợ còn lại (code cũ chưa test).
+định, không giới hạn dòng. Code đích là legacy chưa test: ghi bậc + kỹ thuật theo §2b, `Lý do bậc rẻ hơn không đủ` nếu bậc >1, và nợ còn lại (code cũ chưa test). Kiểm tra SRP thấy vùng lẫn: ghi `nợ SRP` nếu sửa tại chỗ và `Đề xuất refactor tiếp` (gợi ý tạo ticket bằng `/issue-writing`).
 
 ### Role-Model Adoption (Adopt / Adapt / Reject)
 
