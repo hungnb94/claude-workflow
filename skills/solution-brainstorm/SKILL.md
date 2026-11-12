@@ -36,6 +36,7 @@ If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not gues
   - None match: tell the user and use general best practice.
 - If the chosen section has a **Standards** line, follow it and Read that file. Use only its architecture, pattern, and migration rules; ignore rules about how another workflow runs (slices, delegation, commits). If it cannot be read, say so and continue.
 - Mark the target as untested legacy when no test covers it or it cannot be instantiated in a test. Then Read `legacy-techniques.md` (next to this file; if missing, Glob `**/solution-brainstorm/legacy-techniques.md`). If it cannot be read, say so and continue. Use `Mũ: feature` techniques only when the task adds behavior; for a pure refactor use only `Mũ: chung` techniques (Two Hats).
+- Apply the SRP check (`## Kiểm tra SRP` in `legacy-techniques.md`) to every class and function the task changes, tested or not. Note each hit (file:line, test net or not) in Context.
 
 ### Step 2. Check for outdated tech
 
@@ -58,6 +59,8 @@ Read `templates.md` (next to this file). Always write as many options as **Optio
 Judge every option against the criteria in `templates.md` and give each a verdict. Keep as many as **Kept** in its Counts. The kept options differ in main pattern and follow the investment rule in Counts. Score only the kept options, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
 
 Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. Any later option that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
+
+SRP check fired: drop any option that puts a new responsibility into the target. A follows the check's cheapest reaction; an in-place option names its `nợ SRP` in its Reason cell and scores lower on criterion 7.
 
 ### Step 6. Write and stop
 

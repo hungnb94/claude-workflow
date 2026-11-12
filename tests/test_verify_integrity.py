@@ -351,6 +351,10 @@ class TestVerifyIntegrity(unittest.TestCase):
                 for field in required_fields:
                     self.assertIn(f"- {field}", entries[name])
 
+        gate = text.split("## Kiểm tra SRP", 1)[1].split("## Thang chi phí", 1)[0]
+        for token in ("YAGNI", "trách nhiệm MỚI", "Extract Method/Class", "nợ SRP", "Đề xuất refactor tiếp"):
+            self.assertIn(token, gate)
+
         for token in (
             "Mikado",
             "characterization test",
@@ -537,6 +541,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         for name in ("fw-5-impl", "fw-6-review"):
             self.assertIn("Mikado", read("agents", f"{name}.md"))
         self.assertIn("LEGACY_CATALOG", fw_skill)
+        self.assertIn("## Kiểm tra SRP", ladder)
+        self.assertIn("Đề xuất refactor tiếp", fw4.split("<output>", 1)[1])
+        self.assertIn("nợ SRP", fw6)
 
         # Two Hats: solution-brainstorm filters techniques by hat for pure refactors
         self.assertIn("- Mũ: feature", catalog)
@@ -565,17 +572,19 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Add up each option's scores into the Total row", skill)
         self.assertNotIn("Do not add", skill)
         self.assertIn("Lý do bậc rẻ hơn không đủ", skill)
+        self.assertIn("`## Kiểm tra SRP`", skill)
+        self.assertIn("/issue-writing", templates)
 
         self.assertIn("Legacy technique & tests", templates)
         self.assertIn("Always one row per option", templates)
-        self.assertIn("**Total (/30)**", templates)
+        self.assertIn("**Total (/35)**", templates)
         self.assertIn("does not have the highest Total", templates)
         criteria = re.findall(r"^(\d+)\. ", templates.split("## Output", 1)[0], flags=re.MULTILINE)
-        self.assertEqual(criteria, ["1", "2", "3", "4", "5", "6"])
+        self.assertEqual(criteria, ["1", "2", "3", "4", "5", "6", "7"])
 
         self.assertIn("legacy-techniques.md", readme)
         self.assertIn("cost ladder", readme)
-        self.assertIn("total out of 30", readme)
+        self.assertIn("total out of 35", readme)
 
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
