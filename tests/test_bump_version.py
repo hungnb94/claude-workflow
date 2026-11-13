@@ -251,25 +251,45 @@ class TestBumpVersion(unittest.TestCase):
         base = bv.get_base_version(self.repo_root)
         self.assertEqual(base, "1.2.0")
 
-    def test_get_base_version_floor_manifest_higher(self):
-        # When manifest is bumped ahead of git tags (e.g. 2.0.0 vs tags at 1.2.0),
-        # manifest version acts as floor to prevent regression
+    def _init_git_repo(self, *tags):
         subprocess.run(["git", "init", "-b", "main"], cwd=str(self.repo_root), check=True, capture_output=True)
         subprocess.run(["git", "config", "user.name", "Test"], cwd=str(self.repo_root), check=True)
         subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=str(self.repo_root), check=True)
         subprocess.run(["git", "add", "."], cwd=str(self.repo_root), check=True)
         subprocess.run(["git", "commit", "-m", "init"], cwd=str(self.repo_root), check=True, capture_output=True)
-        subprocess.run(["git", "tag", "v1.0.0"], cwd=str(self.repo_root), check=True)
-        subprocess.run(["git", "tag", "v1.2.0"], cwd=str(self.repo_root), check=True)
+        for tag in tags:
+            subprocess.run(["git", "tag", tag], cwd=str(self.repo_root), check=True)
 
-        # Manifest has 2.0.0
+    def _set_manifest_versions(self, plugin_version, marketplace_version=None):
         plugin_file = self.repo_root / ".claude-plugin" / "plugin.json"
         p_data = json.loads(plugin_file.read_text(encoding="utf-8"))
-        p_data["version"] = "2.0.0"
+        p_data["version"] = plugin_version
         plugin_file.write_text(json.dumps(p_data, indent=2) + "\n", encoding="utf-8")
 
+        market_file = self.repo_root / ".claude-plugin" / "marketplace.json"
+        m_data = json.loads(market_file.read_text(encoding="utf-8"))
+        m_data["plugins"][0]["version"] = marketplace_version or plugin_version
+        market_file.write_text(json.dumps(m_data, indent=2) + "\n", encoding="utf-8")
+
+    def test_get_base_version_tag_wins_over_bumped_manifest(self):
+        # Inside a PR the manifest already holds the bumped version; the base must
+        # stay the latest release tag so re-running the bump is idempotent.
+        self._init_git_repo("v1.0.0", "v1.2.0")
+        self._set_manifest_versions("1.3.0")
+
         base = bv.get_base_version(self.repo_root)
-        self.assertEqual(base, "2.0.0")
+        self.assertEqual(base, "1.2.0")
+
+    def test_write_manifests_is_idempotent_in_pr(self):
+        self._init_git_repo("v1.2.0")
+        for _ in range(2):
+            exit_code = bv.main([
+                "--bump-type", "minor",
+                "--repo-root", str(self.repo_root),
+                "--write-manifests",
+            ])
+            self.assertEqual(exit_code, 0)
+        self.assertEqual(bv.read_manifest_versions(self.repo_root), ("1.3.0", "1.3.0"))
 
     def test_get_base_version_floor_tags_higher(self):
         # When git tags are ahead of manifest (e.g. tags at 2.5.0 vs manifest at 1.0.0),
@@ -484,6 +504,133 @@ class TestBumpVersion(unittest.TestCase):
 
         p_data = json.loads((self.repo_root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(p_data["version"], "2.0.0")
+
+    # -------------------------------------------------------------------------
+    # PR Version Check Tests
+    # -------------------------------------------------------------------------
+
+    def test_classify_actual_bump(self):
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.2.3"), "none")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.2.4"), "patch")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.3.0"), "minor")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "2.0.0"), "major")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.2.2"), "lower")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.2.5"), "invalid")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "1.3.1"), "invalid")
+        self.assertEqual(bv.classify_actual_bump("1.2.3", "abc"), "invalid")
+
+    def test_check_matching_bump_passes(self):
+        result = bv.check_pr_version("1.0.0", "1.1.0", "1.1.0", "minor", "feat")
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["should_release"])
+        self.assertEqual(result["warnings"], [])
+
+    def test_check_skip_type_without_bump_passes_without_release(self):
+        result = bv.check_pr_version("1.0.0", "1.0.0", "1.0.0", "skip", "docs")
+        self.assertTrue(result["ok"])
+        self.assertFalse(result["should_release"])
+
+    def test_check_skip_type_with_bump_releases(self):
+        result = bv.check_pr_version("1.0.0", "1.0.1", "1.0.1", "skip", "docs")
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["should_release"])
+        self.assertEqual(result["warnings"], [])
+
+    def test_check_release_type_without_bump_fails(self):
+        result = bv.check_pr_version("1.0.0", "1.0.0", "1.0.0", "patch", "fix")
+        self.assertFalse(result["ok"])
+        self.assertIn("skip-release", result["errors"][0])
+
+    def test_check_bump_differs_from_suggestion_only_warns(self):
+        result = bv.check_pr_version("1.0.0", "1.0.1", "1.0.1", "minor", "feat")
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(result["warnings"]), 1)
+
+    def test_check_breaking_change_requires_major(self):
+        result = bv.check_pr_version("1.0.0", "1.1.0", "1.1.0", "major", "feat!")
+        self.assertFalse(result["ok"])
+        self.assertIn("2.0.0", result["errors"][0])
+
+    def test_check_version_already_released_fails(self):
+        # Another PR released 1.1.0 first; this PR still carries 1.1.0 and a feat title.
+        result = bv.check_pr_version("1.1.0", "1.1.0", "1.1.0", "minor", "feat")
+        self.assertFalse(result["ok"])
+
+    def test_check_lower_and_skipped_versions_fail(self):
+        self.assertFalse(bv.check_pr_version("1.2.0", "1.1.0", "1.1.0", "patch", "fix")["ok"])
+        self.assertFalse(bv.check_pr_version("1.2.0", "1.4.0", "1.4.0", "minor", "feat")["ok"])
+
+    def test_check_manifest_mismatch_fails(self):
+        result = bv.check_pr_version("1.0.0", "1.1.0", "1.0.0", "minor", "feat")
+        self.assertFalse(result["ok"])
+        self.assertIn("mismatch", result["errors"][0])
+
+    def test_cli_check_reads_separate_manifest_root(self):
+        self._init_git_repo("v1.0.0")
+        pr_root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, pr_root, True)
+        shutil.copytree(self.repo_root / ".claude-plugin", pr_root / ".claude-plugin")
+        report = self.repo_root / "report.md"
+        output_file = self.repo_root / "github_output.txt"
+
+        self._set_manifest_versions("1.1.0")
+        shutil.copytree(self.repo_root / ".claude-plugin", pr_root / ".claude-plugin", dirs_exist_ok=True)
+        self._set_manifest_versions("1.0.0")
+
+        exit_code = bv.main([
+            "--check",
+            "--pr-title", "feat: add feature",
+            "--repo-root", str(self.repo_root),
+            "--manifest-root", str(pr_root),
+            "--report-file", str(report),
+            "--github-output", str(output_file),
+        ])
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Version check: Passed", report.read_text(encoding="utf-8"))
+        content = output_file.read_text(encoding="utf-8")
+        self.assertIn("should_release=true", content)
+        self.assertIn("pr_version=1.1.0", content)
+
+    def test_cli_check_uses_base_branch_manifest_as_floor(self):
+        # PR A merged 1.1.0 but its release is not tagged yet; PR B also carries 1.1.0.
+        self._init_git_repo("v1.0.0")
+        pr_root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, pr_root, True)
+        self._set_manifest_versions("1.1.0")
+        shutil.copytree(self.repo_root / ".claude-plugin", pr_root / ".claude-plugin")
+
+        exit_code = bv.main([
+            "--check",
+            "--pr-title", "feat: add feature",
+            "--repo-root", str(self.repo_root),
+            "--manifest-root", str(pr_root),
+        ])
+        self.assertEqual(exit_code, 1)
+
+    def test_cli_check_fails_and_reports_when_not_bumped(self):
+        self._init_git_repo("v1.0.0")
+        report = self.repo_root / "report.md"
+        exit_code = bv.main([
+            "--check",
+            "--pr-title", "fix: resolve bug",
+            "--repo-root", str(self.repo_root),
+            "--report-file", str(report),
+        ])
+        self.assertEqual(exit_code, 1)
+        text = report.read_text(encoding="utf-8")
+        self.assertIn("Version check: Failed", text)
+        self.assertIn("--bump-type", text)
+
+    def test_cli_check_invalid_title_writes_failure_report(self):
+        report = self.repo_root / "report.md"
+        exit_code = bv.main([
+            "--check",
+            "--pr-title", "not conventional",
+            "--repo-root", str(self.repo_root),
+            "--report-file", str(report),
+        ])
+        self.assertEqual(exit_code, 1)
+        self.assertIn("Version check: Failed", report.read_text(encoding="utf-8"))
 
     # -------------------------------------------------------------------------
     # Integration with verify-integrity.py

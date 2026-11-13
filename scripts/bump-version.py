@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-Zero-dependency semantic version calculation and manifest synchronization script.
-Inspects PR metadata (Conventional Commits title, body, labels) or manual override,
-calculates the next SemVer 2.0.0 version from base tags or manifests, updates plugin.json
-and marketplace.json, and exports outputs for GitHub Actions.
+Zero-dependency semantic version calculation, manifest synchronization, and PR version check.
+
+Developers bump the version inside their pull request. This script:
+- suggests a bump from PR metadata (Conventional Commits title, body, labels),
+- writes the next version (computed from the latest release tag) into plugin.json
+  and marketplace.json,
+- checks in CI that the version in a PR is a valid bump over the latest release tag.
 
 Usage:
+  python3 scripts/bump-version.py --pr-title "feat: add new subagent"            # suggest only
   python3 scripts/bump-version.py --pr-title "feat: add new subagent" --write-manifests
-  python3 scripts/bump-version.py --pr-title "fix: resolve bug" --dry-run
   python3 scripts/bump-version.py --bump-type minor --write-manifests
+  python3 scripts/bump-version.py --check --pr-title "fix: resolve bug" --report-file report.md
 """
 
 import argparse
@@ -150,15 +154,11 @@ def parse_conventional_commit(
     )
 
 
-def get_base_version(repo_root: Path) -> str:
+def get_latest_tag_version(repo_root: Path):
     """
-    Resolve base version from the latest semantic git tag (v*.*.*) and/or
-    .claude-plugin/plugin.json, taking the highest SemVer version as a floor
-    to prevent regressions if manifests were bumped ahead of git tags.
+    Return the highest SemVer version among release tags (v*.*.*, optionally
+    prefixed like 'workflow--v1.2.3'), or None when there is no such tag.
     """
-    candidates = []
-
-    # 1. Inspect git tags
     try:
         result = subprocess.run(
             ["git", "tag", "-l"],
@@ -167,48 +167,215 @@ def get_base_version(repo_root: Path) -> str:
             text=True,
             check=False,
         )
-        if result.returncode == 0 and result.stdout.strip():
-            tags = [t.strip() for t in result.stdout.strip().splitlines() if t.strip()]
-            tag_versions = []
-            for tag in tags:
-                m = re.match(r"^(?:[a-zA-Z0-9_-]+--)?v(\d+\.\d+\.\d+)$", tag)
-                if m:
-                    ver_tuple = parse_semver(m.group(1))
-                    if ver_tuple:
-                        tag_versions.append((ver_tuple, m.group(1)))
-            if tag_versions:
-                max_tag = max(tag_versions, key=lambda item: item[0])
-                candidates.append(max_tag)
     except Exception:
-        pass
+        return None
+    if result.returncode != 0:
+        return None
 
-    # 2. Inspect .claude-plugin/plugin.json
+    tag_versions = []
+    for tag in result.stdout.splitlines():
+        m = re.match(r"^(?:[a-zA-Z0-9_-]+--)?v(\d+\.\d+\.\d+)$", tag.strip())
+        if m:
+            ver_tuple = parse_semver(m.group(1))
+            if ver_tuple:
+                tag_versions.append((ver_tuple, m.group(1)))
+    if not tag_versions:
+        return None
+    return max(tag_versions, key=lambda item: item[0])[1]
+
+
+def get_base_version(repo_root: Path) -> str:
+    """
+    Resolve the base version a PR bumps from: the latest release tag.
+    Falls back to .claude-plugin/plugin.json only when the repository has no release tag.
+
+    The manifest is not used as a floor: inside a PR it already holds the bumped
+    version, and bumping from it again would skip a version.
+    """
+    tag_version = get_latest_tag_version(repo_root)
+    if tag_version:
+        return tag_version
+
     plugin_json_path = repo_root / ".claude-plugin" / "plugin.json"
-    manifest_error = None
-    if plugin_json_path.exists():
-        try:
-            with open(plugin_json_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            version = data.get("version")
-            if version:
-                ver_tuple = parse_semver(str(version))
-                if ver_tuple:
-                    candidates.append((ver_tuple, str(version)))
-        except Exception as e:
-            manifest_error = e
-
-    if candidates:
-        best_candidate = max(candidates, key=lambda item: item[0])
-        return best_candidate[1]
-
-    if manifest_error:
+    if not plugin_json_path.exists():
         raise ValueError(
-            f"Failed to read fallback version from {plugin_json_path}: {manifest_error}"
+            f"Unable to determine base version: no valid git tags and no {plugin_json_path}"
         )
+    try:
+        with open(plugin_json_path, "r", encoding="utf-8") as f:
+            version = json.load(f).get("version")
+    except Exception as e:
+        raise ValueError(
+            f"Failed to read fallback version from {plugin_json_path}: {e}"
+        )
+    if not parse_semver(str(version or "")):
+        raise ValueError(
+            f"Unable to determine base version: no valid git tags and no valid version in {plugin_json_path}"
+        )
+    return str(version)
 
-    raise ValueError(
-        f"Unable to determine base version: no valid git tags and no valid version in {plugin_json_path}"
-    )
+
+def read_manifest_versions(manifest_root: Path) -> tuple:
+    """
+    Return (plugin_version, marketplace_version) read from manifest_root/.claude-plugin.
+    marketplace_version is taken from the plugins entry whose name matches plugin.json.
+    """
+    plugin_path = manifest_root / ".claude-plugin" / "plugin.json"
+    marketplace_path = manifest_root / ".claude-plugin" / "marketplace.json"
+    with open(plugin_path, "r", encoding="utf-8") as f:
+        plugin_data = json.load(f)
+    with open(marketplace_path, "r", encoding="utf-8") as f:
+        marketplace_data = json.load(f)
+
+    entry = find_marketplace_entry(marketplace_data, plugin_data.get("name"))
+    marketplace_version = entry.get("version") if entry else None
+    return plugin_data.get("version"), marketplace_version
+
+
+def find_marketplace_entry(marketplace_data: dict, plugin_name: str):
+    """
+    Return the marketplace plugins entry for plugin_name, falling back to the first
+    entry (the same entry update_manifests writes), or None when there are no entries.
+    """
+    plugins = marketplace_data.get("plugins", [])
+    for item in plugins:
+        if item.get("name") == plugin_name:
+            return item
+    return plugins[0] if plugins else None
+
+
+def classify_actual_bump(base_version: str, version: str):
+    """
+    Classify how `version` relates to `base_version`:
+    'none' (equal), 'major' / 'minor' / 'patch' (exactly one valid SemVer step),
+    'lower' (older than base), or 'invalid' (not SemVer, or skips versions).
+    """
+    base = parse_semver(base_version)
+    ver = parse_semver(version)
+    if not base or not ver:
+        return "invalid"
+    if ver == base:
+        return "none"
+    if ver < base:
+        return "lower"
+    for bump in ("major", "minor", "patch"):
+        if calculate_next_version(base_version, bump) == version:
+            return bump
+    return "invalid"
+
+
+def check_pr_version(
+    base_version: str,
+    plugin_version: str,
+    marketplace_version: str,
+    suggested_bump: str,
+    suggestion_reason: str,
+) -> dict:
+    """
+    Validate the version a developer set in a PR against the latest release tag.
+
+    Hard failures:
+    - plugin.json and marketplace.json disagree, or the version is not SemVer;
+    - the version is lower than, or skips past, the next valid version;
+    - the PR metadata asks for a release but the version was not bumped;
+    - the PR metadata marks a breaking change but the bump is not major.
+    A bump that differs from the suggestion in any other way is only a warning,
+    because the developer knows the scope of the change.
+
+    Returns a dict with keys: ok, should_release, actual_bump, errors, warnings.
+    """
+    errors = []
+    warnings = []
+    actual_bump = None
+
+    if plugin_version != marketplace_version:
+        errors.append(
+            f"Version mismatch: plugin.json={plugin_version} vs marketplace.json={marketplace_version}."
+        )
+    elif not parse_semver(str(plugin_version or "")):
+        errors.append(f"Version '{plugin_version}' is not valid SemVer (expected X.Y.Z).")
+    else:
+        actual_bump = classify_actual_bump(base_version, plugin_version)
+        if actual_bump == "lower":
+            errors.append(
+                f"Version {plugin_version} is lower than the latest release v{base_version}."
+            )
+        elif actual_bump == "invalid":
+            valid_next = ", ".join(
+                calculate_next_version(base_version, b) for b in ("patch", "minor", "major")
+            )
+            errors.append(
+                f"Version {plugin_version} is not a single step from v{base_version}. "
+                f"Valid next versions: {valid_next}."
+            )
+        elif actual_bump == "none":
+            if suggested_bump != "skip":
+                errors.append(
+                    f"Version was not bumped from v{base_version}, but this PR needs a "
+                    f"{suggested_bump} release ({suggestion_reason}). Bump the version, "
+                    f"or add the 'skip-release' label if this PR must not be released."
+                )
+        elif suggested_bump == "major" and actual_bump != "major":
+            errors.append(
+                f"This PR is a breaking change ({suggestion_reason}) but the bump is "
+                f"{actual_bump}. Bump major to {calculate_next_version(base_version, 'major')}."
+            )
+        elif suggested_bump not in ("skip", actual_bump):
+            warnings.append(
+                f"Bump is {actual_bump} but PR metadata suggests {suggested_bump} "
+                f"({suggestion_reason}). Keep it if the scope really is {actual_bump}."
+            )
+
+    return {
+        "ok": not errors,
+        "should_release": not errors and actual_bump in ("major", "minor", "patch"),
+        "actual_bump": actual_bump,
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def format_check_report(
+    base_version: str,
+    version: str,
+    suggested_bump: str,
+    suggestion_reason: str,
+    result: dict,
+) -> str:
+    """Render the PR version check as Markdown for a sticky PR comment."""
+    status = "Passed" if result["ok"] else "Failed"
+    lines = [
+        f"### Version check: {status}",
+        "",
+        f"- Latest release: `v{base_version}`",
+        f"- Version in this PR: `{version}`",
+    ]
+    if suggested_bump == "skip":
+        lines.append(f"- Suggested bump: none ({suggestion_reason})")
+    else:
+        suggested_version = calculate_next_version(base_version, suggested_bump)
+        lines.append(
+            f"- Suggested bump: **{suggested_bump}** to `{suggested_version}` ({suggestion_reason})"
+        )
+    if result["ok"]:
+        lines.append(
+            f"- On merge: release `v{version}`" if result["should_release"]
+            else "- On merge: no release"
+        )
+    for error in result["errors"]:
+        lines.append(f"- :x: {error}")
+    for warning in result["warnings"]:
+        lines.append(f"- :warning: {warning}")
+    lines += [
+        "",
+        "Set the version from the latest release tag (run on your branch, then commit):",
+        "",
+        "```bash",
+        "git fetch --tags",
+        "python3 scripts/bump-version.py --bump-type <patch|minor|major> --write-manifests",
+        "```",
+    ]
+    return "\n".join(lines) + "\n"
 
 
 def calculate_next_version(base_version: str, bump_type: str) -> str:
@@ -275,26 +442,14 @@ def update_manifests(repo_root: Path, new_version: str) -> None:
         raise ValueError(f"Missing or empty 'plugins' array in {marketplace_path}")
 
     plugin_name = plugin_data.get("name", "workflow")
-    updated = False
-    for item in plugins:
-        if item.get("name") == plugin_name:
-            item["version"] = new_version
-            updated = True
-            break
-
-    if not updated and len(plugins) > 0:
+    entry = find_marketplace_entry(marketplace_data, plugin_name)
+    if entry.get("name") != plugin_name:
         print(
             f"[WARN] Plugin '{plugin_name}' not found by name in marketplace.json; "
-            f"updating first plugin entry '{plugins[0].get('name')}'",
+            f"updating first plugin entry '{entry.get('name')}'",
             file=sys.stderr,
         )
-        plugins[0]["version"] = new_version
-        updated = True
-
-    if not updated:
-        raise ValueError(
-            f"Could not find plugin entry for '{plugin_name}' in {marketplace_path}"
-        )
+    entry["version"] = new_version
 
     with open(marketplace_path, "w", encoding="utf-8") as f:
         json.dump(marketplace_data, f, indent=2, ensure_ascii=False)
@@ -308,6 +463,68 @@ def export_github_outputs(output_file: str, outputs: dict) -> None:
     with open(output_file, "a", encoding="utf-8") as f:
         for key, value in outputs.items():
             f.write(f"{key}={value}\n")
+
+
+def run_check(
+    repo_root: Path,
+    manifest_root: Path,
+    pr_title: str,
+    pr_body: str,
+    labels,
+    report_file: str = None,
+    github_output_file: str = None,
+) -> int:
+    """Run the PR version gate. Returns 0 when the version is acceptable, 1 otherwise."""
+    def fail(message: str) -> int:
+        print(f"[ERROR] {message}", file=sys.stderr)
+        if report_file:
+            Path(report_file).write_text(
+                f"### Version check: Failed\n\n- :x: {message}\n", encoding="utf-8"
+            )
+        return 1
+
+    try:
+        base_version = get_base_version(repo_root)
+        plugin_version, marketplace_version = read_manifest_versions(manifest_root)
+        # In CI, repo_root is the base branch. Its manifest can be ahead of the latest
+        # tag while a merged PR's release run is still pending or has failed; use it as
+        # a floor so a second PR carrying the same version cannot pass and merge unreleased.
+        if manifest_root.resolve() != repo_root.resolve():
+            base_branch_version, _ = read_manifest_versions(repo_root)
+            base_tuple = parse_semver(str(base_branch_version or ""))
+            if base_tuple and base_tuple > parse_semver(base_version):
+                base_version = str(base_branch_version)
+    except Exception as e:
+        return fail(f"Failed to read versions: {e}")
+
+    try:
+        suggested_bump, reason = parse_conventional_commit(
+            title=pr_title, body=pr_body, labels=labels
+        )
+    except Exception as e:
+        return fail(f"Failed to parse PR metadata: {e}")
+
+    result = check_pr_version(
+        base_version, plugin_version, marketplace_version, suggested_bump, reason
+    )
+    report = format_check_report(
+        base_version, plugin_version, suggested_bump, reason, result
+    )
+    print(report)
+
+    if report_file:
+        Path(report_file).write_text(report, encoding="utf-8")
+
+    if github_output_file:
+        export_github_outputs(github_output_file, {
+            "check_passed": "true" if result["ok"] else "false",
+            "should_release": "true" if result["should_release"] else "false",
+            "base_version": base_version,
+            "pr_version": plugin_version,
+            "suggested_bump": suggested_bump,
+        })
+
+    return 0 if result["ok"] else 1
 
 
 def main(argv=None) -> int:
@@ -356,6 +573,23 @@ def main(argv=None) -> int:
         help="Write updated version to plugin.json and marketplace.json",
     )
     parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate the version already set in the manifests against the latest release tag (PR gate)",
+    )
+    parser.add_argument(
+        "--manifest-root",
+        type=str,
+        default=None,
+        help="Directory holding the .claude-plugin manifests to check (defaults to --repo-root)",
+    )
+    parser.add_argument(
+        "--report-file",
+        type=str,
+        default=None,
+        help="Write the --check result as Markdown to this file",
+    )
+    parser.add_argument(
         "--github-output",
         type=str,
         default=None,
@@ -374,18 +608,32 @@ def main(argv=None) -> int:
     pr_body = args.pr_body or os.environ.get("PR_BODY", "")
     labels = args.labels or os.environ.get("PR_LABELS", "")
 
+    repo_root = (
+        Path(args.repo_root).resolve()
+        if args.repo_root
+        else Path.cwd().resolve()
+    )
+
+    if args.check:
+        manifest_root = (
+            Path(args.manifest_root).resolve() if args.manifest_root else repo_root
+        )
+        return run_check(
+            repo_root=repo_root,
+            manifest_root=manifest_root,
+            pr_title=pr_title,
+            pr_body=pr_body,
+            labels=labels,
+            report_file=args.report_file,
+            github_output_file=args.github_output or os.environ.get("GITHUB_OUTPUT"),
+        )
+
     if not bump_type_override and not pr_title:
         print(
             "[ERROR] Either --pr-title (or PR_TITLE env) or --bump-type (or BUMP_TYPE_OVERRIDE env) must be provided.",
             file=sys.stderr,
         )
         return 1
-
-    repo_root = (
-        Path(args.repo_root).resolve()
-        if args.repo_root
-        else Path.cwd().resolve()
-    )
 
     try:
         bump_type, reason = parse_conventional_commit(
@@ -433,6 +681,10 @@ def main(argv=None) -> int:
             except Exception as e:
                 print(f"[ERROR] Failed to update manifests: {e}", file=sys.stderr)
                 return 1
+    elif should_release:
+        print(
+            f"[INFO] To apply: python3 scripts/bump-version.py --bump-type {bump_type} --write-manifests"
+        )
 
     # Export outputs for GitHub Actions
     github_output_file = args.github_output or os.environ.get("GITHUB_OUTPUT")

@@ -1,22 +1,15 @@
 name: Release
 
+# The version is bumped inside each PR (see version-check.yml), so this workflow
+# never commits. On every push to main it tags the manifest version and publishes
+# a GitHub Release when that tag does not exist yet. Running it by hand retries a
+# release that failed part-way; it never bumps the version.
+
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      bump_type:
-        description: 'Manual version bump override'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
 
 concurrency:
   group: release
@@ -24,18 +17,16 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
 
 jobs:
   release:
-    name: Automated Release on PR Merge
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    name: Tag and Release Manifest Version
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
           fetch-depth: 0
 
       - name: Setup Python
@@ -43,46 +34,56 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Determine version bump and update manifests
-        id: bump
+      - name: Resolve manifest version, tag, and release state
+        id: version
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
-          BUMP_TYPE_OVERRIDE: ${{ inputs.bump_type }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 scripts/bump-version.py --write-manifests
+          version="$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')"
+          tag="v${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/${tag}" > /dev/null; then
+            echo "should_tag=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_tag=true" >> "$GITHUB_OUTPUT"
+          fi
+          # A run can fail after pushing the tag; a retry must still publish the release.
+          if gh release view "${tag}" > /dev/null 2>&1; then
+            echo "Release ${tag} already exists; nothing to release."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run pre-release integrity gate
-        if: steps.bump.outputs.should_release == 'true'
+        if: steps.version.outputs.should_release == 'true'
         run: |
-          python3 scripts/verify-integrity.py --check-tag "v${{ steps.bump.outputs.next_version }}"
+          python3 scripts/verify-integrity.py --check-tag "${{ steps.version.outputs.tag }}"
 
-      - name: Commit manifests, tag, and push atomically
-        if: steps.bump.outputs.should_release == 'true'
+      - name: Create and push tag
+        if: steps.version.outputs.should_release == 'true' && steps.version.outputs.should_tag == 'true'
         env:
-          TAG: v${{ steps.bump.outputs.next_version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
+          # Tag the commit that set this version, not main's head: a manual retry can
+          # run after later PRs merged, and their changes do not belong to this release.
+          target="$(git log -1 --format=%H -S"\"version\": \"${VERSION}\"" -- .claude-plugin/plugin.json)"
+          target="${target:-${GITHUB_SHA}}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(release): ${TAG} [skip ci]"
-            git pull --rebase origin main
-          else
-            echo "Manifest files are already up-to-date; skipping commit."
-          fi
-          git tag -a "${TAG}" -m "Release ${TAG}"
-          git push --atomic origin HEAD:refs/heads/main "refs/tags/${TAG}"
+          git tag -a "${TAG}" -m "Release ${TAG}" "${target}"
+          git push origin "refs/tags/${TAG}"
 
       - name: Publish GitHub Release
-        if: steps.bump.outputs.should_release == 'true'
+        if: steps.version.outputs.should_release == 'true'
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.bump.outputs.next_version }}
-          name: Release v${{ steps.bump.outputs.next_version }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
           generate_release_notes: true
           draft: false
           prerelease: false
@@ -92,8 +93,6 @@ jobs:
         run: |
           echo "## Release Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Merged**: ${{ github.event.pull_request.merged || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Bump Type**: ${{ steps.bump.outputs.bump_type || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Base Version**: ${{ steps.bump.outputs.base_version || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Next Version**: ${{ steps.bump.outputs.next_version || 'None' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Released**: ${{ steps.bump.outputs.should_release || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Manifest Version**: ${{ steps.version.outputs.version || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Released**: ${{ steps.version.outputs.should_release || 'false' }}" >> $GITHUB_STEP_SUMMARY
