@@ -15,6 +15,12 @@ Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính nă
 - Không có lưới test hoặc tách vượt ngân sách: sửa tại chỗ tối thiểu, ghi `nợ SRP: <đích> - <lý do không tách>`. Không Extract Class bằng tay trên code chưa có test.
 - Chỉ tách trách nhiệm task chạm tới; trách nhiệm còn lại ghi vào `Đề xuất refactor tiếp` (trách nhiệm, file:line, kỹ thuật).
 
+## Kiểm tra phạm vi owner
+
+- Phạm vi: phụ thuộc vòng đời/đăng ký mà task thêm hoặc đổi chỗ gắn (lifecycle owner, listener host, scope, Context). Liệt kê owner ứng viên từ hẹp tới rộng, mỗi owner kèm nguyên nhân khiến đích phải dừng hay sống theo nó.
+- Quy tắc cứng: dùng owner hẹp nhất còn sống lâu hơn đích và đúng nguyên nhân, do caller truyền vào; đích không nhận object rộng hơn rồi tự lấy owner ra.
+- Hành vi hôm nay giống nhau không phải hòa: owner hẹp hơn thắng. Owner rộng hơn phải ghi `Lý do scope rộng hơn`; "ít phải truyền thêm" không phải lý do.
+
 ## Thang chi phí
 
 | Bậc | fw (thêm tính năng) | Đủ khi | Leo bậc kế khi |
@@ -30,6 +36,7 @@ Thứ tự chi phí trong bậc 1 của fw: Sprout Method < Sprout Class < Wrap 
 ## Quy ước chung
 
 - Leo bậc phải ghi `Lý do bậc rẻ hơn không đủ`; thiếu thông tin thì ghi câu hỏi, không đoán.
+- Chỉ so bậc giữa các option cùng phạm vi owner (`## Kiểm tra phạm vi owner`); bậc rẻ hơn không bù cho owner rộng hơn.
 - Sprout/Wrap chỉ chèn MỘT điểm gọi không điều kiện (hoặc rename + method bọc), không thêm nhánh if-else vào method cũ.
 - Không dựng abstraction mới khi <2 consumer; Branch by Abstraction chỉ khi ≥2 consumer.
 - Seam Extract Interface có fake trong test không tính là abstraction 1 consumer.
