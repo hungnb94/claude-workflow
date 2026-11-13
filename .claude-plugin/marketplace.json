@@ -14,7 +14,7 @@
         "repo": "hungnb94/claude-workflow"
       },
       "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, and solution brainstorm skills",
-      "version": "3.3.0",
+      "version": "3.4.0",
       "author": {
         "name": "Hung Nguyen",
         "email": "hungnb94@gmail.com"
