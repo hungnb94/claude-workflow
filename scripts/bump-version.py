@@ -227,13 +227,21 @@ def read_manifest_versions(manifest_root: Path) -> tuple:
     with open(marketplace_path, "r", encoding="utf-8") as f:
         marketplace_data = json.load(f)
 
-    plugin_name = plugin_data.get("name")
-    marketplace_version = None
-    for item in marketplace_data.get("plugins", []):
-        if item.get("name") == plugin_name:
-            marketplace_version = item.get("version")
-            break
+    entry = find_marketplace_entry(marketplace_data, plugin_data.get("name"))
+    marketplace_version = entry.get("version") if entry else None
     return plugin_data.get("version"), marketplace_version
+
+
+def find_marketplace_entry(marketplace_data: dict, plugin_name: str):
+    """
+    Return the marketplace plugins entry for plugin_name, falling back to the first
+    entry (the same entry update_manifests writes), or None when there are no entries.
+    """
+    plugins = marketplace_data.get("plugins", [])
+    for item in plugins:
+        if item.get("name") == plugin_name:
+            return item
+    return plugins[0] if plugins else None
 
 
 def classify_actual_bump(base_version: str, version: str):
@@ -434,26 +442,14 @@ def update_manifests(repo_root: Path, new_version: str) -> None:
         raise ValueError(f"Missing or empty 'plugins' array in {marketplace_path}")
 
     plugin_name = plugin_data.get("name", "workflow")
-    updated = False
-    for item in plugins:
-        if item.get("name") == plugin_name:
-            item["version"] = new_version
-            updated = True
-            break
-
-    if not updated and len(plugins) > 0:
+    entry = find_marketplace_entry(marketplace_data, plugin_name)
+    if entry.get("name") != plugin_name:
         print(
             f"[WARN] Plugin '{plugin_name}' not found by name in marketplace.json; "
-            f"updating first plugin entry '{plugins[0].get('name')}'",
+            f"updating first plugin entry '{entry.get('name')}'",
             file=sys.stderr,
         )
-        plugins[0]["version"] = new_version
-        updated = True
-
-    if not updated:
-        raise ValueError(
-            f"Could not find plugin entry for '{plugin_name}' in {marketplace_path}"
-        )
+    entry["version"] = new_version
 
     with open(marketplace_path, "w", encoding="utf-8") as f:
         json.dump(marketplace_data, f, indent=2, ensure_ascii=False)
