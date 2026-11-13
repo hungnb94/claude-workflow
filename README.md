@@ -265,31 +265,55 @@ Notes:
 
 ## Automated Release Lifecycle
 
-Claude Workflow implements zero-touch continuous delivery. Every Pull Request merged into the `main` branch triggers an automated release pipeline (`.github/workflows/release.yml`) that analyzes Conventional Commits metadata, increments the semantic version, synchronizes manifests, passes pre-release integrity gates, and publishes a GitHub Release.
+The version is bumped inside each Pull Request, not after the merge. The developer sets the version, a PR gate checks it, and when the PR is squash-merged into `main` the release pipeline only tags that version and publishes a GitHub Release. No bot commit lands on `main`, so every PR stays a single commit.
 
-### Semantic Version Determination
+### Bumping the Version in a PR
 
-The release pipeline inspects the merged PR title, description body, and GitHub labels to calculate the next Semantic Version 2.0.0 (`X.Y.Z`):
+Bump from the latest release tag on your branch, then commit the two manifests with the rest of the change:
 
-| PR Convention / Marker | Version Bump | Resulting SemVer | Example PR Title |
+```bash
+git fetch --tags
+python3 scripts/bump-version.py --pr-title "feat: add new skill"            # print the suggested bump
+python3 scripts/bump-version.py --bump-type minor --write-manifests        # write it to plugin.json and marketplace.json
+```
+
+The command always computes from the latest release tag, so running it again does not bump twice.
+
+### Suggested Bump
+
+The suggestion comes from the PR title, body, and labels (Conventional Commits). You choose the final bump, because you know the scope of the change:
+
+| PR Convention / Marker | Suggested Bump | Resulting SemVer | Example PR Title |
 |---|---|---|---|
 | `!` after type/scope, or `BREAKING CHANGE:` in body | Major | `X+1.0.0` | `feat!: redesign subagent communication protocol` |
 | `feat` or `feat(...)` | Minor | `X.Y+1.0` | `feat(skills): add automated verification skill` |
 | `fix`, `perf`, `refactor`, `revert` | Patch | `X.Y.Z+1` | `fix: resolve manifest version synchronization bug` |
-| `docs`, `chore`, `ci`, `test`, `style`, `build` | Skip | No release | `docs: update installation instructions` |
-| `skip-release` or `no-release` PR label | Skip | No release | Any title with label `skip-release` |
+| `docs`, `chore`, `ci`, `test`, `style`, `build` | None | No release | `docs: update installation instructions` |
+| `skip-release` or `no-release` PR label | None | No release | Any title with label `skip-release` |
 
-### Pipeline Workflow Steps
+### PR Version Gate
 
-1. **Serialized Concurrency**: Release runs are strictly serialized (`concurrency: group: release, cancel-in-progress: false`) to eliminate race conditions when multiple PRs merge in close succession.
-2. **Version Bump & Manifest Sync**: `scripts/bump-version.py` determines the next version and updates `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
-3. **Pre-Release Integrity Gate**: `scripts/verify-integrity.py --check-tag "v$NEXT_VERSION"` verifies manifest synchronization, subagent reference integrity, tool permissions, and description token budgets before publishing.
-4. **Recursive Loop Prevention**: Manifest commits include `[skip ci]` to prevent triggering infinite CI cycles.
-5. **Git Tag & GitHub Release**: Creates tag `v$NEXT_VERSION` and generates release notes automatically linking merged PRs and authors.
+`.github/workflows/version-check.yml` runs `scripts/bump-version.py --check` on every PR and keeps one comment on the PR with the result and the suggested bump. The check fails when:
 
-### Skipping Releases
+- `plugin.json` and `marketplace.json` versions differ, or the version is not `X.Y.Z`;
+- the version is lower than the latest release tag, or skips past the next patch, minor, or major version (this also catches two PRs that took the same version: once one merges, the other must bump again);
+- the PR needs a release (`feat`, `fix`, `perf`, `refactor`, `revert`, or breaking) but the version was not bumped and the PR has no `skip-release` label;
+- the PR is a breaking change but the bump is not major.
 
-To merge a PR without triggering a version bump or release (for example, maintenance PRs or internal documentation updates), apply the `skip-release` or `no-release` label to the Pull Request prior to merging.
+A bump that differs from the suggestion in any other way only adds a warning to the comment. A PR that bumps the version is released even when its type would not suggest a release.
+
+The gate is enforced by branch protection on `main`: the `Version Check` status is required, and branches must be up to date before merging, so the check re-runs after another PR is released. Only squash merge is enabled.
+
+### Release Pipeline
+
+`.github/workflows/release.yml` runs on every push to `main`:
+
+1. **Serialized Concurrency**: Release runs are serialized (`concurrency: group: release, cancel-in-progress: false`).
+2. **Tag Detection**: Reads the version from `.claude-plugin/plugin.json`. When tag `v$VERSION` already exists, the run stops without releasing.
+3. **Pre-Release Integrity Gate**: `scripts/verify-integrity.py --check-tag "v$VERSION"` verifies manifest synchronization, subagent reference integrity, tool permissions, and description token budgets before publishing.
+4. **Git Tag & GitHub Release**: Tags the merged commit as `v$VERSION` and publishes a release with notes generated from merged PRs.
+
+Running the workflow by hand (`workflow_dispatch`) retries a release that failed part-way. It never bumps the version.
 
 ## Project Structure
 
@@ -311,7 +335,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)
 │   └── notify.sh                # POSIX sh notifier for macOS/Linux (opt-out: CLAUDE_WORKFLOW_NOTIFY=0)
 ├── scripts/
-│   ├── bump-version.py          # Semantic version calculation and manifest sync
+│   ├── bump-version.py          # Version bump suggestion, manifest sync, and PR version gate
 │   └── verify-integrity.py      # Pre-release integrity check and gatekeeper
 ├── skills/
 │   ├── feature-workflow/
