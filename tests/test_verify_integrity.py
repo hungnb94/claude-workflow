@@ -351,9 +351,14 @@ class TestVerifyIntegrity(unittest.TestCase):
                 for field in required_fields:
                     self.assertIn(f"- {field}", entries[name])
 
-        gate = text.split("## Kiểm tra SRP", 1)[1].split("## Thang chi phí", 1)[0]
+        gate = text.split("## Kiểm tra SRP", 1)[1].split("## Kiểm tra phạm vi owner", 1)[0]
         for token in ("YAGNI", "trách nhiệm MỚI", "Extract Method/Class", "nợ SRP", "Đề xuất refactor tiếp"):
             self.assertIn(token, gate)
+
+        owner_gate = text.split("## Kiểm tra phạm vi owner", 1)[1].split("## Thang chi phí", 1)[0]
+        for token in ("từ hẹp tới rộng", "caller truyền vào", "không phải hòa", "Lý do scope rộng hơn", "dừng đúng lúc"):
+            self.assertIn(token, owner_gate)
+        self.assertIn("cùng phạm vi owner", text.split("## Quy ước chung", 1)[1])
 
         for token in (
             "Mikado",
@@ -573,6 +578,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("Do not add", skill)
         self.assertIn("Lý do bậc rẻ hơn không đủ", skill)
         self.assertIn("`## Kiểm tra SRP`", skill)
+        self.assertIn("`## Kiểm tra phạm vi owner`", skill)
         self.assertIn("/issue-writing", templates)
 
         self.assertIn("Legacy technique & tests", templates)
@@ -585,6 +591,8 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("legacy-techniques.md", readme)
         self.assertIn("cost ladder", readme)
         self.assertIn("total out of 35", readme)
+        self.assertIn("owner scope check", readme)
+        self.assertIn("owner scope dependency", templates)
 
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
