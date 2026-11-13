@@ -19,7 +19,7 @@ Score each option 1-5 per criterion. 5 is always the best end.
 4. Extensibility without over-engineering
 5. Risk and migration cost (5 = lowest)
 6. Performance and operations
-7. Maintainability (SRP, cohesion): 5 = every touched class and function keeps one reason to change
+7. Maintainability (SRP, cohesion, coupling): 5 = every touched class and function keeps one reason to change and depends only on the narrowest owner it needs
 
 ## Output
 
