@@ -486,6 +486,14 @@ def run_check(
     try:
         base_version = get_base_version(repo_root)
         plugin_version, marketplace_version = read_manifest_versions(manifest_root)
+        # In CI, repo_root is the base branch. Its manifest can be ahead of the latest
+        # tag while a merged PR's release run is still pending or has failed; use it as
+        # a floor so a second PR carrying the same version cannot pass and merge unreleased.
+        if manifest_root.resolve() != repo_root.resolve():
+            base_branch_version, _ = read_manifest_versions(repo_root)
+            base_tuple = parse_semver(str(base_branch_version or ""))
+            if base_tuple and base_tuple > parse_semver(base_version):
+                base_version = str(base_branch_version)
     except Exception as e:
         return fail(f"Failed to read versions: {e}")
 

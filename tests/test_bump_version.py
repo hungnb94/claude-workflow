@@ -591,6 +591,22 @@ class TestBumpVersion(unittest.TestCase):
         self.assertIn("should_release=true", content)
         self.assertIn("pr_version=1.1.0", content)
 
+    def test_cli_check_uses_base_branch_manifest_as_floor(self):
+        # PR A merged 1.1.0 but its release is not tagged yet; PR B also carries 1.1.0.
+        self._init_git_repo("v1.0.0")
+        pr_root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, pr_root, True)
+        self._set_manifest_versions("1.1.0")
+        shutil.copytree(self.repo_root / ".claude-plugin", pr_root / ".claude-plugin")
+
+        exit_code = bv.main([
+            "--check",
+            "--pr-title", "feat: add feature",
+            "--repo-root", str(self.repo_root),
+            "--manifest-root", str(pr_root),
+        ])
+        self.assertEqual(exit_code, 1)
+
     def test_cli_check_fails_and_reports_when_not_bumped(self):
         self._init_git_repo("v1.0.0")
         report = self.repo_root / "report.md"
