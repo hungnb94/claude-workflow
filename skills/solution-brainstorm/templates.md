@@ -27,7 +27,7 @@ Write in the user's language. Keep technical terms in English. Use these parts i
 
 ### 1. Context
 
-Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options.
+Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then, only if Step 1 found them: one bullet per SRP hit, and one bullet per owner scope dependency listing its owners narrow to wide with the cause for each.
 
 ### 2. Assumptions
 

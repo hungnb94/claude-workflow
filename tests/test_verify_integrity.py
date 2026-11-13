@@ -356,7 +356,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(token, gate)
 
         owner_gate = text.split("## Kiểm tra phạm vi owner", 1)[1].split("## Thang chi phí", 1)[0]
-        for token in ("từ hẹp tới rộng", "caller truyền vào", "không phải hòa", "Lý do scope rộng hơn"):
+        for token in ("từ hẹp tới rộng", "caller truyền vào", "không phải hòa", "Lý do scope rộng hơn", "kết thúc sớm hơn là sai"):
             self.assertIn(token, owner_gate)
         self.assertIn("cùng phạm vi owner", text.split("## Quy ước chung", 1)[1])
 
@@ -591,6 +591,8 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("legacy-techniques.md", readme)
         self.assertIn("cost ladder", readme)
         self.assertIn("total out of 35", readme)
+        self.assertIn("owner scope check", readme)
+        self.assertIn("owner scope dependency", templates)
 
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
