@@ -288,14 +288,14 @@ def check_pr_version(
         errors.append(f"Version '{plugin_version}' is not valid SemVer (expected X.Y.Z).")
     else:
         actual_bump = classify_actual_bump(base_version, plugin_version)
-        valid_next = ", ".join(
-            calculate_next_version(base_version, b) for b in ("patch", "minor", "major")
-        )
         if actual_bump == "lower":
             errors.append(
                 f"Version {plugin_version} is lower than the latest release v{base_version}."
             )
         elif actual_bump == "invalid":
+            valid_next = ", ".join(
+                calculate_next_version(base_version, b) for b in ("patch", "minor", "major")
+            )
             errors.append(
                 f"Version {plugin_version} is not a single step from v{base_version}. "
                 f"Valid next versions: {valid_next}."
