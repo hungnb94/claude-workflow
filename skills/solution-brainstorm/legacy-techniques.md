@@ -1,7 +1,7 @@
 # Catalog kỹ thuật legacy / incremental refactoring
 
 Nguồn duy nhất cho thang chi phí, Kiểm tra SRP, Kiểm tra phạm vi owner và định nghĩa kỹ thuật. Đọc khi code đích là legacy
-chưa test (không có test bao phủ, hoặc không khởi tạo được trong test), hoặc khi cần Kiểm tra SRP hay Kiểm tra phạm vi owner. Đây là heuristic tổng hợp từ Feathers,
+chưa test (không có test bao phủ, hoặc không khởi tạo được trong test), hoặc khi cần Kiểm tra SRP/phạm vi owner. Đây là heuristic tổng hợp từ Feathers,
 Fowler, Hammant, Ellnestam/Brolund, không phải quy tắc chuẩn ngành.
 
 Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính năng; task refactor thuần
@@ -17,8 +17,8 @@ Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính nă
 
 ## Kiểm tra phạm vi owner
 
-- Phạm vi: phụ thuộc vòng đời/đăng ký mà task thêm hoặc đổi chỗ gắn (lifecycle owner, listener host, scope, Context). Liệt kê owner ứng viên từ hẹp tới rộng, mỗi owner kèm nguyên nhân khiến đích phải dừng hay sống theo nó.
-- Quy tắc cứng: dùng owner hẹp nhất kết thúc đúng lúc đích phải dừng và vì đúng nguyên nhân đó (owner kết thúc sớm hơn là sai), do caller truyền vào; đích không nhận object rộng hơn rồi tự lấy owner ra.
+- Phạm vi: phụ thuộc vòng đời/đăng ký mà task thêm hoặc đổi chỗ gắn (lifecycle owner, listener host, scope, Context). Liệt kê owner ứng viên từ hẹp tới rộng, kèm nguyên nhân gắn đích với từng owner.
+- Quy tắc cứng: dùng owner hẹp nhất dừng đúng lúc và đúng nguyên nhân đích phải dừng, do caller truyền vào; đích không nhận object rộng hơn rồi tự lấy owner ra.
 - Hành vi hôm nay giống nhau không phải hòa: owner hẹp hơn thắng. Owner rộng hơn phải ghi `Lý do scope rộng hơn`; "ít phải truyền thêm" không phải lý do.
 
 ## Thang chi phí
@@ -36,7 +36,7 @@ Thứ tự chi phí trong bậc 1 của fw: Sprout Method < Sprout Class < Wrap 
 ## Quy ước chung
 
 - Leo bậc phải ghi `Lý do bậc rẻ hơn không đủ`; thiếu thông tin thì ghi câu hỏi, không đoán.
-- Chỉ so bậc giữa các option cùng phạm vi owner (`## Kiểm tra phạm vi owner`); bậc rẻ hơn không bù cho owner rộng hơn.
+- Chỉ so bậc giữa các option cùng phạm vi owner; bậc rẻ hơn không bù cho owner rộng hơn.
 - Sprout/Wrap chỉ chèn MỘT điểm gọi không điều kiện (hoặc rename + method bọc), không thêm nhánh if-else vào method cũ.
 - Không dựng abstraction mới khi <2 consumer; Branch by Abstraction chỉ khi ≥2 consumer.
 - Seam Extract Interface có fake trong test không tính là abstraction 1 consumer.

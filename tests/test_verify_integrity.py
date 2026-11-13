@@ -356,7 +356,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(token, gate)
 
         owner_gate = text.split("## Kiểm tra phạm vi owner", 1)[1].split("## Thang chi phí", 1)[0]
-        for token in ("từ hẹp tới rộng", "caller truyền vào", "không phải hòa", "Lý do scope rộng hơn", "kết thúc sớm hơn là sai"):
+        for token in ("từ hẹp tới rộng", "caller truyền vào", "không phải hòa", "Lý do scope rộng hơn", "dừng đúng lúc"):
             self.assertIn(token, owner_gate)
         self.assertIn("cùng phạm vi owner", text.split("## Quy ước chung", 1)[1])
 

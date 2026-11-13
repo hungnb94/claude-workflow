@@ -19,7 +19,7 @@ Score each option 1-5 per criterion. 5 is always the best end.
 4. Extensibility without over-engineering
 5. Risk and migration cost (5 = lowest)
 6. Performance and operations
-7. Maintainability (SRP, cohesion, coupling): 5 = every touched class and function keeps one reason to change and depends only on the narrowest owner it needs
+7. Maintainability (SRP, cohesion, coupling): 5 = every touched class and function keeps one reason to change and uses the narrowest owner
 
 ## Output
 
@@ -27,7 +27,7 @@ Write in the user's language. Keep technical terms in English. Use these parts i
 
 ### 1. Context
 
-Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then, only if Step 1 found them: one bullet per SRP hit, and one bullet per owner scope dependency listing its owners narrow to wide with the cause for each.
+Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
 
 ### 2. Assumptions
 
