@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, and Jira task lookup.
+Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, and Jira lookup.
 
 ## Overview
 
-Claude Workflow packages one structured workflow framework powered by 7 specialized subagents, two priming skills that delegate to it (Android and KMP standards), plus five lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, and Jira task), into an official Claude Code Plugin:
+Claude Workflow packages one structured workflow framework powered by 7 specialized subagents, two priming skills that delegate to it (Android and KMP standards), plus five lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, and Jira lookup), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local branch per slice and one or more commits per planned task (refactor, add, change, switch, remove), never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then Feathers dependency-breaking with a characterization harness, then Branch by Abstraction, then Strangler Fig, with the Mikado Method as an overlay; details in the shared `legacy-techniques.md` catalog) and records why cheaper rungs fall short.
 2. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
@@ -15,7 +15,7 @@ Claude Workflow packages one structured workflow framework powered by 7 speciali
 5. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
 6. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
 7. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 15 options in one table and narrows them to 6 (sorted from Low to High investment) with a fixed 7-criteria score table (1-5, with a total out of 35 for each option; the seventh is maintainability). An SRP check drops options that add a new responsibility to code that already mixes them, and lists follow-up refactors. An owner scope check binds lifecycle and listener dependencies to the narrowest owner. It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. For untested legacy code it maps each kept option to the shared legacy-techniques cost ladder and requires tests for the new code. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Skeletons and any follow-up implementation follow the shared `comment-policy.md` (no comments by default, WHY only), which the feature workflow agents also read. Written in English; the output follows your language.
-8. **Jira Task** (`/jira-task`) - A lightweight, single-pass skill (no subagents) that reads a Jira work item with the Atlassian CLI `acli` before you work on it: summary, type, status, parent, links, subtasks, description, comments, and the attachment list. It follows only the linked tickets that change the understanding of the task, then summarizes the goal, acceptance criteria, repro steps, and scope limits before coding. It is read-only by default; it comments or transitions an item only when you ask and after you confirm the exact text. Requires `acli` on `PATH` and logged in to your Jira site. The model can also invoke it automatically when you mention a Jira key or link.
+8. **Jira Lookup** (`/jira-lookup`) - A lightweight, single-pass skill (no subagents) that reads a Jira work item with the Atlassian CLI `acli` before you work on it: summary, type, status, parent, links, subtasks, description, comments, and the attachment list. It follows only the linked tickets that change the understanding of the task, then summarizes the goal, acceptance criteria, repro steps, and scope limits before coding. It is read-only by default; it comments or transitions an item only when you ask and after you confirm the exact text. Requires `acli` on `PATH` and logged in to your Jira site. The model can also invoke it automatically when you mention a Jira key or link.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
@@ -200,14 +200,14 @@ Split your uncommitted changes into atomic commits with well-formed messages:
 
 The model may also use it automatically when you ask it to commit your changes. It shows a commit plan and waits for your approval, unless you clearly say to commit now. It does not push and does not open a pull request.
 
-### Running Jira Task
+### Running Jira Lookup
 
 Read a Jira work item and its comments before you start on it:
 
 ```bash
-/jira-task "<Jira key or URL, e.g. PROJ-123>"
+/jira-lookup "<Jira key or URL, e.g. PROJ-123>"
 # or, with the plugin namespace:
-/workflow:jira-task "<Jira key or URL>"
+/workflow:jira-lookup "<Jira key or URL>"
 ```
 
 The model may also use it automatically when you mention a Jira key or paste a Jira link. It needs the Atlassian CLI `acli`, logged in with `acli jira auth login --web`. It only reads; it does not comment, transition, assign, or edit unless you ask.
@@ -371,8 +371,8 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── SKILL.md             # Skill for /atomic-commit (single pass, no subagents)
 │   │   ├── templates.md         # Message, type table, commit plan, examples
 │   │   └── references.md        # Verified sources for the rules
-│   ├── jira-task/
-│   │   └── SKILL.md             # Skill for /jira-task (single pass, no subagents, read-only acli lookup)
+│   ├── jira-lookup/
+│   │   └── SKILL.md             # Skill for /jira-lookup (single pass, no subagents, read-only acli lookup)
 │   └── solution-brainstorm/
 │       ├── SKILL.md             # Skill for /solution-brainstorm (single pass, no subagents)
 │       ├── platforms.md         # Platform registry: detect signals, architecture, patterns

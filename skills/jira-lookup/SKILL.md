@@ -1,9 +1,9 @@
 ---
-name: jira-task
+name: jira-lookup
 description: Fetch Jira work item details (summary, description, status, parent, links, comments, attachments) with the Atlassian CLI `acli` before working on a task. Use whenever the user mentions a Jira key like PROJ-123 in a ticket context, or pastes a <site>.atlassian.net/browse/... link, or says "làm task jira", "đọc ticket", "xem task". Read-only by default; do not comment, transition, assign, or edit unless the user asks.
 ---
 
-# Jira task lookup via acli
+# Jira lookup via acli
 
 Requires the Atlassian CLI `acli` on `PATH`, logged in to the user's Jira site (`acli jira auth status` shows the site and account).
 A key looks like `[A-Z][A-Z0-9_]+-\d+`. Strings such as `UTF-8`, `SHA-256`, or `ISO-8601` match the pattern but are not Jira keys; do not look them up.
