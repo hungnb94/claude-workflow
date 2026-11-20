@@ -42,7 +42,7 @@ Apply these in order. A principle dropped by one filter does not go on to the ne
 
 ## Principle labels
 
-- **Vote labels**: `Consensus`, `Partial support`, and `Lone view`, with the thresholds from **Votes** in `templates.md` Counts. Count independent voices only.
+- **Vote labels**: `Consensus`, `Partial support`, and `Lone view`, with the thresholds from **Votes** and **Few voices** in `templates.md` Counts.
 - **New, not time-tested**: from filter 4.
 - **Possibly outdated**: its newest source is older than the domain's freshness limit.
 - **Changed view**: the teacher once said otherwise; give the old view and the date of the change.

@@ -661,11 +661,12 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertEqual(frontmatter["disable-model-invocation"], "true")
 
         counts = templates.split("## Counts", 1)[1].split("## Report", 1)[0]
-        for key in ("Candidates", "Kept", "Min schools", "Votes", "Shortfall", "Chat summary", "File name"):
+        for key in ("Candidates", "Kept", "Min schools", "Votes", "Few voices", "Shortfall", "Chat summary", "File name"):
             self.assertRegex(counts, rf"(?m)^- {key}: ", key)
         kept = int(re.search(r"(?m)^- Kept: (\d+)$", counts).group(1))
         high = int(re.search(r"(?m)^- Candidates: \d+-(\d+)$", counts).group(1))
         self.assertLess(kept, high)
+        self.assertNotRegex(counts, r"\d+ of 6", "vote thresholds must scale with N, not a fixed 6")
         self.assertIn("## Self-check", templates)
 
         header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))

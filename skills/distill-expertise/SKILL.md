@@ -36,7 +36,7 @@ Read `knowledge-filters.md`. For each candidate, record their own results, their
 
 Rank them by the mentor rules in `knowledge-filters.md`. Keep as many as **Kept** in Counts. They must come from at least **Min schools** schools. People who share a teacher, a company, or a school count as one voice.
 
-If fewer qualify, apply **Shortfall** in Counts. Never lower the bar to fill the count.
+If fewer qualify, apply **Shortfall** in Counts. Never lower the bar to fill the count. Note N, the number of independent voices, for Step 5.
 
 Write facts with their evidence label. Do not judge anyone's character.
 
