@@ -11,7 +11,7 @@ Read by `distill-expertise`. The counts below are the only ones. Change a count 
 - Few voices: when N < 3, use no vote labels. Write `k/N` only, and warn at the top of the report that the result is not reliable enough to synthesize. In named mode, write "single-teacher report" instead of the warning.
 - Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". Votes then use the smaller N.
 - Chat summary: 5-7 principles
-- File name: `YYYY-MM-DD-<topic-slug>.md`, with today's date and a lowercase ASCII slug of the topic.
+- File name: `YYYY-MM-DD-<topic-slug>.md`, with today's date and a lowercase ASCII slug of the topic: strip diacritics (`đ` becomes `d`), and join words with `-`.
 
 ## Report
 
