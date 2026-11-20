@@ -9,9 +9,9 @@ Fill these in at Step 6. The counts and criteria below are the only ones. Change
 - Detailed: 3
 - Min per level: 2
 
-Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If no fitting option exists for a level, keep the closest one and say why in its Reason cell.
+Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If a level has fewer fitting options than **Min per level**, fill it with the closest ones and say why in each one's Reason cell.
 
-Pick as many kept options as **Detailed**, highest Total first; on a tie, the lower investment goes first. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
+Pick as many kept options as **Detailed**, highest Total first; on a tie, the lower investment goes first, then the earlier label. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
 
 ## Criteria
 
@@ -76,11 +76,11 @@ Repeat this block for each option picked by **Detailed** in Counts, in label ord
 - Effort: S | M | L
 ```
 
-Then put every other kept option into one table, one row each, in label order. One line per cell. When the full block would have a Legacy technique & tests line, name the technique and rung in the How it works cell.
+Then put every other kept option into one table, one row each, in label order. One line per cell. When the full block would have a **Trade-off** line, start the How it works cell with `Trade-off: <convention it breaks>`. When the full block would have a Legacy technique & tests line, name the technique and rung in the How it works cell, plus `Lý do bậc rẻ hơn không đủ` if it climbs.
 
 | Label | Option (main pattern) | Investment | How it works | When to choose | Effort |
 |---|---|---|---|---|---|
-| D | Name (pattern) | Low / Mid / High | One sentence | One phrase | S / M / L |
+| <label> | Name (pattern) | Low / Mid / High | One sentence | One phrase | S / M / L |
 
 ### 6. Recommendation
 
