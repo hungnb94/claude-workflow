@@ -9,7 +9,7 @@ Read by `distill-expertise`. The counts below are the only ones. Change a count 
 - Min schools: 3
 - Votes: N is the number of independent voices among the kept teachers; teachers who share a teacher, a company, or a school count as one voice. `Consensus` = at least two thirds of N, rounded up (4 when N = 6). `Lone view` = 1 voice, kept only when that teacher ranks first. `Partial support` = anything in between.
 - Few voices: when N < 3, use no vote labels. Write `k/N` only, and warn at the top of the report that the result is not reliable enough to synthesize. In named mode, write "single-teacher report" instead of the warning.
-- Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". Votes then use the smaller N.
+- Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". When the qualified teachers span fewer than Min schools schools, keep the best of each school and say "only S schools qualified". Votes then use the smaller N.
 - Chat summary: 5-7 principles
 - File name: `YYYY-MM-DD-<topic-slug>.md`, with today's date and a lowercase ASCII slug of the topic: strip diacritics (`đ` becomes `d`), turn every character that is not `a-z` or `0-9` (spaces, `/`, `+`, `.`, quotes) into `-`, collapse repeated `-`, and trim `-` at both ends. Leave out a "learn from <teacher>" part. If nothing is left (for example a topic in a non-Latin script), transliterate it, or use `topic`.
 
