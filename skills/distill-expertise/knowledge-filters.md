@@ -12,7 +12,7 @@ Every claim about a teacher (their results, their students' results) gets one la
 
 ## Red flags
 
-Note each one you find, with its source. Two or more red flags drop the candidate. A fraud finding by a regulator or a court drops them on its own.
+Note each one you find, with its source. Two or more red flags drop the candidate. A fraud finding by a regulator or a court drops them on its own. In named mode the named teacher is never dropped: put their red flags, and any fraud finding, at the top of the report instead.
 
 - Their main income is selling courses, signals, or memberships, not doing the thing they teach.
 - They promise returns or results, or use "guaranteed", "passive", or "in 30 days".
