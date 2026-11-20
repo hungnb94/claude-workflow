@@ -604,12 +604,18 @@ class TestVerifyIntegrity(unittest.TestCase):
         counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
         options = int(re.search(r"^- Options: (\d+)$", counts, flags=re.MULTILINE).group(1))
         kept = int(re.search(r"^- Kept: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        detailed = int(re.search(r"^- Detailed: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        per_level = int(re.search(r"^- Min per level: (\d+)$", counts, flags=re.MULTILINE).group(1))
         self.assertLess(kept, options)
+        self.assertLess(detailed, kept)
+        self.assertLessEqual(per_level * 3, kept)
 
         description = vi.parse_frontmatter(skill)["description"]
         for text in (description, readme):
             self.assertIn(f"lists {options} options", text)
             self.assertIn(f"narrows them to {kept}", text)
+            self.assertIn(f"details the top {detailed}", text)
+        self.assertIn(f"keeps at least {per_level} options", readme)
 
         scores = templates.split("### 4. Scores", 1)[1].split("### 5.", 1)[0]
         header = next(line for line in scores.splitlines() if line.startswith("| Criterion"))
