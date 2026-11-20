@@ -12,13 +12,13 @@ Every claim about a teacher (their results, their students' results) gets one la
 
 ## Red flags
 
-Note each one you find, with its source. Two or more red flags drop the candidate.
+Note each one you find, with its source. Two or more red flags drop the candidate. A fraud finding by a regulator or a court drops them on its own.
 
 - Their main income is selling courses, signals, or memberships, not doing the thing they teach.
 - They promise returns or results, or use "guaranteed", "passive", or "in 30 days".
 - They show only winners (survivorship bias) and never the share of students who failed.
 - Their results cannot be checked, or the numbers change between sources.
-- Regulators, courts, or many students have accused them of fraud.
+- Regulators or courts found fraud, or many students accuse them of it.
 - They pay for testimonials or require them for refunds.
 
 ## Mentor rules
