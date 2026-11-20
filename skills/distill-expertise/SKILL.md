@@ -34,9 +34,9 @@ Search for as many candidates as **Candidates** in Counts. Prefer the newest res
 
 ### Step 3. Vet and keep
 
-Read `knowledge-filters.md`. For each candidate, record their own results, their student evidence (or the proxy from Step 1), skin in the game, school, and red flags. Give every claim an evidence label.
+Read `knowledge-filters.md`. For each candidate, record their own results, their student evidence (or the proxy from Step 1), skin in the game, school (their school of thought, not a university or employer), and red flags. Give every claim an evidence label.
 
-Rank them by the mentor rules in `knowledge-filters.md`. Keep as many as **Kept** in Counts. They must come from at least **Min schools** schools. People who share a teacher, a company, or a school count as one voice.
+Rank them by the mentor rules in `knowledge-filters.md`. Keep as many as **Kept** in Counts. They must come from at least **Min schools** schools. People who learned from the same teacher, or who belong to the same school, count as one voice. Sharing a company alone does not merge them.
 
 If fewer qualify, apply **Shortfall** in Counts. Never lower the bar to fill the count. Note N, the number of independent voices, for Step 5.
 
