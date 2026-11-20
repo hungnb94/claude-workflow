@@ -6,8 +6,12 @@ Fill these in at Step 6. The counts and criteria below are the only ones. Change
 
 - Options: 15
 - Kept: 6
+- Detailed: 3
+- Min per level: 2
 
-Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option, the last one is the most durable High option, and at least one kept option is Mid. If no fitting option exists for a level, keep the closest one and say why in its Reason cell.
+Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If no fitting option exists for a level, keep the closest one and say why in its Reason cell.
+
+Pick as many kept options as **Detailed**, highest Total first; on a tie, the lower investment goes first. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
 
 ## Criteria
 
@@ -55,7 +59,7 @@ Only the kept options, one column each in label order. The table below shows one
 
 ### 5. Kept options in detail
 
-Repeat this block for each kept option, in label order.
+Repeat this block for each option picked by **Detailed** in Counts, in label order.
 
 ```markdown
 #### Option <label> - <name> (<main pattern>, <Low / Mid / High>)
@@ -71,6 +75,12 @@ Repeat this block for each kept option, in label order.
 - Legacy technique & tests (only when Step 1 found an untested legacy target or the SRP check fired): technique and rung from `legacy-techniques.md`; new-code tests written first (TDD) covering happy/edge/error; call-site characterization test, or the untested debt; why a cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`) if it climbs.
 - Effort: S | M | L
 ```
+
+Then put every other kept option into one table, one row each, in label order. One line per cell. When the full block would have a Legacy technique & tests line, name the technique and rung in the How it works cell.
+
+| Label | Option (main pattern) | Investment | How it works | When to choose | Effort |
+|---|---|---|---|---|---|
+| D | Name (pattern) | Low / Mid / High | One sentence | One phrase | S / M / L |
 
 ### 6. Recommendation
 
