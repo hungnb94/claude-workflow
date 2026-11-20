@@ -4,8 +4,8 @@ Fill these in at Step 6. The counts and criteria below are the only ones. Change
 
 ## Counts
 
-- Options: 15
-- Kept: 6
+- Options: 18
+- Kept: 9
 - Detailed: 3
 - Min per level: 2
 
@@ -51,11 +51,11 @@ As many rows as **Kept** in Counts are `Kept`, following the investment rule in 
 
 Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
 
-| Criterion | A (Low) | B | C | D | E | F (High) |
-|---|---|---|---|---|---|---|
-| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
-| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
-| **Total (/35)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
+| Criterion | A (Low) | B | C | D | E | F | G | H | I (High) |
+|---|---|---|---|---|---|---|---|---|---|
+| Fit with current architecture and conventions | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| (one row for each remaining criterion) | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 | 1-5 |
+| **Total (/35)** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** | **sum** |
 
 ### 5. Kept options in detail
 
