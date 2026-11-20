@@ -70,7 +70,7 @@ Run this before saving. Fix every failed item, then check again.
 - [ ] Every principle has a source link, a date, and a vote label with its count.
 - [ ] Each vote count matches its label under **Votes** (or **Few voices**), and N counts independent voices only.
 - [ ] No principle in Core knowledge is too vague to be wrong (filter 2).
-- [ ] Sources older than the domain's freshness limit carry `Possibly outdated`.
+- [ ] Principles whose newest source is older than the domain's freshness limit carry `Possibly outdated`.
 - [ ] The kept teachers span at least **Min schools** schools, or the shortfall is stated (in named mode, the report says "single-teacher report" instead).
 - [ ] Every claim about a teacher has an evidence label, and the report judges no one's character.
 - [ ] Myths and Common mistakes are filled, or say "none found".
