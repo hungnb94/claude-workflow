@@ -639,6 +639,29 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("- **Pick**: always.", lenses["conventions"])
         self.assertIn("**Generators**", text)
 
+    def test_brainstorm_subagents_are_read_only_and_blind(self):
+        """Verify brainstorm generators and judge cannot write files and the judge uses another model."""
+        agents = ROOT_DIR / "agents"
+        generator = (agents / "sb-1-generator.md").read_text(encoding="utf-8")
+        judge = (agents / "sb-2-judge.md").read_text(encoding="utf-8")
+        templates = (ROOT_DIR / "skills" / "solution-brainstorm" / "templates.md").read_text(encoding="utf-8")
+
+        for text in (generator, judge):
+            tools = vi.parse_frontmatter(text).get("tools")
+            self.assertNotIn("Write", tools)
+            self.assertNotIn("Edit", tools)
+            self.assertIn("Do not spawn subagents", text)
+        self.assertNotIn("WebSearch", vi.parse_frontmatter(judge).get("tools"))
+        self.assertNotEqual(vi.parse_frontmatter(generator)["model"], vi.parse_frontmatter(judge)["model"])
+
+        self.assertIn("LENS_CATALOG", generator)
+        self.assertIn("Do not score, rank, or recommend", generator)
+        self.assertIn("Ignore the position of a card", judge)
+        self.assertIn("not the writing", judge)
+        for heading in ("## Option card", "## Judge rubric"):
+            self.assertIn(heading, templates)
+            self.assertIn(f"`{heading}`", generator + judge)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 

@@ -289,6 +289,15 @@ Notes:
 
 *Note: footprint values measured via `claude plugin details`.*
 
+### Solution Brainstorm Subagents
+
+| Subagent | Role | Model | Tools | Responsibility |
+|---|---|---|---|---|
+| `sb-1-generator` | Option Generator | Sonnet | Read, Grep, Glob, WebSearch, WebFetch | Propose distinct options through one knowledge lens from `lenses.md`, without judging them |
+| `sb-2-judge` | Blind Option Judge | Opus | Read, Grep, Glob | Score anonymized option cards on the fixed rubric and return a ranked shortlist |
+
+Both are read-only: neither can write or edit files. The judge runs on a different model from the generators to reduce self-preference.
+
 ## Automated Release Lifecycle
 
 The version is bumped inside each Pull Request, not after the merge. The developer sets the version, a PR gate checks it, and when the PR is squash-merged into `main` the release pipeline only tags that version and publishes a GitHub Release. No bot commit lands on `main`, so every PR stays a single commit.
@@ -355,7 +364,9 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── fw-4-plan.md             # Architect: Second-order effects analysis (Opus)
 │   ├── fw-5-impl.md             # Execution: Implementation and unit tests
 │   ├── fw-6-review.md           # Auditor: Independent review (no Edit)
-│   └── fw-7-fix.md              # Remediation: Issue resolution
+│   ├── fw-7-fix.md              # Remediation: Issue resolution
+│   ├── sb-1-generator.md        # Brainstorm: Options through one knowledge lens
+│   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
 ├── hooks/
 │   ├── hooks.json               # Hooks (Stop, AskUserQuestion, Notification notifiers; PostToolUse ktlint format)
 │   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)

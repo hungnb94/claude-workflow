@@ -25,6 +25,31 @@ Score each option 1-5 per criterion. 5 is always the best end.
 6. Performance and operations
 7. Maintainability (SRP, cohesion, coupling): 5 = every touched class and function keeps one reason to change and uses the narrowest owner
 
+## Option card
+
+Generators write each option in this shape and the judge reads it. Each field is one line; How it works is at most 3 sentences. Equal-length cards keep a long card from winning on length alone.
+
+```markdown
+#### <n>. <Name> (<main pattern>)
+
+- Investment: Low / Mid / High
+- How it works: <at most 3 sentences, tied to files or conventions in this codebase>
+- Breaks convention: <the project convention it goes against, or none>
+- Knowledge: <the source the idea comes from: a path or a URL>
+```
+
+## Judge rubric
+
+What 5 and 1 mean for each criterion. Score in between by how close the card is to each end.
+
+- **Fit**: 5 = follows every convention in the brief; 1 = breaks a project convention without a stated reason.
+- **Testability**: 5 = the new behavior is testable with the current test setup; 1 = needs a large new harness first.
+- **Effort**: 5 = a few files in one module; 1 = many modules or a data migration.
+- **Extensibility**: 5 = the next similar change adds code without editing this one, and nothing is built for needs that do not exist yet; 1 = every similar change edits it again, or it adds layers nothing uses.
+- **Risk**: 5 = easy to revert, no change to data or a public API; 1 = a one-way change to data or a public API.
+- **Performance and operations**: 5 = no new runtime cost and nothing new to run; 1 = a measurable cost on a hot path, or new infrastructure to operate.
+- **Maintainability**: 5 = every touched class and function keeps one reason to change and uses the narrowest owner; 1 = adds a responsibility to a class that already mixes them.
+
 ## Output
 
 Write in the user's language. Keep technical terms in English. Use these parts in this order.
