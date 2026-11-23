@@ -1,7 +1,7 @@
 ---
 name: solution-brainstorm
 disable-model-invocation: true
-description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 18 options, narrows them to 9 (sorted from Low to High investment) with a fixed scoring table and a total per option, details the top 3, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
+description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 18 options from generator subagents that each read a different knowledge lens, narrows them to 9 (sorted from Low to High investment), has a blind judge subagent score them on a fixed table, details the top 3, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
 ---
 
 # Solution Brainstorm
@@ -10,7 +10,7 @@ Think through a coding task before any code is written. Produce many options, ke
 
 The output follows the user's language. Keep technical terms in English.
 
-Read-only: do not edit files, and do not write implementation code. Run in one pass without subagents. Do not start any other workflow; only suggest one in the last message.
+Read-only: do not edit files, and do not write implementation code. Use subagents only in Steps 4 and 5, and never `subagent_type: "fork"`: a fork inherits your context, so the lenses stop differing and the judge stops being blind. Do not start any other workflow; only suggest one in the last message.
 
 ## Source priority
 
@@ -53,11 +53,19 @@ Ask everything in one message, then wait: the migration question from Step 2 (if
 
 ### Step 4. Diverge
 
-Read `templates.md` (next to this file). Always write as many options as **Options** in its Counts. No shortcut for easy tasks. Aim for a different main pattern in each row. If an idea turns out to share the main pattern of an earlier row, keep it as its own row and mark it `Merged into #n`, where #n is that earlier row. The row count never changes.
+Read `templates.md` and `lenses.md` (both next to this file). Pick as many lenses as **Generators** in Counts, in the pick order of `lenses.md`. In one message, spawn one `sb-1-generator` per lens so none sees another's output. Pass only `BRIEF` (the task, your Context notes, and the Step 3 answers or Assumptions), `LENS`, the absolute paths `LENS_CATALOG` and `TEMPLATES`, and `OPTION_COUNT` (**Options per generator** in Counts). If a generator fails or returns too few cards, write its missing rows yourself through the same lens and say so in Context.
+
+Merge the cards into part 3 in lens order. Always write as many options as **Options** in its Counts. No shortcut for easy tasks. A row that shares the main pattern of an earlier row #n stays as its own row, marked `Merged into #n`; the row count never changes.
 
 ### Step 5. Converge
 
-Judge every option against the criteria in `templates.md` and give each a verdict. Keep as many as **Kept** in its Counts. The kept options differ in main pattern and follow the investment rule in Counts. Score only the kept options, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
+Judge every option against the criteria in `templates.md` and give each a verdict. Keep as many as **Kept** in its Counts. The kept options differ in main pattern and follow the investment rule in Counts.
+
+Score the kept options with the blind judge:
+
+1. Use each option's card in the `## Option card` shape of `templates.md` (the generator's, or yours for a row you wrote), without its Knowledge line, which would reveal the lens. Put any Trade-off, `nợ SRP`, or `Lý do scope rộng hơn` from its Reason cell into Breaks convention. Relabel the cards `O1`, `O2`, and so on in a shuffled order.
+2. In one message, spawn as many `sb-2-judge` as **Judge passes** in Counts, each reading the cards in a different order (the second reverses the first). Also pass `BRIEF`, `TEMPLATES`, and `SHORTLIST` (**Detailed** in Counts).
+3. Map the labels back and average each score over the passes. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it. Keep any shortlist disagreement or close call for the Recommendation. If every pass fails, score the options yourself and say so in Context.
 
 Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. Any later option that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
 

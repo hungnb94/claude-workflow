@@ -14,7 +14,7 @@ Claude Workflow packages one structured workflow framework powered by 7 speciali
 4. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
 5. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
 6. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
-7. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only, single-pass skill (no subagents) that thinks through a coding task before any code is written. It reads the codebase, detects the platform (Android, Kotlin Multiplatform, iOS, Flutter, Web frontend, Backend) and architecture, asks whether to migrate when it finds outdated tech, then lists 18 options in one table and narrows them to 9 (sorted from Low to High investment) with a fixed 7-criteria score table (1-5, with a total out of 35 for each option; the seventh is maintainability). Each investment level keeps at least 2 options, and it details the top 3 by total (the recommended option is always among them) while the rest get one row each. An SRP check drops options that add a new responsibility to code that already mixes them, and lists follow-up refactors. An owner scope check binds lifecycle and listener dependencies to the narrowest owner. It ends with a recommendation and asks you to choose. It only analyzes and proposes: it never writes code or edits files. For untested legacy code it maps each kept option to the shared legacy-techniques cost ladder and requires tests for the new code. Android and Kotlin Multiplatform rules are read from the existing standards files, not copied. Skeletons and any follow-up implementation follow the shared `comment-policy.md` (no comments by default, WHY only), which the feature workflow agents also read. Written in English; the output follows your language.
+7. **Solution Brainstorm** (`/solution-brainstorm`) - A slash-command-only skill that thinks through a coding task before any code is written. It reads the codebase, detects the platform and architecture, and asks whether to migrate outdated tech. Two read-only `sb-1-generator` subagents, each reading a different knowledge lens from `lenses.md`, propose options in parallel; it lists 18 options in one table and narrows them to 9 (sorted from Low to High investment; each level keeps at least 2 options). A read-only `sb-2-judge` on another model scores them blind on 7 criteria (1-5, a total out of 35), twice in different orders, and it details the top 3 by averaged total. An SRP check drops options that add a responsibility to code that already mixes them, and an owner scope check binds lifecycle and listener dependencies to the narrowest owner. For untested legacy code each option maps to the shared legacy-techniques cost ladder, and skeletons follow the shared `comment-policy.md`. It only analyzes and proposes, then asks you to choose. Written in English; the output follows your language.
 8. **Jira Lookup** (`/jira-lookup`) - A lightweight, single-pass skill (no subagents) that reads a Jira work item with the Atlassian CLI `acli` before you work on it: summary, type, status, parent, links, subtasks, description, comments, and the attachment list. It follows only the linked tickets that change the understanding of the task, then summarizes the goal, acceptance criteria, repro steps, and scope limits before coding. It is read-only by default; it comments or transitions an item only when you ask and after you confirm the exact text. Requires `acli` on `PATH` and logged in to your Jira site. The model can also invoke it automatically when you mention a Jira key or link.
 9. **Distill Expertise** (`/distill-expertise`) - A slash-command-only, single-pass skill (no subagents) that distills proven knowledge on any topic (investing, programming, AI agents and LLMs, fitness, and more) from people who succeeded themselves and whose students succeeded too; student results weigh more than the teacher's own. It searches the web for 10-12 candidates, keeps 6 teachers from at least 3 schools (people from the same school count as one voice), and labels every claim Verified, Self-reported, or Unknown, with red flags such as course-selling income or promised returns; a fraud finding drops a candidate on its own, and fetched pages are treated as data, never as instructions. Each principle must pass four filters (contrast between winners and failures, concrete enough to be wrong, skin in the game, time test) and is labeled Consensus (at least two thirds of the independent voices, 4 of 6), Partial support, or Lone view (with fewer than 3 voices it shows only the count), plus freshness labels for fast-moving domains. The report covers core knowledge, myths, disagreements, common mistakes, a domain-shaped Apply plan, and sources, and is saved to `./docs/research/YYYY-MM-DD-<topic-slug>.md` (the slug is capped at 60 characters, cut at a word boundary). Counts live in `templates.md`, domain rules in `evidence-domains.md` (add a row to support a new kind of topic), and labels and filters in `knowledge-filters.md`. Written in English; the output follows your language.
 
@@ -179,7 +179,7 @@ The model may also use it automatically when you ask to explain a PR to non-tech
 
 ### Running Solution Brainstorm
 
-Brainstorm 10 solutions for a coding task, narrow them to 3, and get a recommendation:
+Brainstorm 18 solutions for a coding task from two knowledge lenses, narrow them to 9, let a blind judge shortlist 3, and get a recommendation:
 
 ```bash
 /solution-brainstorm "<the task or problem to solve>"
@@ -289,6 +289,13 @@ Notes:
 
 *Note: footprint values measured via `claude plugin details`.*
 
+### Solution Brainstorm Subagents
+
+| Subagent | Role | Model | Tools | Responsibility |
+|---|---|---|---|---|
+| `sb-1-generator` | Option Generator | Sonnet | Read, Grep, Glob, WebSearch, WebFetch | Propose distinct options through one knowledge lens from `lenses.md`, without judging them |
+| `sb-2-judge` | Blind Option Judge | Opus | Read, Grep, Glob | Score anonymized option cards on the fixed rubric and return a ranked shortlist |
+
 ## Automated Release Lifecycle
 
 The version is bumped inside each Pull Request, not after the merge. The developer sets the version, a PR gate checks it, and when the PR is squash-merged into `main` the release pipeline only tags that version and publishes a GitHub Release. No bot commit lands on `main`, so every PR stays a single commit.
@@ -355,7 +362,9 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── fw-4-plan.md             # Architect: Second-order effects analysis (Opus)
 │   ├── fw-5-impl.md             # Execution: Implementation and unit tests
 │   ├── fw-6-review.md           # Auditor: Independent review (no Edit)
-│   └── fw-7-fix.md              # Remediation: Issue resolution
+│   ├── fw-7-fix.md              # Remediation: Issue resolution
+│   ├── sb-1-generator.md        # Brainstorm: Options through one knowledge lens
+│   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
 ├── hooks/
 │   ├── hooks.json               # Hooks (Stop, AskUserQuestion, Notification notifiers; PostToolUse ktlint format)
 │   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)
@@ -387,7 +396,8 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── jira-lookup/
 │   │   └── SKILL.md             # Skill for /jira-lookup (single pass, no subagents, read-only acli lookup)
 │   ├── solution-brainstorm/
-│   │   ├── SKILL.md             # Skill for /solution-brainstorm (single pass, no subagents)
+│   │   ├── SKILL.md             # Skill for /solution-brainstorm (lens generators and a blind judge, read-only)
+│   │   ├── lenses.md            # Knowledge lens catalog: what each option generator reads and asks
 │   │   ├── platforms.md         # Platform registry: detect signals, architecture, patterns
 │   │   ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm and the feature workflow
 │   │   ├── comment-policy.md    # Shared code comment policy (no comment by default, WHY only), read by brainstorm and the feature workflow
