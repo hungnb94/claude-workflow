@@ -24,14 +24,15 @@ Write the report in the user's language and translate the headings. Keep technic
 - Domain type: <row from evidence-domains.md>
 - Teachers kept: <M> of <candidates searched>, from <number> schools, <N> independent voices
 - Assumptions: <what you assumed from the arguments, or "none">
+- Warnings: <the Few voices warning or "single-teacher report", any Shortfall statement, and in named mode the named teacher's red flags and weak evidence; or "none">
 
 ## 1. Core knowledge
 
-One block per principle, `Consensus` first, then `Partial support`, then `Lone view`.
+One block per principle, `Consensus` first, then `Partial support`, then `Lone view`. Under **Few voices**, sort by k, highest first.
 
 ### <Principle, stated concretely>
 
-- Labels: <vote label (k/N)>, <other labels if any>
+- Labels: <vote label (k/N), or only k/N under Few voices>, <other labels if any>
 - What to do: <when, how, which threshold>
 - Why it works: <the reason the teachers give>
 - Supported by: <teacher - source title (date), link>; ...
@@ -67,7 +68,7 @@ Dropped candidates: one line each, with the reason.
 
 Run this before saving. Fix every failed item, then check again.
 
-- [ ] Every principle has a source link, a date, and a vote label with its count.
+- [ ] Every principle has a source link, a date, and a vote label with its count (under **Few voices**, the count `k/N` only).
 - [ ] Each vote count matches its label under **Votes** (or **Few voices**), and N counts independent voices only.
 - [ ] No principle in Core knowledge is too vague to be wrong (filter 2).
 - [ ] Principles whose newest source is older than the domain's freshness limit carry `Possibly outdated`.
