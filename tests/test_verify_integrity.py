@@ -647,7 +647,6 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("comment-policy.md", vi.SHARED_REFERENCE_FILES)
         self.assertIn("comment-policy.md", read("README.md"))
 
-
     def test_distill_expertise_tables_are_single_source(self):
         """Verify counts, domains, and filters live in their sidecar files and the skill only points to them."""
         base = ROOT_DIR / "skills" / "distill-expertise"
@@ -683,6 +682,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotRegex(body, r"\b\d+ (candidates|teachers|of \d+)\b")
         for name in ("evidence-domains.md", "knowledge-filters.md"):
             self.assertIn(name, vi.SHARED_REFERENCE_FILES)
+
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        low = int(re.search(r"(?m)^- Candidates: (\d+)-\d+$", counts).group(1))
+        min_schools = int(re.search(r"(?m)^- Min schools: (\d+)$", counts).group(1))
+        self.assertIn(f"searches the web for {low}-{high} candidates", readme)
+        self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
+
 
 if __name__ == "__main__":
     unittest.main()
