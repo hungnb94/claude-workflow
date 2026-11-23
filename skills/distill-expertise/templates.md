@@ -11,7 +11,8 @@ Read by `distill-expertise`. The counts below are the only ones. Change a count 
 - Few voices: when N < 3, use no vote labels. Write `k/N` only, and warn at the top of the report that the result is not reliable enough to synthesize. In named mode, write "single-teacher report" instead of the warning.
 - Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". When the qualified teachers span fewer than Min schools schools, keep the best of each school and say "only S schools qualified". Votes then use the smaller N.
 - Chat summary: 5-7 principles
-- File name: `YYYY-MM-DD-<topic-slug>.md`, with today's date and a lowercase ASCII slug of the topic: strip diacritics (`đ` becomes `d`), turn every character that is not `a-z` or `0-9` (spaces, `/`, `+`, `.`, quotes) into `-`, collapse repeated `-`, and trim `-` at both ends. Leave out a "learn from <teacher>" part. If nothing is left (for example a topic in a non-Latin script), transliterate it, or use `topic`.
+- Max slug: 60 characters
+- File name: `YYYY-MM-DD-<topic-slug>.md`, with today's date and a lowercase ASCII slug of the topic: strip diacritics (`đ` becomes `d`), turn every character that is not `a-z` or `0-9` (spaces, `/`, `+`, `.`, quotes) into `-`, collapse repeated `-`, and trim `-` at both ends. Leave out a "learn from <teacher>" part. If nothing is left (for example a topic in a non-Latin script), transliterate it, or use `topic`. If the slug is longer than **Max slug**, cut it at the last `-` at or before that length (if there is no `-` there, cut at the length), then trim `-` again. The cap keeps the name far below the 255-byte file name limit, which the Write tool's temporary `.tmp.<pid>.<hash>` suffix also counts against.
 
 ## Report
 
@@ -76,6 +77,7 @@ Run this before saving. Fix every failed item, then check again.
 - [ ] Every claim about a teacher has an evidence label, and the report judges no one's character.
 - [ ] Myths and Common mistakes are filled, or say "none found".
 - [ ] Every Apply step links to a principle.
+- [ ] The slug of the file name you will save under has at most **Max slug** characters and does not end in `-` or in a cut word.
 
 ## Chat summary
 
