@@ -647,6 +647,48 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("comment-policy.md", vi.SHARED_REFERENCE_FILES)
         self.assertIn("comment-policy.md", read("README.md"))
 
+    def test_distill_expertise_tables_are_single_source(self):
+        """Verify counts, domains, and filters live in their sidecar files and the skill only points to them."""
+        base = ROOT_DIR / "skills" / "distill-expertise"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        templates = (base / "templates.md").read_text(encoding="utf-8")
+        domains = (base / "evidence-domains.md").read_text(encoding="utf-8")
+        filters = (base / "knowledge-filters.md").read_text(encoding="utf-8")
+
+        frontmatter = vi.parse_frontmatter(skill)
+        self.assertEqual(frontmatter["name"], "distill-expertise")
+        self.assertEqual(frontmatter["disable-model-invocation"], "true")
+
+        counts = templates.split("## Counts", 1)[1].split("## Report", 1)[0]
+        for key in ("Candidates", "Kept", "Min schools", "Votes", "Few voices", "Shortfall", "Chat summary", "File name"):
+            self.assertRegex(counts, rf"(?m)^- {key}: ", key)
+        kept = int(re.search(r"(?m)^- Kept: (\d+)$", counts).group(1))
+        high = int(re.search(r"(?m)^- Candidates: \d+-(\d+)$", counts).group(1))
+        self.assertLess(kept, high)
+        self.assertNotRegex(counts, r"\d+ of 6", "vote thresholds must scale with N, not a fixed 6")
+        self.assertIn("## Self-check", templates)
+
+        header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))
+        for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form"):
+            self.assertIn(column, header)
+        self.assertIn("| Fallback |", domains)
+
+        for heading in ("## Evidence labels", "## Red flags", "## Mentor rules", "## Principle filters", "## Principle labels"):
+            self.assertIn(heading, filters)
+
+        body = skill.split("---", 2)[2]
+        for name in ("templates.md", "evidence-domains.md", "knowledge-filters.md"):
+            self.assertIn(name, body)
+        self.assertNotRegex(body, r"\b\d+ (candidates|teachers|of \d+)\b")
+        for name in ("evidence-domains.md", "knowledge-filters.md"):
+            self.assertIn(name, vi.SHARED_REFERENCE_FILES)
+
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        low = int(re.search(r"(?m)^- Candidates: (\d+)-\d+$", counts).group(1))
+        min_schools = int(re.search(r"(?m)^- Min schools: (\d+)$", counts).group(1))
+        self.assertIn(f"searches the web for {low}-{high} candidates", readme)
+        self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
+
 
 if __name__ == "__main__":
     unittest.main()
