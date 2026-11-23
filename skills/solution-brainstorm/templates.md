@@ -8,10 +8,15 @@ Fill these in at Step 6. The counts and criteria below are the only ones. Change
 - Kept: 9
 - Detailed: 3
 - Min per level: 2
+- Generators: 2
+- Options per generator: 9
+- Judge passes: 2
+
+**Generators** times **Options per generator** equals **Options**: each generator fills its share of the rows. Each judge pass reads the kept options in a different order.
 
 Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If a level has fewer fitting options than **Min per level**, fill it with the closest ones and say why in each one's Reason cell.
 
-Pick as many kept options as **Detailed**, highest Total first; on a tie, the lower investment goes first, then the earlier label. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
+Pick as many kept options as **Detailed**, highest averaged judge Total first; on a tie, the lower investment goes first, then the earlier label. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
 
 ## Criteria
 
@@ -56,7 +61,7 @@ Write in the user's language. Keep technical terms in English. Use these parts i
 
 ### 1. Context
 
-Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
+Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then one line naming the lenses the generators used, and any generator or judge pass that failed and what you did instead. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
 
 ### 2. Assumptions
 
@@ -64,17 +69,17 @@ Only if the user said to just go. One bullet per assumption.
 
 ### 3. All options
 
-Always one row per option, as many rows as **Options** in Counts. One or two lines per row.
+Always one row per option, as many rows as **Options** in Counts. One or two lines per row. Rows follow the generators in lens order. Put the whole part inside `<details>` with the summary `All <Options> options`, and leave a blank line after the summary so the table renders.
 
-| # | Option (main pattern) | Investment | Verdict | Reason |
-|---|---|---|---|---|
-| 1 | Name (pattern) | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
+| # | Option (main pattern) | Lens | Investment | Verdict | Reason |
+|---|---|---|---|---|---|
+| 1 | Name (pattern) | conventions | Low / Mid / High | Kept / Dropped / Merged into #n | Why, tied to this project |
 
 As many rows as **Kept** in Counts are `Kept`, following the investment rule in Counts. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
 ### 4. Scores
 
-Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
+Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**, rounded to one decimal. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same. Put the whole part inside `<details>` with the summary `Scores`, and leave a blank line after the summary.
 
 | Criterion | A (Low) | B | C | D | E | F | G | H | I (High) |
 |---|---|---|---|---|---|---|---|---|---|
@@ -113,6 +118,8 @@ Then put every other kept option into one table, one row each, in label order. O
 **Recommendation:** Option <X>, because <reason tied to this project>.
 
 <only if X does not have the highest Total: why it still wins over the higher-scoring option>
+
+<only if the judge passes shortlisted different options or reported close calls: which options, and the one question that would separate them>
 
 <only if the SRP check fired: Follow-up refactors, one line per responsibility left in the target (file:line, technique); they can become tickets with `/issue-writing`>
 

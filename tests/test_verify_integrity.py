@@ -609,6 +609,16 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(kept, options)
         self.assertLess(detailed, kept)
         self.assertLessEqual(per_level * 3, kept)
+        generators = int(re.search(r"^- Generators: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        per_generator = int(re.search(r"^- Options per generator: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        passes = int(re.search(r"^- Judge passes: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        self.assertGreaterEqual(generators, 2)
+        self.assertEqual(generators * per_generator, options)
+        self.assertGreaterEqual(passes, 2)
+        for token in ("**Generators**", "**Options per generator**", "**Judge passes**", "`sb-1-generator`", "`sb-2-judge`"):
+            self.assertIn(token, skill)
+        self.assertNotIn("without subagents", skill)
+        self.assertIn('never `subagent_type: "fork"`', skill)
 
         description = vi.parse_frontmatter(skill)["description"]
         for text in (description, readme):
