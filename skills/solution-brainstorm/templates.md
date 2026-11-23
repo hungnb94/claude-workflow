@@ -1,6 +1,6 @@
 # Templates
 
-Fill these in at Step 6. The counts and criteria below are the only ones. Change a count or a criterion here, not in `SKILL.md`.
+Read at Steps 4-6 and by the brainstorm subagents. The counts and criteria below are the only ones. Change a count or a criterion here, not in `SKILL.md`.
 
 ## Counts
 
@@ -79,7 +79,7 @@ As many rows as **Kept** in Counts are `Kept`, following the investment rule in 
 
 ### 4. Scores
 
-Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**, rounded to one decimal. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same. Put the whole part inside `<details>` with the summary `Scores`, and leave a blank line after the summary.
+Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same. Put the whole part inside `<details>` with the summary `Scores`, and leave a blank line after the summary.
 
 | Criterion | A (Low) | B | C | D | E | F | G | H | I (High) |
 |---|---|---|---|---|---|---|---|---|---|
