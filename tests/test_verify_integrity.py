@@ -625,6 +625,20 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotRegex(body, r"\b\d+ options\b")
         self.assertNotRegex(body, r"best \d+\b")
 
+    def test_lens_catalog_guardrails(self):
+        """Verify every knowledge lens keeps its schema and conventions is always picked."""
+        text = (ROOT_DIR / "skills" / "solution-brainstorm" / "lenses.md").read_text(encoding="utf-8")
+        parts = re.split(r"^## (.+)$", text, flags=re.MULTILINE)
+        lenses = {parts[i].strip(): parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+        self.assertEqual(list(lenses), ["conventions", "legacy", "research", "industry"])
+        for name, body in lenses.items():
+            with self.subTest(lens=name):
+                for field in ("**Knowledge**:", "**Ask**:", "**Pick**:"):
+                    self.assertIn(f"- {field}", body)
+        self.assertIn("- **Pick**: always.", lenses["conventions"])
+        self.assertIn("**Generators**", text)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 
