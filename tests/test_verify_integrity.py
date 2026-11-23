@@ -667,6 +667,11 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("LENS_CATALOG", generator)
         self.assertIn("Do not score, rank, or recommend", generator)
         self.assertIn("Ignore the position of a card", judge)
+        skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
+        judge_step = skill.split("### Step 5.", 1)[1].split("### Step 6.", 1)[0]
+        for token in ("without its Knowledge line", "`nợ SRP`", "`Lý do scope rộng hơn`", "Breaks convention"):
+            self.assertIn(token, judge_step)
+        self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
         for heading in ("## Option card", "## Judge rubric"):
             self.assertIn(heading, templates)

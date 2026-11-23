@@ -72,7 +72,7 @@ Judge every option against the criteria in `templates.md` and give each a verdic
 
 Score only the kept options, with the blind judge:
 
-1. Turn each kept option into a card in the `## Option card` shape of `templates.md`. Relabel the cards `O1`, `O2`, and so on in a shuffled order. Leave out the lens, the row number, and the A-I label.
+1. Turn each kept option into a card in the `## Option card` shape of `templates.md`, without its Knowledge line, which would reveal the lens. Put any Trade-off, `nợ SRP`, or `Lý do scope rộng hơn` from its Reason cell into Breaks convention. Relabel the cards `O1`, `O2`, and so on in a shuffled order. Leave out the lens, the row number, and the A-I label.
 2. Spawn as many `sb-2-judge` as **Judge passes** in Counts, all in one message. Give each pass the cards in a different order; the second pass reads them in the reverse order of the first. Pass `BRIEF`, `TEMPLATES`, `CARDS`, and `SHORTLIST` (**Detailed** in Counts).
 3. Map the labels back. Each score in part 4 is the average over the passes, 1-5 per criterion. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it.
 4. If the passes shortlisted different options or reported close calls, keep that for the Recommendation.
