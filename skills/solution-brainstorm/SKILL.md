@@ -1,7 +1,6 @@
 ---
 name: solution-brainstorm
-disable-model-invocation: true
-description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 18 options from generator subagents that each read a different knowledge lens, narrows them to 9 (sorted from Low to High investment), has a blind judge subagent score them on a fixed table, details the top 3, then recommends one and asks the user to choose. Runs only when the user types /solution-brainstorm. Do not use to write implementation code, review code, or edit files.
+description: Brainstorm solutions for a coding task. Reads the codebase, detects the platform and architecture, lists 18 options from generator subagents that each read a different knowledge lens, narrows them to 9 (sorted from Low to High investment), has a blind judge subagent score them on a fixed table, details the top 3, then recommends one and asks the user to choose. Use when the user explicitly asks for options, approaches, or trade-offs before coding, such as "what are the ways to", "how should I solve", "compare approaches", or "brainstorm solutions". Do not use for plain implement, fix, or review requests, or to write implementation code or edit files.
 ---
 
 # Solution Brainstorm
@@ -26,7 +25,7 @@ An option that goes against source 1 is still allowed. Label it **Trade-off** an
 
 ### Step 0. Get the task
 
-If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not guess a task.
+The task is `$ARGUMENTS`. A caller that invokes this skill on its own, the model or another skill, passes a one-line task summary as the argument. If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not guess a task.
 
 ### Step 1. Survey and detect
 
