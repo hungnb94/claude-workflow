@@ -82,9 +82,9 @@ nó theo bước 2 của `standards-lookup.md`. Chưa xác nhận thì không sa
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
 (câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; mục `Lệnh build và test`
-(mọi lệnh build, test và check của repo);
-ràng buộc bất biến người dùng nêu, nếu có; mục `Chuẩn áp dụng` ghi những gì `standards-lookup.md` bảo
-ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ tự ưu tiên).
+(mọi lệnh build, test và check của repo); ràng buộc bất biến người dùng nêu, nếu có; mục `Chuẩn áp dụng`
+ghi những gì `standards-lookup.md` bảo ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ
+tự ưu tiên).
 
 ## B2. Tìm giải pháp
 
@@ -112,8 +112,8 @@ và mục `Lệnh build và test`.
    ghi ngay vào `03-implementation.md` (chưa có dòng trạng thái): phương án, đánh giá, thiết kế ở bước 3
    nếu có, nhánh, và `BASE` = `git rev-parse HEAD`. Làm lại B3 mà `03-implementation.md` đã có `BASE`
    thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các commit đã có.
-5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
-   xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
+5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy các lệnh trong
+   `Lệnh build và test`; xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
 6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, cùng những file tham chiếu mà bảng của chuẩn
    chỉ tới cho thay đổi sắp code, và code theo chúng.
 7. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
