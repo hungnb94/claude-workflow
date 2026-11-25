@@ -21,8 +21,11 @@ Câu mở đầu: "Tôi đang dùng skill feature-workflow, gồm 4 bước."
 - `DIR` = `<repo root>/.workflows/<SLUG>/`, luôn dùng đường dẫn tuyệt đối. `git check-ignore -q .workflows/`
   báo chưa ignore thì thêm dòng `.workflows/` vào `.git/info/exclude`, không sửa `.gitignore`.
 - `DIR` đã có file, hoặc nhánh `feature/<SLUG>` đã tồn tại: hỏi người dùng muốn đặt slug mới, hay chạy
-  lại từ đầu (ghi đè file; nhánh cũ do người dùng tự xoá hoặc đổi tên trước). Không làm tiếp giữa chừng,
-  không ghi đè im lặng.
+  lại từ đầu (ghi đè file; nhánh cũ do người dùng tự xoá hoặc đổi tên trước). Chạy lại mà
+  `03-implementation.md` cũ có `BASE` và `BASE..HEAD` còn commit trên nhánh hiện tại: liệt kê các commit
+  đó và hỏi người dùng giữ hay bỏ trước khi ghi đè. Không làm tiếp giữa chừng, không ghi đè im lặng.
+- `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): liệt kê và hỏi người dùng
+  commit hoặc stash trước. Không commit lẫn thay đổi có sẵn của người dùng.
 
 ## Luật chuyển bước
 
@@ -87,7 +90,8 @@ brainstorm.
    đó trước khi code.
 4. Đang ở nhánh mặc định hoặc detached HEAD thì `git switch -c feature/<SLUG>`. Trước commit đầu tiên,
    ghi ngay vào `03-implementation.md` (chưa có dòng trạng thái): phương án, đánh giá, thiết kế ở bước 3
-   nếu có, nhánh, và `BASE` = `git rev-parse HEAD`.
+   nếu có, nhánh, và `BASE` = `git rev-parse HEAD`. Làm lại B3 mà `03-implementation.md` đã có `BASE`
+   thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các commit đã có.
 5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
    xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
 6. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
