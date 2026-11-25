@@ -124,7 +124,7 @@ Short block, for every other kept option:
 - How it works: 1-2 sentences.
 - Pros: one line.
 - Cons: one line.
-- When to choose:
+- When to choose: one phrase.
 - Legacy technique (only when the full block would have a Legacy technique & tests line): technique and rung, plus `Lý do bậc rẻ hơn không đủ` if it climbs.
 - Effort: S | M | L
 ```
