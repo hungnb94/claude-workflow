@@ -166,10 +166,12 @@ và mục `Lệnh build và test`.
 6. Agent trả về thì ghi ngay dòng đó trong `Bảng bước`: `xong <commit>` hoặc `hỏng <lý do>`, và chép các
    việc trong `Việc phát sinh` của nó vào mục cùng tên của `03-implementation.md`; không làm luôn việc
    ngoài phạm vi. Agent trả `lỗi` (test đỏ sau 2 lần sửa): dừng, báo người dùng lỗi và những gì đã thử.
-7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`. Kiểm không test hay
-   assertion nào bị xoá, skip hay nới lỏng, không file nào nằm ngoài yêu cầu, và mỗi commit chỉ một thay
-   đổi. Có vấn đề: thêm một dòng vào `Bảng bước` và sửa bằng một `fw-3-implement` mới (commit mới), rồi
-   kiểm lại. Không tự sửa code trong session chính.
+7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`, kiểm không test hay
+   assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu; rồi chạy theo mục
+   `Bằng chứng xong`. Diff có vấn đề hoặc có lệnh đỏ: thêm một dòng vào `Bảng bước` và sửa bằng một
+   `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người
+   dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh`
+   và nói trong báo cáo cuối. Không tự sửa code trong session chính.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
 phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit
@@ -189,7 +191,7 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
    sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
    hiện đó đã sửa ở commit nào. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các
-   commit sửa như bước 7 của B3.
+   commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng.
 

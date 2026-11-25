@@ -768,11 +768,12 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertEqual(passed, declared)
         self.assertIn("`hỏng <lý do>`", b3.split("\n6. ", 1)[1])
         final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("git diff BASE..HEAD", "nới lỏng", "Không tự sửa code"):
+        for token in ("git diff BASE..HEAD", "nới lỏng", "`Bằng chứng xong`", "có lệnh đỏ", "sau 2 lần vẫn chưa ổn", "Commit trộn", "Không tự sửa code"):
             with self.subTest(token=token):
                 self.assertIn(token, final_check)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("`fw-3-implement` mới", b4)
+        self.assertIn("chạy `Bằng chứng xong` như bước 7 của B3", b4)
 
         frontmatter = vi.parse_frontmatter(implementer)
         self.assertEqual(frontmatter["tools"], ["Read", "Edit", "Write", "Bash", "Grep", "Glob"])
