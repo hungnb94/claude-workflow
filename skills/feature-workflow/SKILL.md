@@ -100,7 +100,8 @@ và lệnh test.
    thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các commit đã có.
 5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
    xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
-6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, và code theo chúng.
+6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, cùng những file tham chiếu mà bảng của chuẩn
+   chỉ tới cho thay đổi sắp code, và code theo chúng.
 7. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
 8. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
 
