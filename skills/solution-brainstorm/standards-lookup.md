@@ -20,6 +20,7 @@ turn `platforms.md` into the standards a task follows. Change the procedure here
 3. The primary section has no **Standards** line: the standards are that section of `platforms.md`.
 4. Record:
    - Platform: the primary section's heading.
+   - Secondary: headings of the other matched sections, or none.
    - Standards: absolute paths of the files you read. For a section of `platforms.md`, write its path and
      the heading, like `/abs/path/platforms.md` `## iOS`. With no platform standards, write `không có`.
    - Priority when they disagree: project conventions (CLAUDE.md, AGENTS.md, docs/adr, the existing code

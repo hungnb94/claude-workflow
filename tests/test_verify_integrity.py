@@ -484,7 +484,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
 
         lookup = read("skills", "solution-brainstorm", "standards-lookup.md")
-        for token in ("`platforms.md`", "**Detect**", "**Standards**", "Glob", "`không có`", "absolute paths"):
+        for token in ("`platforms.md`", "**Detect**", "**Standards**", "Glob", "`không có`", "absolute paths", "Secondary:"):
             self.assertIn(token, lookup)
         missing_skill = lookup.split("Glob", 1)[1].split("\n3. ", 1)[0]
         self.assertIn("`không có`", missing_skill)
