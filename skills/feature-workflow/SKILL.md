@@ -20,8 +20,8 @@ Câu mở đầu: "Tôi đang dùng skill feature-workflow, gồm 4 bước."
 - `SLUG`: Jira key nếu có; không có thì kebab-case tối đa 4 từ.
 - `DIR` = `<repo root>/.workflows/<SLUG>/`, luôn dùng đường dẫn tuyệt đối. `git check-ignore -q .workflows/`
   báo chưa ignore thì thêm dòng `.workflows/` vào `.git/info/exclude`, không sửa `.gitignore`.
-- `DIR` đã có file: hỏi người dùng làm tiếp từ bước đầu tiên chưa xong, hay đặt slug mới. Không ghi đè
-  im lặng.
+- `DIR` đã có file: hỏi người dùng muốn chạy lại từ đầu (ghi đè) hay đặt slug mới. Không làm tiếp giữa
+  chừng, không ghi đè im lặng.
 
 ## Luật chuyển bước
 
@@ -60,7 +60,8 @@ Khi không còn quyết định nào mở, trình bản tóm tắt yêu cầu v�
 thì không sang B2.
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
-(câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo.
+(câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo;
+ràng buộc bất biến, nếu skill gọi tới (ví dụ `android-standards-workflow`) có truyền vào.
 
 ## B2. Tìm giải pháp
 
@@ -75,21 +76,24 @@ brainstorm.
 
 ## B3. Chọn giải pháp và code
 
-**Vào:** `02-solution.md`.
+**Vào:** `02-solution.md`, và `01-requirements.md` để lấy acceptance criteria, ràng buộc và lệnh test.
 
 1. Chọn phương án có Total cao nhất mà cả tiêu chí #4 (Extensibility) và #7 (Maintainability) đều ≥ 4.
    Không phương án nào đạt thì dừng và hỏi người dùng.
 2. Viết 3-5 câu đánh giá vì sao phương án này giữ dự án dễ maintain và dễ mở rộng về lâu dài, và chỗ nào
    có thể thành nợ.
-3. Đang ở nhánh mặc định hoặc detached HEAD thì `git switch -c feature/<SLUG>`. Ghi `BASE` =
-   `git rev-parse HEAD` trước commit đầu tiên.
-4. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
+3. Phương án đã chọn chưa có phần chi tiết (layers/files, skeleton) trong `02-solution.md`: tự viết phần
+   đó trước khi code.
+4. Đang ở nhánh mặc định hoặc detached HEAD thì `git switch -c feature/<SLUG>`. Trước commit đầu tiên,
+   ghi ngay vào `03-implementation.md` (chưa có dòng trạng thái): phương án, đánh giá, thiết kế ở bước 3
+   nếu có, nhánh, và `BASE` = `git rev-parse HEAD`.
+5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
    xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
-5. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
-6. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
+6. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
+7. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
 
-**Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; nhánh;
-`BASE`; danh sách commit (`git log --oneline BASE..HEAD`); lệnh test và kết quả.
+**Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
+phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..HEAD`); lệnh test và kết quả.
 
 ## B4. Review và sửa
 

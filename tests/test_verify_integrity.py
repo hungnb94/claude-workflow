@@ -415,6 +415,19 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(hidden, review_step)
         self.assertIn('không dùng `subagent_type: "fork"`', review_step)
 
+        self.assertIn("`01-requirements.md`", steps[2].split("1. Chọn", 1)[0])
+        self.assertIn("#4 (Extensibility) và #7 (Maintainability) đều ≥ 4", steps[2])
+        templates = read("skills", "solution-brainstorm", "templates.md")
+        criteria = templates.split("## Criteria", 1)[1].split("## Option card", 1)[0]
+        self.assertRegex(criteria, r"(?m)^4\. Extensibility")
+        self.assertRegex(criteria, r"(?m)^7\. Maintainability")
+        self.assertIn("Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major", review_step)
+        self.assertIn("Không có vòng 3", review_step)
+        self.assertIn("Tối đa 5 câu mỗi vòng", steps[0])
+        self.assertIn("Không push, không tạo PR", body)
+        self.assertIn("Không giao việc viết code cho\nsubagent", body)
+        self.assertNotIn("làm tiếp từ bước", body)
+
     def test_standards_workflows_match_feature_workflow(self):
         """Verify the Android and KMP wrappers pass constraints that fit the 4-step workflow."""
         for name in ("android", "kmp"):
