@@ -617,6 +617,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(f"narrows them to {kept}", text)
             self.assertIn(f"details the top {detailed}", text)
         self.assertIn(f"keeps at least {per_level} options", readme)
+        self.assertIn(f"`⭐ top 1` to `⭐ top {detailed}`", readme)
 
         scores = templates.split("### 4.", 1)[1].split("### 5.", 1)[0]
         header = next(line for line in scores.splitlines() if line.startswith("| Criterion"))
