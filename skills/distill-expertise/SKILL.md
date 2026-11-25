@@ -57,7 +57,7 @@ Run every principle through the four filters in `knowledge-filters.md`, in order
 ### Step 6. Write, check, save
 
 1. Pick the file names once, as **File name** in Counts says: one slug for the main file, the answers file, and the sources file. Save under `./docs/research/` in the current working directory, and create the folder if it is missing. Never overwrite a file: if any of the three names exists, add the same `-2`, `-3`, and so on to all three.
-2. Write the sources file from Steps 3 and 5 by its template in `templates.md`, including the vote table by lesson.
+2. Fix the lesson order and numbers by the **Learning order** rule in the main file template; all three files use these numbers. Then write the sources file from Steps 3 and 5 by its template in `templates.md`, including the vote table by lesson.
 3. Write the main file by its template. Take each lesson's footer label from the vote table, so the two files agree. The **Apply** part of each lesson follows the form given by the domain row from Step 1.
 4. Write the answers file, one entry for each self-check id in the main file.
 5. Run the **Self-check** in `templates.md` and fix every failed item in all three files.

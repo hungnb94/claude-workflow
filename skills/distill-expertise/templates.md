@@ -18,7 +18,7 @@ Read by `distill-expertise`. The counts below are the only ones. Change a count 
 - Few voices: when N < 3, use no vote labels. Write `k/N` only, and warn at the top of the report that the result is not reliable enough to synthesize. In named mode, write "single-teacher report" instead of the warning.
 - Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". When the qualified teachers span fewer than Min schools schools, keep the best of each school and say "only S schools qualified". Votes then use the smaller N.
 - Lesson lines: `Consensus` 50-70, `Partial support` 30-45, `Lone view` 15-25. Under **Few voices**, lessons with the highest k get the `Consensus` length and the rest the `Partial support` length.
-- Main file: at most 550 lines, not counting the appendix. Cut words to fit, never verifiable details (numbers, quotes, commands, code). When the lessons do not fit, this cap wins over **Lesson lines**: shorten the lowest-ranked lessons first.
+- Main file: at most 550 lines, not counting the appendix. Cut words to fit, never verifiable details (numbers, quotes, commands, code). When the lessons do not fit, this cap wins over **Lesson lines**: shorten the lessons with the lowest k first.
 - Appendix: a code or configuration block longer than 15 lines goes to the appendix of the main file; the lesson keeps a short summary of what each part guards against and links to it.
 - Examples: 2 per lesson (1 in a `Lone view` lesson), easy to hard.
 - Self-check questions: 3 per lesson (1 in a `Lone view` lesson).
@@ -33,7 +33,7 @@ Write the three files in the user's language and translate the headings. Keep te
 
 ### Main file
 
-The lessons. Teacher names appear only inside a quote ("X: ...") and in the lesson footer; vetting goes to the sources file. Use these parts in this order.
+The lessons. Teacher names appear only inside a quote ("X: ..."), in the lesson footer, and in the named-mode Warnings line; vetting goes to the sources file. Use these parts in this order.
 
 ```markdown
 # <Topic>
@@ -57,7 +57,7 @@ Only terms the lessons use. No lesson uses a term that is not here or explained 
 | Lesson | Principle | Label | Learn first | Why here |
 |---|---|---|---|---|
 
-Order lessons from the habits a reader can start alone to the ones that build on them; "Learn first" names the earlier lessons each one needs.
+Order lessons from the habits a reader can start alone to the ones that build on them; "Learn first" names the earlier lessons each one needs. This order sets the lesson numbers in all three files. Under **Few voices**, the Label column holds `k/N`.
 
 ### This week
 
@@ -86,7 +86,7 @@ In the Apply form of the domain row. Keep the core of the sources: prompts, rule
 ### Self-check
 As many questions as **Self-check questions** in Counts, climbing from understand to apply to analyze a realistic case. Each has an id `<lesson>.<n>` and ends with "Answer: see `<answers file name>`, <id>". No answers here.
 
-`<vote label (k/N), or only k/N under Few voices>, <other labels if any>` · <source title (date), link>; ...
+`<vote label (k/N), or only k/N under Few voices>, <other labels if any>` · <teacher - source title (date), link>; ...
 
 ## Other pitfalls
 
@@ -126,6 +126,8 @@ Long code and configuration (**Appendix** in Counts), each block under a heading
 | Lesson | Principle | Voices for (who) | k/N | Label |
 |---|---|---|---|---|
 
+Lesson numbers match the main file. Under **Few voices**, write `-` in the Label column.
+
 ## Teachers
 
 | Teacher | School | Own results (label) | Student evidence (label) | Skin in the game | Red flags | Note |
@@ -148,8 +150,8 @@ Run this before saving. Fix every failed item, then check again.
 - [ ] Each lesson has every part of the lesson template, and its length fits **Lesson lines**; the main file fits **Main file**, and every block over **Appendix** sits in the appendix.
 - [ ] Every self-check id has an entry in the answers file, and every answer says why and names the part of the lesson it relies on.
 - [ ] Every myth, common mistake, and disagreement found sits in a lesson's Pitfalls or in Other pitfalls; there is no separate table for them, and Other pitfalls is left out when empty.
-- [ ] The main file ends with one teach-back question and no grading rubric.
-- [ ] Teacher names in the main file appear only in quotes and footers.
+- [ ] The main file ends with one teach-back question and no grading rubric, before the appendix if there is one.
+- [ ] Teacher names in the main file appear only in quotes, footers, and the named-mode Warnings line.
 - [ ] The kept teachers span at least **Min schools** schools, or the shortfall is stated (in named mode, the report says "single-teacher report" instead).
 - [ ] Every claim about a teacher has an evidence label, and the report judges no one's character.
 - [ ] Every Apply item says what failure it guards against and how to measure it.
