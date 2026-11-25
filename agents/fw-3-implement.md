@@ -33,7 +33,7 @@ Thiếu input nào thì báo thiếu gì và dừng.
 <steps>
 1. Đọc `REQUIREMENTS`, phần thiết kế trong `DESIGN`, `COMMENT_POLICY`, và các file trong `STANDARDS` cùng
    những file tham chiếu mà bảng của chuẩn chỉ tới cho bước này. Trong `COMMIT_STYLE` chỉ đọc
-   `## Commit message rules` và `## Safety rules`, cùng `templates.md` mà nó dẫn tới.
+   `## Commit message rules` và `## Safety rules`, cùng `templates.md` nằm cùng thư mục với nó.
 2. `git status --porcelain` có thay đổi chưa commit: dừng và trả lỗi, không đụng vào chúng.
 3. Đọc code quanh chỗ sẽ sửa; grep trước khi viết function hoặc class mới để không làm trùng cái đã có.
 4. Code chỉ `STEP`. Hành vi mới có test nếu repo có test. Không xoá, skip hay nới lỏng test hoặc assertion
