@@ -18,7 +18,8 @@ commit, không thấy giải pháp hay lý do của người viết, để đán
 - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
 - `BASE`: commit gốc. Phạm vi review là `BASE..HEAD`.
 - `COMMENT_POLICY`: đường dẫn tuyệt đối tới `comment-policy.md`.
-- `STANDARDS`: đường dẫn tuyệt đối tới chuẩn nền tảng (có thể kèm heading của một mục), hoặc `không có`.
+- `STANDARDS`: các đường dẫn tuyệt đối tới chuẩn nền tảng (đường dẫn kèm heading nghĩa là chỉ dùng mục
+  đó của file), hoặc `không có`.
 
 Thiếu input nào thì báo thiếu gì và dừng.
 </inputs>
