@@ -1,6 +1,6 @@
 # Knowledge Filters
 
-Read by `distill-expertise` at Steps 3 and 5. This is the only place for evidence labels, red flags, mentor rules, principle filters, and principle labels.
+Read by `distill-expertise` at Steps 3, 5, and 6. This is the only place for evidence labels, red flags, mentor rules, principle filters, and principle labels.
 
 ## Evidence labels
 
@@ -34,8 +34,9 @@ Apply these in order. A principle dropped by one filter does not go on to the ne
 
 1. **Contrast test**: does it separate the people who succeeded from those who failed?
    - Both groups say or do it: drop it as useless.
-   - Failed students or popular voices do it and the kept teachers reject it: move it to **Myths**.
-   - Failed students do it by mistake rather than by belief: move it to **Common mistakes**.
+   - Failed students or popular voices do it and the kept teachers reject it: it is a **myth**.
+   - Failed students do it by mistake rather than by belief: it is a **common mistake**.
+   - A myth or common mistake goes in the Pitfalls part of the lesson it belongs to, or in Other pitfalls when it fits no lesson.
 2. **Concrete enough to be wrong**: it says what to do, when, and with which threshold. Drop vague advice such as "be disciplined" or "write clean code", unless a teacher made it concrete, and then keep the concrete version.
 3. **Skin in the game**: the teacher who states it acts on it. If they do not, it does not count as their vote.
 4. **Time test**: it has held across several cycles (market cycles, technology generations). It gets a bonus. A newer principle that passed filters 1-3 stays, with the `New, not time-tested` label.
@@ -46,3 +47,4 @@ Apply these in order. A principle dropped by one filter does not go on to the ne
 - **New, not time-tested**: from filter 4.
 - **Possibly outdated**: its newest source is older than the domain's freshness limit.
 - **Changed view**: the teacher once said otherwise; give the old view and the date of the change.
+- **Inference**: the report's own reasoning, which no source states. Use it only when a required lesson part would otherwise be empty, and prefer writing that the sources do not say. Mark it `(inference)` in the user's language. Never use it for a threshold, a number, or code and configuration.
