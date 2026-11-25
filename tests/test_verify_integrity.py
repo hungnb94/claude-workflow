@@ -630,7 +630,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         """Verify each kept option is shown with its total before the per-criterion scores, top ones marked."""
         templates = (ROOT_DIR / "skills" / "solution-brainstorm" / "templates.md").read_text(encoding="utf-8")
         counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
-        output =templates.split("## Output", 1)[1]
+        output = templates.split("## Output", 1)[1]
         kept_part = output.split("### 4.", 1)[1].split("### 5.", 1)[0]
         detail_part = output.split("### 5.", 1)[1].split("### 6.", 1)[0]
         recommendation = output.split("### 6.", 1)[1]
