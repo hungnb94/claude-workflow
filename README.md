@@ -265,7 +265,7 @@ Notes:
 
 | Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
 |---|---|---|---|---|---|
-| `fw-4-review` | Independent Reviewer | Opus | Read, Grep, Glob, Bash | ~20 | Review the diff against the agreed requirements without seeing the plan; report Blocker/Major/Minor with file:line (no Edit or Write) |
+| `fw-4-review` | Independent Reviewer | Opus | Read, Grep, Glob, Bash | ~23 | Review the diff against the agreed requirements and platform standards without seeing the plan; report Blocker/Major/Minor with file:line (no Edit or Write) |
 
 *Note: footprint values measured via `claude plugin details`.*
 

@@ -1,6 +1,6 @@
 ---
 name: fw-4-review
-description: Independent Reviewer - Review a diff against the agreed requirements without seeing the plan, and report Blocker/Major/Minor findings with file:line
+description: Independent Reviewer - Review a diff against the agreed requirements and platform standards without seeing the plan, and report Blocker/Major/Minor findings with file:line
 tools:
   - Read
   - Grep
