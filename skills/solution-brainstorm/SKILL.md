@@ -27,6 +27,8 @@ An option that goes against source 1 is still allowed. Label it **Trade-off** an
 
 The task is `$ARGUMENTS`. A caller that invokes this skill on its own, the model or another skill, passes a one-line task summary as the argument. If `$ARGUMENTS` is empty or only spaces, ask the user what to solve. Do not guess a task.
 
+When the argument contains the line `CALLER: feature-workflow`, the calling workflow has already agreed the requirements with the user and picks the option itself. Then skip Step 3 and the question at the end of Step 6.
+
 ### Step 1. Survey and detect
 
 - Read the build files, the package or folder layout, CLAUDE.md, AGENTS.md, and docs/adr.
@@ -48,7 +50,7 @@ Compare the project with the **Outdated signals** line of the section and with t
 
 ### Step 3. Clarify
 
-Ask everything in one message, then wait: the migration question from Step 2 (if any) plus only what blocks option design, at most 5 questions in total. If nothing blocks, ask none and continue. If the user says to just go, write an **Assumptions** list (including the migration choice you assumed) and continue.
+Ask everything in one message, then wait: the migration question from Step 2 (if any) plus only what blocks option design, at most 5 questions in total. If nothing blocks, or a caller is set (Step 0), ask none and continue. If the user says to just go, write an **Assumptions** list (including the migration choice you assumed) and continue.
 
 ### Step 4. Diverge
 
@@ -76,6 +78,6 @@ Owner scope check fired: drop any option that reaches its owner through a wider 
 
 Read `comment-policy.md` (next to this file). Fill in the `templates.md` output. Use the project language for skeletons. Keep each skeleton short and follow the comment policy: no comments except `// pseudo` when you are unsure of an API.
 
-End with the recommendation and ask the user which option to choose. Then stop. Offer to implement it or to hand it to `/feature-workflow`, but do neither on your own.
+End with the recommendation and ask the user which option to choose. Then stop. When a caller is set (Step 0), end with the recommendation, do not ask, and hand control back to the caller. Offer to implement it or to hand it to `/feature-workflow`, but do neither on your own.
 
 If the user later asks you to implement the chosen option in this session, write the code by `comment-policy.md`.

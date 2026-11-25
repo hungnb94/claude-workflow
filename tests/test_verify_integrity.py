@@ -594,6 +594,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("owner scope check", readme)
         self.assertIn("owner scope dependency", templates)
 
+    def test_solution_brainstorm_caller_mode(self):
+        """Verify a calling workflow can skip the clarify step and the final question."""
+        skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("`CALLER: feature-workflow`", skill.split("### Step 1.", 1)[0])
+        self.assertIn("a caller is set (Step 0)", skill.split("### Step 3.", 1)[1].split("### Step 4.", 1)[0])
+        self.assertIn("a caller is set (Step 0)", skill.split("### Step 6.", 1)[1])
+
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
         base = ROOT_DIR / "skills" / "solution-brainstorm"
