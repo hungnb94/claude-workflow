@@ -9,7 +9,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - Thứ tự ưu tiên khi mâu thuẫn: quy ước **đã chốt** của dự án đang mở (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến trúc) > file này > best practice ngành nói chung. Theo dự án, ghi chú mâu thuẫn vào output của bước đang làm - không tự đổi quy ước dự án.
 - Dự án chưa chốt điểm nào thì áp file này làm mặc định.
 - Phạm vi: áp cho code mới và code đang chạm trong story/task. Không mở rộng để sửa code không liên quan (không migrate hàng loạt code Java chưa đụng tới).
-- Chẻ PR theo luật slice của feature-workflow; test không tính vào ngân sách slice.
+- Mỗi commit một thay đổi nhỏ, theo luật commit của feature-workflow; test không tính vào độ lớn thay đổi.
 - Không áp đặt tên module/lớp/pattern cụ thể của một dự án nào - mọi ví dụ trong file là minh hoạ generic, dùng chung nhiều dự án Android.
 
 ## 1. Kotlin Coroutine
@@ -77,7 +77,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 - TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. [16]
 - Hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của task; miễn trừ chỉ cho hàm ủy quyền thuần, getter, wiring. [6,16]
-- Test theo hành vi qua API công khai (ViewModel `uiState`, UseCase, Repository), không bắt buộc 1 file test cho mỗi class; bỏ test cho class chỉ chứa dữ liệu, serializer/mapper đơn giản. Test không tính vào ngân sách slice. [6,18]
+- Test theo hành vi qua API công khai (ViewModel `uiState`, UseCase, Repository), không bắt buộc 1 file test cho mỗi class; bỏ test cho class chỉ chứa dữ liệu, serializer/mapper đơn giản. Test không tính vào độ lớn thay đổi. [6,18]
 - Ưu tiên fake hơn mock - fake nhẹ, không cần framework mock, dễ đọc; mock chỉ dùng khi cần verify tương tác (gọi bao nhiêu lần, tham số gì) mà fake không diễn đạt được. [6]
 - Test coroutine/Flow bằng `runTest`, inject `TestDispatcher` (`StandardTestDispatcher`/`UnconfinedTestDispatcher`) thay vì dispatcher thật. [1,6]
 - Test ViewModel qua `uiState` quan sát được, test Repository qua fake data source. [6]
@@ -95,10 +95,10 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 
 ## 7. Migrate Java -> Kotlin dần dần
 
-- Chỉ migrate file khi story sửa logic đáng kể trong file đó (không migrate chỉ vì đổi 1-2 dòng). Migrate nằm trong ngân sách thì thành slice chuẩn bị đứng đầu chồng; vượt ngân sách thì tách thành story riêng (chạy `/feature-workflow` cho story đó).
+- Chỉ migrate file khi story sửa logic đáng kể trong file đó (không migrate chỉ vì đổi 1-2 dòng). Migrate là commit riêng đứng trước commit đổi hành vi; migrate lớn thì tách thành story riêng (chạy `/feature-workflow` cho story đó).
 - Nguyên tắc strangler/boy-scout: chỉ migrate phần đang chạm trong story, không thêm code theo pattern cũ, không big-bang rewrite. [9]
 - Đơn vị migrate là file/class/package, không phải cả module một lúc. [8,9]
-- Viết/giữ test trước khi convert, dùng test hiện có làm lưới an toàn; mỗi bước convert phải build và test xanh trước khi sang bước tiếp theo, tách slice riêng cho bước convert tự động (J2K) và phần chỉnh tay để dễ review. [9]
+- Viết/giữ test trước khi convert, dùng test hiện có làm lưới an toàn; mỗi bước convert phải build và test xanh trước khi sang bước tiếp theo, tách commit riêng cho bước convert tự động (J2K) và phần chỉnh tay để dễ review. [9]
 - Thứ tự gợi ý khi không có ràng buộc khác: model/utility lá -> data source/repository -> ViewModel -> UI. [9]
 - Giữ API cho caller Java còn lại bằng `@JvmStatic`, `@JvmOverloads`, `@file:JvmName`, `@Throws` khi cần; bật Kotlin Interoperability lint check của Android Studio để phát hiện điểm ma sát sớm. [8]
 

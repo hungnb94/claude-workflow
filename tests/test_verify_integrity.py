@@ -415,6 +415,20 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(hidden, review_step)
         self.assertIn('không dùng `subagent_type: "fork"`', review_step)
 
+    def test_standards_workflows_match_feature_workflow(self):
+        """Verify the Android and KMP wrappers pass constraints that fit the 4-step workflow."""
+        for name in ("android", "kmp"):
+            with self.subTest(skill=name):
+                folder = ROOT_DIR / "skills" / f"{name}-standards-workflow"
+                skill = (folder / "SKILL.md").read_text(encoding="utf-8")
+                section = skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
+                block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
+                self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
+                self.assertIn("01-requirements.md", block)
+                for text in (skill, (folder / "standards.md").read_text(encoding="utf-8")):
+                    for stale in ("slice", "7 bước", "01-spec.md"):
+                        self.assertNotIn(stale, text)
+
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladder in the shared legacy catalog."""
 
