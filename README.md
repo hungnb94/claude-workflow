@@ -6,9 +6,9 @@ Structured agent workflows for feature development in Claude Code, plus best-pra
 
 ## Overview
 
-Claude Workflow packages one structured workflow framework powered by 7 specialized subagents, two priming skills that delegate to it (Android and KMP standards), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
+Claude Workflow packages one structured 4-step feature workflow with an independent reviewer subagent, two priming skills that delegate to it (Android and KMP standards), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
 
-1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local branch per slice and one or more commits per planned task (refactor, add, change, switch, remove), never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then Feathers dependency-breaking with a characterization harness, then Branch by Abstraction, then Strangler Fig, with the Mikado Method as an overlay; details in the shared `legacy-techniques.md` catalog) and records why cheaper rungs fall short.
+1. **Feature Workflow** (`/feature-workflow`) - A 4-step workflow for one story or feature, run by the main session. B1 interviews you until the requirements are agreed, grilling-style, with each question written for a reader who knows little about the code (context, choices, impact against current behavior, and a recommendation). B2 calls Solution Brainstorm in caller mode. B3 picks the top-scoring option whose extensibility and maintainability scores are both at least 4, then codes it in small steps with one atomic commit each and green tests. B4 has the read-only `fw-4-review` subagent check the diff against the requirements only, then fixes Blocker and Major findings, with at most 2 review rounds. Each step writes one file to `.workflows/<slug>/`, and the next step starts only when it can read that file. Commits stay local; nothing is pushed.
 2. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 3. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
 4. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
@@ -21,7 +21,7 @@ Claude Workflow packages one structured workflow framework powered by 7 speciali
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
-The workflow applies rigorous engineering discipline: scope definition before execution, industry best practice comparison, second-order effect analysis (with optional backward planning), heterogeneous model routing (Opus for planning, Sonnet for execution), and independent review gates with strict tool isolation.
+The workflow keeps a few rules: agree the requirements before code, score options before choosing one, keep every commit green, and review with an agent that did not see the plan and cannot edit files.
 
 ## Installation
 
@@ -82,35 +82,25 @@ npx -y markdownlint-cli -c .markdownlint.json "**/*.md" --ignore ".workflows/**"
 
 ## Workflow Architecture
 
-### Seven-Phase Feature Workflow Pipeline
+### Four-Step Feature Workflow
 
 ```text
-Phase 1: Spec    Phase 2: Research   Phase 3: Role-model   Phase 4: Plan
-[fw-1-spec]      [fw-2-research]     [fw-3-role-model]     [fw-4-plan]
- (Sonnet)   -->   (Sonnet)      -->   (Opus, NO Edit)  -->  (Opus)
-      |                |                     |                   |
-      v                v                     v                   v
- 01-spec.md      02-research.md      03-role-model.md      04-plan.md
-                                                                  |
-+-----------------------------------------------------------------+
-|
-v
-Phase 5: Impl    Phase 6: Review     Phase 7: Fix   (each runs per slice)
-[fw-5-impl] -->  [fw-6-review]  -->  [fw-7-fix]
- (Sonnet)         (Sonnet, NO Edit)   (Sonnet)
-      |                |                   |
-      v                v                   v
- 05-impl-<n>.md  06-review-<n>.md     07-fix-<n>.md
+B1: Requirements      B2: Solution            B3: Code                 B4: Review + fix
+(main session,   -->  (solution-brainstorm -> (main session,      -->  [fw-4-review] (Opus, read-only)
+ asks you)             caller mode)            atomic commits)          then main session fixes
+      |                      |                       |                        |
+      v                      v                       v                        v
+01-requirements.md     02-solution.md         03-implementation.md     04-review-<n>.md
 ```
+
+Each step reads the file the previous step wrote and starts only when that file begins with `Trạng thái: xong`.
 
 ### Architectural Principles
 
 1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
-3. **Independent Quality Gate (Least Privilege)**: The review agent (`fw-6-review`) is strictly prohibited from using the `Edit` tool. It can only read, search, execute tests, and report findings to prevent self-grading bias.
-4. **Heterogeneous Model Routing**: Phase 3 (role-model) and Phase 4 (planning) agents in Feature Workflow use `model: opus` for deep analytical reasoning, mandatory second-order effect evaluation, and optional Backward Planning. All other phases use `model: sonnet` for speed and deterministic execution.
-5. **Open/Closed Principle & Extensibility**: Code generated and refactored across the pipeline adheres to OCP: open for extension via data-driven dispatch tables or generalizations, while closed for modification without patching cascading conditionals (`if-elif ==`). Balanced strictly against YAGNI to prevent over-engineering (no unnecessary abstract classes or factories when lightweight data mappings suffice). Rule of three: no abstraction before ≥2 real consumers.
-6. **Small Stacked PRs**: Feature Workflow plans slices in Phase 4 and runs Phases 5-7 per slice. Each slice is one local branch `<slug>/<n>-<slice-name>`, based on the previous slice, within the size budget. Inside a slice, Phase 4 plans tasks: each task is the smallest unit with its own test cycle and ends with its own commit of one kind (`refactor`, `add`, `change`, `switch`, `remove`). Phase 6 reviews each commit against the task list, and Phase 7 adds each fix as a new commit of one kind instead of rewriting history. The workflow never pushes or opens PRs.
+3. **Independent Quality Gate (Least Privilege)**: The review agent (`fw-4-review`) has no `Edit` or `Write` tool. It reads only the agreed requirements and the diff, runs the tests, and reports findings, so it does not grade the plan it never saw.
+4. **One Writer**: Only the main session edits code, so you can watch every change and stop it at any point. Subagents only read: the brainstorm generators, the judge, and the reviewer.
 
 ## Usage
 
@@ -126,7 +116,7 @@ For software feature development and code tasks that change observable behavior:
 /workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
 
-With no plan-approval stop (Phase 4 flows straight into Phase 5), the workflow commits each slice locally on its own stacked branch and finally prints the `git push -u origin <branch>` commands with suggested PR titles and descriptions; nothing is pushed.
+The workflow stops only to ask you questions in B1 and to confirm the requirements. It then runs B2-B4 on its own, commits on `feature/<slug>` (when you started on the default branch), and prints the `git push -u origin <branch>` command at the end; nothing is pushed.
 
 ### Running Android Standards Workflow
 
@@ -140,7 +130,7 @@ For Android/Kotlin feature development that should follow Google-recommended bes
 /workflow:android-standards-workflow "<story description, Jira key, or .md path>"
 ```
 
-PRs are split into stacked slices per Feature Workflow; the Android rules keep each slice small (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions). Slices are committed locally and the push commands are printed at the end.
+The Android rules keep each change small: migrate only when logic changes substantially, in its own commit before the behavior change; behavior tests; no single-consumer abstractions. Commits stay local and the push command is printed at the end.
 
 ### Running KMP Standards Workflow
 
@@ -292,13 +282,7 @@ Notes:
 
 | Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
 |---|---|---|---|---|---|
-| `fw-1-spec` | Senior Business Analyst | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Survey scope, identify extension points, and define acceptance criteria |
-| `fw-2-research` | Senior Research Specialist | Sonnet | Read, Grep, Glob, Write, Bash, WebSearch, WebFetch | ~30 | Research extensible OCP patterns and benchmark against conventions |
-| `fw-3-role-model` | Reference Implementer | Opus | Read, Grep, Glob, Write, Bash | ~15 | Author throwaway reference implementations demonstrating OCP patterns and anti-patterns |
-| `fw-4-plan` | Senior Solution Architect | Opus | Read, Grep, Glob, Write, Bash | ~20 | Design extensible approach, evaluate OCP trade-offs, and plan deliverables |
-| `fw-5-impl` | Senior Execution Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Implement extensible deliverables following OCP without patching conditionals |
-| `fw-6-review` | Senior Quality Auditor | Sonnet | Read, Grep, Glob, Write, Bash | ~20 | Independent review against AC, classify findings, and audit OCP extensibility (No Edit tool) |
-| `fw-7-fix` | Senior Remediation Engineer | Sonnet | Read, Grep, Glob, Write, Edit, Bash | ~20 | Remediate review findings at root cause without branching hotfixes |
+| `fw-4-review` | Independent Reviewer | Opus | Read, Grep, Glob, Bash | ~20 | Review the diff against the agreed requirements without seeing the plan; report Blocker/Major/Minor with file:line (no Edit or Write) |
 
 *Note: footprint values measured via `claude plugin details`.*
 
@@ -369,13 +353,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── plugin.json              # Plugin manifest (version 1.0.0, author, repo)
 │   └── marketplace.json         # Marketplace catalog distribution manifest
 ├── agents/
-│   ├── fw-1-spec.md             # BA: Spec and acceptance criteria
-│   ├── fw-2-research.md         # Research: Best practices and gap analysis
-│   ├── fw-3-role-model.md       # Reference: Throwaway best-practice sample (Opus)
-│   ├── fw-4-plan.md             # Architect: Second-order effects analysis (Opus)
-│   ├── fw-5-impl.md             # Execution: Implementation and unit tests
-│   ├── fw-6-review.md           # Auditor: Independent review (no Edit)
-│   ├── fw-7-fix.md              # Remediation: Issue resolution
+│   ├── fw-4-review.md           # Feature workflow B4: Independent read-only reviewer (Opus)
 │   ├── sb-1-generator.md        # Brainstorm: Options through one knowledge lens
 │   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
 ├── hooks/
@@ -387,7 +365,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   └── verify-integrity.py      # Pre-release integrity check and gatekeeper
 ├── skills/
 │   ├── feature-workflow/
-│   │   └── SKILL.md             # Orchestrator for /feature-workflow
+│   │   └── SKILL.md             # 4-step /feature-workflow
 │   ├── android-standards-workflow/
 │   │   ├── SKILL.md             # Orchestrator for /android-standards-workflow
 │   │   └── standards.md         # Android/Kotlin best practices reference
@@ -412,7 +390,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── SKILL.md             # Skill for /solution-brainstorm (lens generators and a blind judge, read-only)
 │   │   ├── lenses.md            # Knowledge lens catalog: what each option generator reads and asks
 │   │   ├── platforms.md         # Platform registry: detect signals, architecture, patterns (agent artifacts point to agent-authoring)
-│   │   ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm and the feature workflow
+│   │   ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm
 │   │   ├── comment-policy.md    # Shared code comment policy (no comment by default, WHY only), read by brainstorm and the feature workflow
 │   │   └── templates.md         # Fixed 7 criteria and output format
 │   ├── distill-expertise/
