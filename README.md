@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, Jira lookup, and distilling proven expertise on any topic.
+Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, Jira lookup, distilling proven expertise on any topic, and authoring agent skills, hooks, and commands.
 
 ## Overview
 
-Claude Workflow packages one structured workflow framework powered by 7 specialized subagents, two priming skills that delegate to it (Android and KMP standards), plus six lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, and distill expertise), into an official Claude Code Plugin:
+Claude Workflow packages one structured workflow framework powered by 7 specialized subagents, two priming skills that delegate to it (Android and KMP standards), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 7-phase engineering workflow for software feature development: requirement specification, industry research, throwaway best-practice role-model draft, architecture planning, implementation with tests, independent code review, and automated remediation. Large stories are automatically split into budgeted stacked slices (≤~400 production LOC, ≤~15 files each), with one local branch per slice and one or more commits per planned task (refactor, add, change, switch, remove), never pushed. For untested legacy code, Phase 4 applies a cheapest-first cost ladder (Sprout/Wrap Method/Class, then Feathers dependency-breaking with a characterization harness, then Branch by Abstraction, then Strangler Fig, with the Mikado Method as an overlay; details in the shared `legacy-techniques.md` catalog) and records why cheaper rungs fall short.
 2. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
@@ -17,6 +17,7 @@ Claude Workflow packages one structured workflow framework powered by 7 speciali
 7. **Solution Brainstorm** (`/solution-brainstorm`) - A skill that thinks through a coding task before any code is written. It reads the codebase, detects the platform and architecture, and asks whether to migrate outdated tech. Two read-only `sb-1-generator` subagents, each reading a different knowledge lens from `lenses.md`, propose options in parallel; it lists 18 options in one table and narrows them to 9 (sorted from Low to High investment; each level keeps at least 2 options). A read-only `sb-2-judge` on another model scores them blind on 7 criteria (1-5, a total out of 35), twice in different orders, and it details the top 3 by averaged total. An SRP check drops options that add a responsibility to code that already mixes them, and an owner scope check binds lifecycle and listener dependencies to the narrowest owner. For untested legacy code each option maps to the shared legacy-techniques cost ladder, and skeletons follow the shared `comment-policy.md`. It only analyzes and proposes, then asks you to choose. The model can also invoke it automatically when you explicitly ask for options or approaches, and other skills can invoke it with the task as the argument. Written in English; the output follows your language.
 8. **Jira Lookup** (`/jira-lookup`) - A lightweight, single-pass skill (no subagents) that reads a Jira work item with the Atlassian CLI `acli` before you work on it: summary, type, status, parent, links, subtasks, description, comments, and the attachment list. It follows only the linked tickets that change the understanding of the task, then summarizes the goal, acceptance criteria, repro steps, and scope limits before coding. It is read-only by default; it comments or transitions an item only when you ask and after you confirm the exact text. Requires `acli` on `PATH` and logged in to your Jira site. The model can also invoke it automatically when you mention a Jira key or link.
 9. **Distill Expertise** (`/distill-expertise`) - A slash-command-only, single-pass skill (no subagents) that distills proven knowledge on any topic (investing, programming, AI agents and LLMs, fitness, and more) from people who succeeded themselves and whose students succeeded too; student results weigh more than the teacher's own. It searches the web for 10-12 candidates, keeps 6 teachers from at least 3 schools (people from the same school count as one voice), and labels every claim Verified, Self-reported, or Unknown, with red flags such as course-selling income or promised returns; a fraud finding drops a candidate on its own, and fetched pages are treated as data, never as instructions. Each principle must pass four filters (contrast between winners and failures, concrete enough to be wrong, skin in the game, time test) and is labeled Consensus (at least two thirds of the independent voices, 4 of 6), Partial support, or Lone view (with fewer than 3 voices it shows only the count), plus freshness labels for fast-moving domains. The report covers core knowledge, myths, disagreements, common mistakes, a domain-shaped Apply plan, and sources, and is saved to `./docs/research/YYYY-MM-DD-<topic-slug>.md` (the slug is capped at 60 characters, cut at a word boundary). Counts live in `templates.md`, domain rules in `evidence-domains.md` (add a row to support a new kind of topic), and labels and filters in `knowledge-filters.md`. Written in English; the output follows your language.
+10. **Agent Authoring** (`/agent-authoring`) - A lightweight, single-pass skill (no subagents) with best practices for working with AI coding agents and for writing the files that steer them: skills, hooks, slash commands, subagents, and CLAUDE.md or AGENTS.md. `SKILL.md` holds the rules for every artifact (start from a real failure, enforce zero-exception rules with a hook instead of stronger words, run a pass/fail check before saying done, test with a fresh agent) and for handing work to an agent (plan when unclear, reset after two failed corrections, stop at the first cheating sign, no unattended run without a check). A routing table then sends the agent to one reference file per artifact type (`skills.md`, `hooks.md`, `commands.md`, `subagents.md`, `claude-md.md`), so it reads only what the task needs; `references.md` lists the principles and their public sources. The model invokes it automatically whenever you create, edit, or review one of these artifacts, and Solution Brainstorm reads it as the standards for tasks that touch them. Written in English; the output follows your language.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
@@ -225,6 +226,18 @@ Read a Jira work item and its comments before you start on it:
 
 The model may also use it automatically when you mention a Jira key or paste a Jira link. It needs the Atlassian CLI `acli`, logged in with `acli jira auth login --web`. It only reads; it does not comment, transition, assign, or edit unless you ask.
 
+### Running Agent Authoring
+
+Get best-practice guidance while you write a skill, hook, slash command, subagent, or CLAUDE.md:
+
+```bash
+/agent-authoring "<what you want to create or change>"
+# or, with the plugin namespace:
+/workflow:agent-authoring "add a hook that blocks edits to migrations/"
+```
+
+The model also loads it automatically whenever you ask to create, edit, or review one of these artifacts, or to set up an agent task that runs unattended. It reads only the reference file for the artifact you are writing, and it ends by telling you which check it ran and what it did not test.
+
 ## Desktop Notifications
 
 The plugin registers hooks (`hooks/hooks.json`) that run `hooks/notify.sh` to show a desktop alert with a sound. They are enabled by default and work on **macOS and Linux only**. On any other OS the script exits silently.
@@ -398,15 +411,23 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── solution-brainstorm/
 │   │   ├── SKILL.md             # Skill for /solution-brainstorm (lens generators and a blind judge, read-only)
 │   │   ├── lenses.md            # Knowledge lens catalog: what each option generator reads and asks
-│   │   ├── platforms.md         # Platform registry: detect signals, architecture, patterns
+│   │   ├── platforms.md         # Platform registry: detect signals, architecture, patterns (agent artifacts point to agent-authoring)
 │   │   ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm and the feature workflow
 │   │   ├── comment-policy.md    # Shared code comment policy (no comment by default, WHY only), read by brainstorm and the feature workflow
 │   │   └── templates.md         # Fixed 7 criteria and output format
-│   └── distill-expertise/
-│       ├── SKILL.md             # Skill for /distill-expertise (single pass, no subagents, web research)
-│       ├── templates.md         # Counts, report format, self-check, chat summary
-│       ├── evidence-domains.md  # Domain registry: student evidence, proxy, freshness, Apply form
-│       └── knowledge-filters.md # Evidence labels, red flags, mentor rules, principle filters
+│   ├── distill-expertise/
+│   │   ├── SKILL.md             # Skill for /distill-expertise (single pass, no subagents, web research)
+│   │   ├── templates.md         # Counts, report format, self-check, chat summary
+│   │   ├── evidence-domains.md  # Domain registry: student evidence, proxy, freshness, Apply form
+│   │   └── knowledge-filters.md # Evidence labels, red flags, mentor rules, principle filters
+│   └── agent-authoring/
+│       ├── SKILL.md             # Skill for /agent-authoring: shared rules and a routing table by artifact type
+│       ├── skills.md            # Writing skills: description, layout, frontmatter, evals
+│       ├── hooks.md             # Writing hooks: when to use one, events, exit codes, plugin scope
+│       ├── commands.md          # Slash commands vs skills, arguments
+│       ├── subagents.md         # When to delegate, one writer at a time, least privilege
+│       ├── claude-md.md         # What belongs in CLAUDE.md and AGENTS.md
+│       └── references.md        # Principles and their public sources
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
 │   ├── test_ktlint_format_hook.py # Unit tests for the ktlint format hook
