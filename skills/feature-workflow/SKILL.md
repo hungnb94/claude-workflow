@@ -42,7 +42,8 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 "Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Trước khi
 ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo cuối:
 
-- Chạy lại mọi lệnh trong `Lệnh build và test` của `01-requirements.md`, sau thay đổi cuối cùng.
+- Chạy lại mọi lệnh trong `Lệnh build và test` của `01-requirements.md`, sau thay đổi cuối cùng. Mục đó
+  không có lệnh nào thì ghi `không có lệnh kiểm`, và nói rõ trong báo cáo cuối là chưa có lần chạy nào.
 - Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, và `HEAD` lúc chạy.
 - Có lệnh đỏ: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
 - Không viết "should pass", "looks correct" khi không kèm output. Lint sạch không thay build hay test. Kết
@@ -99,7 +100,7 @@ chi tiết, và khuyến nghị, chép từ output của brainstorm.
 ## B3. Chọn giải pháp và code
 
 **Vào:** `02-solution.md`, và `01-requirements.md` để lấy acceptance criteria, ràng buộc, `Chuẩn áp dụng`
-và lệnh test.
+và mục `Lệnh build và test`.
 
 1. Chọn phương án có Total cao nhất mà cả tiêu chí #4 (Extensibility) và #7 (Maintainability) đều ≥ 4.
    Không phương án nào đạt thì dừng và hỏi người dùng.

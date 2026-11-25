@@ -708,11 +708,14 @@ class TestVerifyIntegrity(unittest.TestCase):
         body = skill.split("---", 2)[2]
         self.assertEqual(body.count("\n## Bằng chứng xong\n"), 1)
         section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
-        for token in ("`Lệnh build và test`", "exit code", "`HEAD`", "should pass", "Lint", "reviewer"):
+        for token in ("`Lệnh build và test`", "`không có lệnh kiểm`", "exit code", "`HEAD`", "should pass", "Lint", "reviewer"):
             with self.subTest(token=token):
                 self.assertIn(token, section)
 
+        b1 = body.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        self.assertIn("`Lệnh build và test`", b1)
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("`Lệnh build và test`", b3.split("\n\n1. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]
         for part in (b3, report):
             self.assertIn("`Bằng chứng xong`", part)
