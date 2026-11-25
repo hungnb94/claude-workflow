@@ -702,6 +702,21 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(heading, templates)
             self.assertIn(f"`{heading}`", generator + judge)
 
+    def test_feature_workflow_done_needs_fresh_evidence(self):
+        """Verify B3 and the final report point to one section that demands a fresh run before saying done."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        self.assertEqual(body.count("\n## Bằng chứng xong\n"), 1)
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        for token in ("`Lệnh build và test`", "exit code", "`HEAD`", "should pass", "Lint", "reviewer"):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        report = body.split("## Báo cáo cuối", 1)[1]
+        for part in (b3, report):
+            self.assertIn("`Bằng chứng xong`", part)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 

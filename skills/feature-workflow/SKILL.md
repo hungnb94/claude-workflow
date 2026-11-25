@@ -37,6 +37,17 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
   N-1, không đoán nội dung của nó.
 - Xong mỗi bước, báo người dùng một dòng: bước nào xong, file nào.
 
+## Bằng chứng xong
+
+"Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Trước khi
+ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo cuối:
+
+- Chạy lại mọi lệnh trong `Lệnh build và test` của `01-requirements.md`, sau thay đổi cuối cùng.
+- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, và `HEAD` lúc chạy.
+- Có lệnh đỏ: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
+- Không viết "should pass", "looks correct" khi không kèm output. Lint sạch không thay build hay test. Kết
+  quả test của reviewer không thay lần chạy này.
+
 ## B1. Chốt yêu cầu
 
 **Vào:** `STORY`.
@@ -69,7 +80,8 @@ dòng nền tảng và chuẩn đã nhận diện; người dùng sửa thì dù
 nó theo bước 2 của `standards-lookup.md`. Chưa xác nhận thì không sang B2.
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
-(câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo;
+(câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; mục `Lệnh build và test`
+(mọi lệnh build, test và check của repo);
 ràng buộc bất biến người dùng nêu, nếu có; mục `Chuẩn áp dụng` ghi những gì `standards-lookup.md` bảo
 ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ tự ưu tiên).
 
@@ -107,7 +119,8 @@ và lệnh test.
 8. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
-phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..HEAD`); lệnh test và kết quả.
+phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..HEAD`); bằng chứng theo mục
+`Bằng chứng xong`.
 
 ## B4. Review và sửa
 
@@ -134,5 +147,6 @@ subagent.
 
 ## Báo cáo cuối
 
-Báo người dùng: nhánh, `BASE`, danh sách commit, kết quả test, Blocker hoặc Major còn lại, Minor đã bỏ
-qua, đường dẫn `DIR`, và lệnh `git push -u origin <nhánh>` để họ tự push.
+Chạy lại theo mục `Bằng chứng xong` sau lần sửa cuối của B4, rồi báo người dùng: nhánh, `BASE`, danh sách
+commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, đường dẫn `DIR`, và lệnh
+`git push -u origin <nhánh>` để họ tự push.
