@@ -112,7 +112,8 @@ phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..
 **Vào:** `03-implementation.md`.
 
 1. Spawn agent `fw-4-review` (trong plugin: `workflow:fw-4-review`). Chỉ truyền `REQUIREMENTS` (đường
-   dẫn tuyệt đối tới `01-requirements.md`), `BASE`, và `COMMENT_POLICY` (đường dẫn tuyệt đối). Không
+   dẫn tuyệt đối tới `01-requirements.md`), `BASE`, `COMMENT_POLICY` (đường dẫn tuyệt đối), và
+   `STANDARDS` (các đường dẫn trong `Chuẩn áp dụng`, hoặc `không có`). Không
    truyền `02-solution.md` hay `03-implementation.md`, không dùng `subagent_type: "fork"`: reviewer phải
    đánh giá code mà không biết ý định của người viết.
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng).

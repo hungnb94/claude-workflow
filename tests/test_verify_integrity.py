@@ -427,6 +427,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         for hidden in ("`02-solution.md`", "`03-implementation.md`"):
             self.assertIn(hidden, review_step)
         self.assertIn('không dùng `subagent_type: "fork"`', review_step)
+        self.assertIn("`STANDARDS`", review_step)
+        self.assertIn("`STANDARDS`", reviewer.split("<inputs>", 1)[1].split("</inputs>", 1)[0])
+        self.assertIn("`Vi phạm chuẩn`", reviewer.split("<output>", 1)[1])
 
         self.assertIn("`01-requirements.md`", steps[2].split("1. Chọn", 1)[0])
         self.assertIn("#4 (Extensibility) và #7 (Maintainability) đều ≥ 4", steps[2])
