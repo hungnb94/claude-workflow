@@ -491,6 +491,12 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("`CALLER: feature-workflow`", skill.split("### Step 1.", 1)[0])
         self.assertIn("a caller is set (Step 0)", skill.split("### Step 3.", 1)[1].split("### Step 4.", 1)[0])
         self.assertIn("a caller is set (Step 0)", skill.split("### Step 6.", 1)[1])
+        caller = skill.split("### Step 0.", 1)[1].split("### Step 1.", 1)[0]
+        for token in ("Read the requirements file", "**Assumptions**", "`BRIEF`"):
+            self.assertIn(token, caller)
+        templates = (ROOT_DIR / "skills" / "solution-brainstorm" / "templates.md").read_text(encoding="utf-8")
+        self.assertIn("Leave out the closing question when a caller is set", templates)
+        self.assertIn("or a caller is set", templates.split("### 2. Assumptions", 1)[1].split("### 3.", 1)[0])
 
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
