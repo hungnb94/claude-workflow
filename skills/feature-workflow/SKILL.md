@@ -148,6 +148,6 @@ subagent.
 
 ## Báo cáo cuối
 
-Chạy lại theo mục `Bằng chứng xong` sau lần sửa cuối của B4, rồi báo người dùng: nhánh, `BASE`, danh sách
-commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, đường dẫn `DIR`, và lệnh
+Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì (bằng chứng của B3 không thay lần chạy
+này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, đường dẫn `DIR`, và lệnh
 `git push -u origin <nhánh>` để họ tự push.

@@ -719,6 +719,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         report = body.split("## Báo cáo cuối", 1)[1]
         for part in (b3, report):
             self.assertIn("`Bằng chứng xong`", part)
+        self.assertIn("kể cả khi B4 không sửa gì", report)
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
