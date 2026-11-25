@@ -53,11 +53,16 @@ Khi người dùng chọn làm tiếp:
 2. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
    `BASE` (`git merge-base --is-ancestor <BASE> <nhánh>`); switch sang nhánh đó. Không thoả thì dừng và
    hỏi người dùng.
-3. Đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng `git log --oneline BASE..HEAD`.
-   Commit có trên nhánh mà bảng chưa ghi: cập nhật dòng đó trước. Làm tiếp từ dòng đầu tiên chưa `xong`.
-4. Đang ở B4: đọc `04-review-<n>.md` mới nhất, làm tiếp từ phát hiện đầu tiên chưa ghi đã sửa hay không
-   sửa.
-5. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
+3. Có thay đổi chưa commit: đó thường là việc dở của một `fw-3-implement` bị ngắt, chưa qua `CHECKS`.
+   Đề nghị người dùng stash hoặc bỏ, không commit nó; bước đó làm lại bằng một agent mới.
+4. Đang ở B3: đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng
+   `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi vào dòng tương ứng trước.
+   Làm tiếp từ dòng đầu tiên chưa `xong`; dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Mọi dòng đã
+   `xong` thì chạy bước 7 của B3.
+5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
+   file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
+   đầu tiên chưa ghi đã sửa hay không sửa.
+6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy `Báo cáo cuối`, kể cả lần chạy `Bằng chứng xong` của nó.
 
 ## Bằng chứng xong

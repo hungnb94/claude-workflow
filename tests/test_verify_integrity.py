@@ -731,9 +731,17 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertEqual(body.count("\n## Làm tiếp\n"), 1)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
-        for token in ("`Trạng thái: xong`", "git merge-base --is-ancestor", "nhánh ghi trong file đó", "`Bảng bước`", "`Việc phát sinh`", "git log --oneline BASE..HEAD", "`04-review-<n>.md`", "chạy vòng 2 của B4", "`Báo cáo cuối`"):
+        for token in ("`Trạng thái: xong`", "git merge-base --is-ancestor", "nhánh ghi trong file đó", "stash hoặc bỏ, không commit", "chạy vòng 2 của B4", "`Báo cáo cuối`"):
             with self.subTest(token=token):
                 self.assertIn(token, resume)
+        resume_b3 = resume.split("Đang ở B3:", 1)[1].split("Đang ở B4:", 1)[0]
+        for token in ("`Bảng bước`", "`Việc phát sinh`", "git log --oneline BASE..HEAD", "`hỏng`", "bước 7 của B3"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume_b3)
+        resume_b4 = resume.split("Đang ở B4:", 1)[1]
+        for token in ("`04-review-<n>.md`", "git log --oneline BASE..HEAD", "không sửa một phát hiện hai lần"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume_b4)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
         for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
