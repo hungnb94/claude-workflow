@@ -77,7 +77,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "description: Senior Quality Auditor - Objective review\n"
             "tools:\n"
             "  - Read\n"
-            "  - Write\n"
+            "  - Grep\n"
             "model: sonnet\n"
             "---\n"
             "Review content\n"
@@ -219,6 +219,19 @@ class TestVerifyIntegrity(unittest.TestCase):
             "tools:\n"
             "  - Read\n"
             "  - Edit\n"
+            "---\n"
+        )
+        (self.repo_root / "agents" / "fw-5-review.md").write_text(bad_review, encoding="utf-8")
+        self.assertFalse(vi.check_review_tool_isolation(self.repo_root))
+
+    def test_review_tool_isolation_fail_with_write(self):
+        bad_review = (
+            "---\n"
+            "name: fw-5-review\n"
+            "description: Senior Quality Auditor\n"
+            "tools:\n"
+            "  - Read\n"
+            "  - Write\n"
             "---\n"
         )
         (self.repo_root / "agents" / "fw-5-review.md").write_text(bad_review, encoding="utf-8")

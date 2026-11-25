@@ -255,7 +255,7 @@ def check_agent_references(repo_root: Path) -> bool:
 def check_review_tool_isolation(repo_root: Path) -> bool:
     """
     Check that review subagents (e.g., fw-4-review) adhere to the
-    least privilege principle and MUST NOT declare the Edit tool.
+    least privilege principle and MUST NOT declare the Edit or Write tool.
     """
     print("[INFO] Running Least Privilege Tool Isolation Audit...")
     agents_dir = repo_root / "agents"
@@ -284,9 +284,10 @@ def check_review_tool_isolation(repo_root: Path) -> bool:
         if isinstance(tools, str):
             tools = [t.strip() for t in tools.split(",") if t.strip()]
 
-        if "Edit" in tools:
+        forbidden = [t for t in ("Edit", "Write") if t in tools]
+        if forbidden:
             print(
-                f"[FAIL] Security violation in {agent_rel}: review subagent must not have 'Edit' tool declared"
+                f"[FAIL] Security violation in {agent_rel}: review subagent must not declare {', '.join(forbidden)}"
             )
             all_valid = False
         else:
