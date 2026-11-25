@@ -20,8 +20,9 @@ Câu mở đầu: "Tôi đang dùng skill feature-workflow, gồm 4 bước."
 - `SLUG`: Jira key nếu có; không có thì kebab-case tối đa 4 từ.
 - `DIR` = `<repo root>/.workflows/<SLUG>/`, luôn dùng đường dẫn tuyệt đối. `git check-ignore -q .workflows/`
   báo chưa ignore thì thêm dòng `.workflows/` vào `.git/info/exclude`, không sửa `.gitignore`.
-- `DIR` đã có file: hỏi người dùng muốn chạy lại từ đầu (ghi đè) hay đặt slug mới. Không làm tiếp giữa
-  chừng, không ghi đè im lặng.
+- `DIR` đã có file, hoặc nhánh `feature/<SLUG>` đã tồn tại: hỏi người dùng muốn đặt slug mới, hay chạy
+  lại từ đầu (ghi đè file; nhánh cũ do người dùng tự xoá hoặc đổi tên trước). Không làm tiếp giữa chừng,
+  không ghi đè im lặng.
 
 ## Luật chuyển bước
 
