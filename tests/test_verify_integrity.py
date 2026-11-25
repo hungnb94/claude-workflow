@@ -734,13 +734,26 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertEqual(frontmatter["disable-model-invocation"], "true")
 
         counts = templates.split("## Counts", 1)[1].split("## Report", 1)[0]
-        for key in ("Candidates", "Kept", "Min schools", "Votes", "Few voices", "Shortfall", "Chat summary", "File name"):
+        for key in (
+            "Candidates", "Kept", "Min schools", "Votes", "Few voices", "Shortfall", "Chat summary", "File name",
+            "Lesson lines", "Main file", "Appendix", "Examples", "Self-check questions", "This week",
+        ):
             self.assertRegex(counts, rf"(?m)^- {key}: ", key)
+        file_name = re.search(r"(?m)^- File name: (.*)$", counts).group(1)
+        for suffix in ("-answers", "-sources"):
+            self.assertIn(suffix, file_name)
         kept = int(re.search(r"(?m)^- Kept: (\d+)$", counts).group(1))
         high = int(re.search(r"(?m)^- Candidates: \d+-(\d+)$", counts).group(1))
         self.assertLess(kept, high)
         self.assertNotRegex(counts, r"\d+ of 6", "vote thresholds must scale with N, not a fixed 6")
         self.assertIn("## Self-check", templates)
+        report = re.split(r"(?m)^## Self-check$", templates.split("## Report", 1)[1], maxsplit=1)[0]
+        for heading in ("### Main file", "### Answers file", "### Sources file"):
+            self.assertIn(heading, report)
+        for part in ("## Learning path", "### Examples", "### Pitfalls", "### Apply", "### Self-check", "## Teach-back"):
+            self.assertIn(part, report)
+        for old_table in ("## 2. Myths", "## 4. Common mistakes"):
+            self.assertNotIn(old_table, report, "myths and mistakes belong in each lesson's Pitfalls")
 
         header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))
         for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form"):
@@ -749,6 +762,7 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         for heading in ("## Evidence labels", "## Red flags", "## Mentor rules", "## Principle filters", "## Principle labels"):
             self.assertIn(heading, filters)
+        self.assertIn("- **Inference**:", filters)
 
         body = skill.split("---", 2)[2]
         for name in ("templates.md", "evidence-domains.md", "knowledge-filters.md"):
