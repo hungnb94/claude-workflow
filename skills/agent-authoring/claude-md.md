@@ -26,7 +26,7 @@ Leave out:
 - Write plain sentences. If the agent still ignores a line, shorten the file first; if the rule has no exceptions, make it a hook (`hooks.md`). Do not add IMPORTANT or capitals. (P2)
 - Delete lines the agent follows without being told, and lines about code that no longer exists.
 - Rules that apply to one part of the repo go in `.claude/rules/*.md` with `paths` frontmatter, so they load only when the agent works on those files. `@path` imports still load at launch and do not save context.
-- AGENTS.md is read by other coding agents too. Claude Code reads it only when no CLAUDE.md exists. To share rules across tools, keep them in AGENTS.md and put `@AGENTS.md` in CLAUDE.md, instead of copying the text.
+- AGENTS.md is read by other coding agents too. Claude Code (v2.1.277 or later) reads it only when no CLAUDE.md exists, and some sessions cannot read it at all. To share rules across tools, keep them in AGENTS.md and put `@AGENTS.md` in CLAUDE.md, instead of copying the text.
 
 ## Check
 
