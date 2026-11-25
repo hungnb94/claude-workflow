@@ -81,8 +81,8 @@ Gọi Skill `solution-brainstorm` (trong plugin: `workflow:solution-brainstorm`)
 `CALLER: feature-workflow`; tiếp theo là tóm tắt yêu cầu và đường dẫn tuyệt đối tới `01-requirements.md`.
 Không dừng hỏi người dùng sau bước này.
 
-**Ra:** `02-solution.md` gồm: bảng điểm, các phương án chi tiết, và khuyến nghị, chép từ output của
-brainstorm.
+**Ra:** `02-solution.md` gồm: bảng các phương án giữ lại kèm Total, bảng điểm theo tiêu chí, các phương án
+chi tiết, và khuyến nghị, chép từ output của brainstorm.
 
 ## B3. Chọn giải pháp và code
 
