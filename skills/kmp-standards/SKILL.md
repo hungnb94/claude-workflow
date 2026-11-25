@@ -1,24 +1,36 @@
-# Chuẩn Kotlin Multiplatform cho kmp-standards-workflow
+---
+name: kmp-standards
+description: Kotlin Multiplatform coding standards (source set and shared code layout, expect/actual, Gradle multiplatform, coroutines and Flow across targets, Android/iOS/JVM/Native performance, multiplatform tests). Use when writing, reviewing, or planning code in a Kotlin Multiplatform project, when the user asks for "chuẩn KMP" or KMP best practice, or when a workflow names it as the platform standards. Do not use for an Android-only app without the Kotlin multiplatform plugin (use android-standards).
+---
 
-Đây là file kiến thức nền cho riêng skill này - `feature-workflow` đọc thẳng file, `SKILL.md` chỉ
-điều phối chứ không lặp lại nội dung ở đây. Cộng chung với phần thân `SKILL.md`, tổng dung lượng nên
-nằm quanh mốc ~150-220 dòng/~2000-3000 từ như đã áp dụng cho các skill `*-standards-workflow` khác;
-KMP có nhiều target hơn một skill Android đơn lẻ nên có thể áp sát mốc trên, phần chủ đề nâng cao vì
-vậy chỉ giữ tối đa 1-2 dòng mỗi mục thay vì tách hẳn thành mục riêng.
+# Chuẩn Kotlin Multiplatform
 
-## 0. Thứ tự ưu tiên và phạm vi áp dụng
+Chuẩn để viết, lên phương án và review code Kotlin Multiplatform. Mọi ví dụ (interface `Clock`, tên
+plugin, tên module...) là minh hoạ generic, không gắn với module, lớp hay target của một dự án cụ thể.
 
-- Khi có mâu thuẫn, ưu tiên theo thứ tự: quy ước KMP **đã chốt** của dự án đang mở (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến trúc) trước tiên, rồi mới đến nội dung file này, cuối cùng mới đến best practice chung của cộng đồng Kotlin/JetBrains. Phát hiện mâu thuẫn thì bám theo dự án và nêu rõ trong output bước đang chạy, không tự ý sửa quy ước dự án.
-- Nếu dự án chưa quyết định điểm nào tương ứng, coi nội dung file này là mặc định để áp dụng.
-- Phạm vi: áp cho code mới và code đang chạm trong story/task. Không tái cấu trúc module/source set hàng loạt. Xu hướng tách module `shared` khỏi app module (liên quan AGP 9) chỉ là gợi ý cho dự án khởi tạo mới, không bắt dự án đã chốt cấu trúc khác phải migrate.
-- Mọi ví dụ minh hoạ trong file (interface `Clock`, tên plugin, tên module...) chỉ mang tính generic để mô tả pattern - không gắn với tên module/lớp/target cụ thể của một dự án KMP nào.
+Quy ước KMP **đã chốt** của dự án đang mở thắng (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến
+trúc), rồi tới chuẩn này, rồi tới best practice chung của cộng đồng Kotlin/JetBrains. Khi mâu thuẫn thì
+theo dự án và ghi chú điều đó vào output của bước đang làm; không tự đổi quy ước dự án. Dự án chưa chốt
+điểm nào thì dùng chuẩn này làm mặc định.
+
+## Luật bắt buộc
+
+- Chỉ áp cho code mới và code task đang chạm. Không tái cấu trúc module hay source set hàng loạt.
+- Tách module `shared` khỏi app module (liên quan AGP 9) chỉ là gợi ý cho dự án khởi tạo mới; không bắt
+  dự án đã chốt cấu trúc khác phải migrate.
+
+## Đọc thêm khi cần
+
+| Task | Đọc |
+|---|---|
+| Cần nguồn của một luật (số `[n]` cuối dòng) | `references.md` |
 
 ## 1. Tổ chức source set và shared code
 
 - Dùng "default hierarchy template": code dùng cho một nhóm target (ví dụ mọi target Apple) đặt ở intermediate source set (`appleMain`/`iosMain`), không lặp lại ở từng `iosArm64Main`/`iosSimulatorArm64Main` riêng lẻ. [1]
 - `commonMain` chỉ chứa logic Kotlin thuần và dependency multiplatform; không import API riêng platform (`android.*`, `platform.UIKit.*`, `java.*` ngoài phần có trong stdlib). [2]
 - Chiều phụ thuộc một chiều: platform source set phụ thuộc vào `commonMain`, không có chiều ngược lại; UI native từng platform tiêu thụ module shared. [1]
-- Share có chủ đích: ưu tiên share domain/data/business logic; chỉ share UI khi dự án đã chốt dùng Compose Multiplatform (xem mục 0). [2]
+- Share có chủ đích: ưu tiên share domain/data/business logic; chỉ share UI khi dự án đã chốt dùng Compose Multiplatform (quy ước dự án thắng). [2]
 - Khi thêm target mới vào khối `kotlin { }`, kiểm tra lại source set trung gian nào được default hierarchy template tự tạo thêm để đặt code share đúng chỗ, tránh vừa lặp code ở `platformMain` riêng lẻ vừa có source set trung gian bỏ trống. [1]
 
 ## 2. expect/actual và API riêng từng platform
@@ -84,23 +96,3 @@ class IosClock : Clock { override fun nowMillis() = NSDate().timeIntervalSince19
 - Đặt test dùng chung ở `commonTest` với `kotlin.test`; mỗi target vẫn giữ test source set riêng (`androidUnitTest`, `iosTest`...) cho phần không share được. [16]
 - Chạy toàn bộ test multiplatform bằng `./gradlew allTests`, hoặc chỉ một target cụ thể bằng task `<target>Test` (ví dụ `iosSimulatorArm64Test`) khi cần lặp nhanh trên một platform. [16]
 - Ưu tiên fake implement interface (khớp mục 2) hơn mock framework chỉ chạy trên JVM, vì mock JVM-only không chạy được trên target Native - hệ quả trực tiếp từ việc dùng interface + DI ở mục 2. [3,4]
-
-## 7. Nguồn tham chiếu
-
-1. Hierarchical project structure - [kotlinlang.org/docs/multiplatform/multiplatform-hierarchy.html](https://kotlinlang.org/docs/multiplatform/multiplatform-hierarchy.html)
-2. Kotlin Multiplatform overview - [developer.android.com/kotlin/multiplatform](https://developer.android.com/kotlin/multiplatform)
-3. Expected and actual declarations - [kotlinlang.org/docs/multiplatform/multiplatform-expect-actual.html](https://kotlinlang.org/docs/multiplatform/multiplatform-expect-actual.html)
-4. Use platform-specific APIs - [kotlinlang.org/docs/multiplatform/multiplatform-connect-to-apis.html](https://kotlinlang.org/docs/multiplatform/multiplatform-connect-to-apis.html)
-5. klibs.io - [klibs.io](https://klibs.io)
-6. Gradle best practices - [kotlinlang.org/docs/gradle-best-practices.html](https://kotlinlang.org/docs/gradle-best-practices.html)
-7. Now in Android (Google reference app) - [github.com/android/nowinandroid](https://github.com/android/nowinandroid)
-8. Build final native binaries - [kotlinlang.org/docs/multiplatform/multiplatform-build-native-binaries.html](https://kotlinlang.org/docs/multiplatform/multiplatform-build-native-binaries.html)
-9. Concurrency and coroutines - [kotlinlang.org/docs/multiplatform-mobile-concurrency-and-coroutines.html](https://kotlinlang.org/docs/multiplatform-mobile-concurrency-and-coroutines.html)
-10. Migrate to the new memory manager - [kotlinlang.org/docs/native-migration-guide.html](https://kotlinlang.org/docs/native-migration-guide.html)
-11. SKIE (Touchlab) - [github.com/touchlab/SKIE](https://github.com/touchlab/SKIE)
-12. Kotlin/Native memory management - [kotlinlang.org/docs/native-memory-manager.html](https://kotlinlang.org/docs/native-memory-manager.html)
-13. Native binary options - [kotlinlang.org/docs/native-binary-options.html](https://kotlinlang.org/docs/native-binary-options.html)
-14. Compilation and caches in the Kotlin Gradle plugin - [kotlinlang.org/docs/gradle-compilation-and-caches.html](https://kotlinlang.org/docs/gradle-compilation-and-caches.html)
-15. Interoperability with Swift/Objective-C - [kotlinlang.org/docs/native-objc-interop.html](https://kotlinlang.org/docs/native-objc-interop.html)
-16. Test your multiplatform app - [kotlinlang.org/docs/multiplatform/multiplatform-run-tests.html](https://kotlinlang.org/docs/multiplatform/multiplatform-run-tests.html)
-17. KMMBridge (Touchlab) - [touchlab.co/kotlin-multiplatform-mobile-beta](https://touchlab.co/kotlin-multiplatform-mobile-beta)

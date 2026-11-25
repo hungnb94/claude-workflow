@@ -6,11 +6,11 @@ Structured agent workflows for feature development in Claude Code, plus best-pra
 
 ## Overview
 
-Claude Workflow packages one structured 4-step feature workflow with an independent reviewer subagent, two priming skills that delegate to it (Android and KMP standards), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
+Claude Workflow packages one structured 4-step feature workflow with an independent reviewer subagent, two platform standards skills it applies on its own (Android and KMP), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 4-step workflow for one story or feature, run by the main session. B1 interviews you until the requirements are agreed, grilling-style, with each question written for a reader who knows little about the code (context, choices, impact against current behavior, and a recommendation). B2 calls Solution Brainstorm in caller mode. B3 picks the top-scoring option whose extensibility and maintainability scores are both at least 4, then codes it in small steps with one atomic commit each and green tests. B4 has the read-only `fw-4-review` subagent check the diff against the requirements only, then fixes Blocker and Major findings, with at most 2 review rounds. Each step writes one file to `.workflows/<slug>/`, and the next step starts only when it can read that file. Commits stay local; nothing is pushed.
-2. **Android Standards Workflow** (`/android-standards-workflow`) - A priming skill that loads Android/Kotlin best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, Java→Kotlin migration) plus Android scope rules (migrate only when logic changes substantially, behavior tests, no single-consumer abstractions), and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
-3. **KMP Standards Workflow** (`/kmp-standards-workflow`) - A priming skill that loads Kotlin Multiplatform best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance) and delegates to Feature Workflow with those standards as immutable constraints. Slash-command-only (`disable-model-invocation: true`).
+2. **Android Standards** (`/android-standards`) - Android/Kotlin coding standards: Coroutines, Flow, SOLID, Clean Architecture, MVVM, Hilt, Compose state, and testing, led by mandatory scope rules (migrate only when logic changes substantially, in its own commit; behavior tests; no single-consumer abstractions). Java→Kotlin migration rules sit in `migration.md`, read only when a task touches Java. Feature Workflow and Solution Brainstorm load it when `platforms.md` detects an Android project, and the model can also invoke it whenever you write or review Android code. Written in Vietnamese.
+3. **KMP Standards** (`/kmp-standards`) - Kotlin Multiplatform coding standards: shared code and source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, and Android/iOS/JVM/Native performance. Feature Workflow and Solution Brainstorm load it when `platforms.md` detects a Kotlin Multiplatform project, and the model can also invoke it whenever you write or review KMP code. Written in Vietnamese.
 4. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
 5. **PR Explainer** (`/pr-explainer`) - A lightweight, single-pass skill (no subagents) that explains one pull request in two versions built from the same facts table: a short plain-language version with one everyday metaphor for PMs, QA, and business readers, and a technical version with the verified root cause, the fix and why, impact, and only the checks that actually ran, plus suggested checks for QA. It reads the PR with `gh` when available, marks unknown causes as not confirmed instead of guessing, and only drafts text; it posts a comment only when you ask. Written in English, and the output is always in English.
 6. **Atomic Commit** (`/atomic-commit`) - A lightweight, single-pass skill (no subagents) that splits uncommitted changes into atomic commits. It reads staged, unstaged, and untracked changes, groups them into one logical change per commit, shows a commit plan, and waits for your approval unless you say to commit now. Messages follow Conventional Commits (the 11 types the PR title check accepts) and the Chris Beams rules. It can split a file by hunk with `git apply --cached`, never uses `git add -A` or `--no-verify`, excludes secrets and `.workflows/`, and never pushes or opens a PR. The model can also invoke it automatically. Written in English. Inside a workflow with its own commit rules, the workflow wins.
@@ -118,30 +118,13 @@ For software feature development and code tasks that change observable behavior:
 
 The workflow asks you questions in B1 and waits for you to confirm the requirements, then runs B2-B4 on its own. It also stops to ask when the task is a bug that already happened or a 1-2 line change, when `.workflows/<slug>/` or the `feature/<slug>` branch already exists, when the working tree has uncommitted changes, when no option scores at least 4 on both extensibility and maintainability, when tests stay red after two fixes, or when Blocker or Major findings remain after the second review round. It commits on `feature/<slug>` (when you started on the default branch), and prints the `git push -u origin <branch>` command at the end; nothing is pushed.
 
-### Running Android Standards Workflow
+### Platform standards
 
-For Android/Kotlin feature development that should follow Google-recommended best practices (Coroutines, Flow, SOLID, Clean Architecture, MVVM, incremental Java→Kotlin migration). This primes the standards and delegates to Feature Workflow.
-
-```bash
-# Direct slash command (when installed or running in workspace)
-/android-standards-workflow "<story description, Jira key, or .md path>"
-
-# Canonical plugin-namespaced command
-/workflow:android-standards-workflow "<story description, Jira key, or .md path>"
-```
-
-The Android rules keep each change small: migrate only when logic changes substantially, in its own commit before the behavior change; behavior tests; no single-consumer abstractions. Commits stay local and the push command is printed at the end.
-
-### Running KMP Standards Workflow
-
-For Kotlin Multiplatform feature development that should follow JetBrains-recommended best practices (shared code/source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, Android/iOS/JVM/Native performance). This primes the standards and delegates to Feature Workflow.
+Feature Workflow and Solution Brainstorm detect the platform from `skills/solution-brainstorm/platforms.md` and load its standards skill on their own, so there is no separate command per platform. Feature Workflow shows the detected platform and standards in the requirements summary for you to confirm. To add standards for a new platform, add a standards skill and point the platform's **Standards** line in `platforms.md` to it. You can also load a standards skill by hand:
 
 ```bash
-# Direct slash command (when installed or running in workspace)
-/kmp-standards-workflow "<story description, Jira key, or .md path>"
-
-# Canonical plugin-namespaced command
-/workflow:kmp-standards-workflow "<story description, Jira key, or .md path>"
+/android-standards
+/kmp-standards
 ```
 
 ### Running Issue Writing
@@ -366,12 +349,13 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 ├── skills/
 │   ├── feature-workflow/
 │   │   └── SKILL.md             # 4-step /feature-workflow
-│   ├── android-standards-workflow/
-│   │   ├── SKILL.md             # Orchestrator for /android-standards-workflow
-│   │   └── standards.md         # Android/Kotlin best practices reference
-│   ├── kmp-standards-workflow/
-│   │   ├── SKILL.md             # Orchestrator for /kmp-standards-workflow
-│   │   └── standards.md         # Kotlin Multiplatform best practices reference
+│   ├── android-standards/
+│   │   ├── SKILL.md             # Android/Kotlin standards with mandatory rules and a read-when table
+│   │   ├── migration.md         # Java→Kotlin migration and bridge rules (read when a task touches Java)
+│   │   └── references.md        # Sources for the Android rules
+│   ├── kmp-standards/
+│   │   ├── SKILL.md             # Kotlin Multiplatform standards with mandatory rules
+│   │   └── references.md        # Sources for the KMP rules
 │   ├── issue-writing/
 │   │   ├── SKILL.md             # Skill for /issue-writing (single pass, no subagents)
 │   │   ├── templates.md         # Story, Bug, Task, Spike templates

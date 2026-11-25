@@ -441,19 +441,38 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Không giao việc viết code cho\nsubagent", body)
         self.assertNotIn("làm tiếp từ bước", body)
 
-    def test_standards_workflows_match_feature_workflow(self):
-        """Verify the Android and KMP wrappers pass constraints that fit the 4-step workflow."""
-        for name in ("android", "kmp"):
+    def test_standards_skills_guardrails(self):
+        """Verify each platform standards skill is model-invocable, routes to its reference files, and replaced the old wrappers."""
+        platforms = (ROOT_DIR / "skills" / "solution-brainstorm" / "platforms.md").read_text(encoding="utf-8")
+        for name, heading in (("android-standards", "## Android"), ("kmp-standards", "## Kotlin Multiplatform")):
             with self.subTest(skill=name):
-                folder = ROOT_DIR / "skills" / f"{name}-standards-workflow"
-                skill = (folder / "SKILL.md").read_text(encoding="utf-8")
-                section = skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
-                block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
-                self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
-                self.assertIn("01-requirements.md", block)
-                for text in (skill, (folder / "standards.md").read_text(encoding="utf-8")):
-                    for stale in ("slice", "7 bước", "01-spec.md"):
-                        self.assertNotIn(stale, text)
+                base = ROOT_DIR / "skills" / name
+                skill = (base / "SKILL.md").read_text(encoding="utf-8")
+                frontmatter = vi.parse_frontmatter(skill)
+                self.assertEqual(frontmatter["name"], name)
+                self.assertNotIn("disable-model-invocation", frontmatter)
+                description = frontmatter["description"]
+                self.assertLessEqual(len(description), 1024)
+                self.assertIn("Use when", description)
+                self.assertIn("Do not use", description)
+                self.assertLess(len(skill.splitlines()), 500)
+                self.assertIn("## Luật bắt buộc", skill)
+
+                router = skill.split("## Đọc thêm khi cần", 1)[1].split("\n## ", 1)[0]
+                linked = set(re.findall(r"\| `([a-z-]+\.md)` \|", router))
+                references = {p.name for p in base.glob("*.md") if p.name != "SKILL.md"}
+                self.assertEqual(linked, references)
+                for reference in references:
+                    self.assertIn(f"Read by `{name}`", (base / reference).read_text(encoding="utf-8"))
+
+                section = platforms.split(f"{heading}\n", 1)[1].split("\n## ", 1)[0]
+                self.assertIn(f"`{name}`", section)
+
+        self.assertIn("migration.md", (ROOT_DIR / "skills" / "android-standards" / "SKILL.md").read_text(encoding="utf-8"))
+        scanned = [ROOT_DIR / "README.md", *ROOT_DIR.glob(".claude-plugin/*.json"), *ROOT_DIR.glob("skills/*/*.md"), *ROOT_DIR.glob("agents/*.md")]
+        for path in scanned:
+            with self.subTest(stale_reference=path.name):
+                self.assertNotIn("standards-workflow", path.read_text(encoding="utf-8"))
 
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladder in the shared legacy catalog."""

@@ -1,18 +1,36 @@
-# Chuẩn Android/Kotlin cho android-standards-workflow
+---
+name: android-standards
+description: Android and Kotlin coding standards (coroutines, Flow, SOLID, Clean Architecture, MVVM and UDF, Hilt, Compose state, testing, Java to Kotlin migration). Use when writing, reviewing, or planning Android app code in Kotlin or Java, when the user asks for "chuẩn Android" or Android best practice, or when a workflow names it as the platform standards. Do not use for shared code in a Kotlin Multiplatform project (use kmp-standards) or for non-Android projects.
+---
 
-File tri thức nền, được mọi bước của feature-workflow đọc trực tiếp; không chứa chỉ dẫn điều phối.
-File này + phần thân `SKILL.md` hợp lại là "nội dung command" theo mốc độ dài tham chiếu (~150-220
-dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần điều phối.
+# Chuẩn Android/Kotlin
 
-## 0. Thứ tự ưu tiên và phạm vi áp dụng
+Chuẩn để viết, lên phương án và review code Android/Kotlin. Mọi ví dụ là minh hoạ generic, không gắn với
+tên module, lớp hay pattern của một dự án cụ thể.
 
-- Thứ tự ưu tiên khi mâu thuẫn: quy ước **đã chốt** của dự án đang mở (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến trúc) > file này > best practice ngành nói chung. Theo dự án, ghi chú mâu thuẫn vào output của bước đang làm - không tự đổi quy ước dự án.
-- Dự án chưa chốt điểm nào thì áp file này làm mặc định.
-- Phạm vi: áp cho code mới và code đang chạm trong story/task. Không mở rộng để sửa code không liên quan (không migrate hàng loạt code Java chưa đụng tới).
-- Mỗi commit một thay đổi nhỏ, theo luật commit của feature-workflow; test không tính vào độ lớn thay đổi.
-- Không áp đặt tên module/lớp/pattern cụ thể của một dự án nào - mọi ví dụ trong file là minh hoạ generic, dùng chung nhiều dự án Android.
+Quy ước **đã chốt** của dự án đang mở thắng (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến trúc),
+rồi tới chuẩn này, rồi tới best practice chung. Khi mâu thuẫn thì theo dự án và ghi chú điều đó vào output
+của bước đang làm; không tự đổi quy ước dự án. Dự án chưa chốt điểm nào thì dùng chuẩn này làm mặc định.
 
-## 1. Kotlin Coroutine
+## Luật bắt buộc
+
+- Chỉ áp cho code mới và code task đang chạm. Không sửa code không liên quan, không migrate hàng loạt
+  code Java chưa đụng tới.
+- Migrate Java -> Kotlin chỉ khi task sửa logic đáng kể trong file đó, và là commit riêng đứng trước
+  commit đổi hành vi (`migration.md`).
+- Test theo hành vi qua API công khai (mục Testing).
+- Không thêm abstraction (interface 1 impl, Strategy, Hilt map multibinding, gateway) hay đưa component
+  vào `:core:ui` hoặc module dùng chung khi chỉ có 1 consumer.
+- Mỗi commit một thay đổi nhỏ; test không tính vào độ lớn thay đổi.
+
+## Đọc thêm khi cần
+
+| Task | Đọc |
+|---|---|
+| Chạm code Java, migrate Java -> Kotlin, hoặc nối Flow/coroutine với code Java | `migration.md` |
+| Cần nguồn của một luật (số `[n]` cuối dòng) | `references.md` |
+
+## Kotlin Coroutine
 
 - Inject `CoroutineDispatcher` qua constructor, không hardcode `Dispatchers.IO`/`Default` - để test bằng `TestDispatcher`. [1]
 - Suspend function phải main-safe: tự `withContext` bên trong, caller không cần biết dispatcher nào. [1]
@@ -20,7 +38,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - Không dùng `GlobalScope`. [1]
 - Không nuốt `CancellationException` (luôn rethrow); bắt exception cụ thể (`IOException`...), không bắt tràn lan `Exception`/`Throwable`; dùng `ensureActive()` trong vòng lặp dài để cancel hợp tác. [1]
 
-## 2. Kotlin Flow
+## Kotlin Flow
 
 - Flow cold và lazy mặc định - nhiều collector sẽ chạy lại producer nhiều lần; dùng `stateIn`/`shareIn` khi cần chia sẻ 1 lần cho nhiều collector. [2]
 - Bắt lỗi bằng operator `catch` giữa chuỗi, không bọc `try/catch` quanh `collect`; nhớ `flowOn` chỉ ảnh hưởng upstream, không ảnh hưởng `catch` phía downstream. [2]
@@ -29,7 +47,7 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - Room DAO trả `Flow<List<T>>` cho dữ liệu cần tự động emit khi DB đổi. [2]
 - Đặt tên hàm trả stream dạng `get{Model}Stream(): Flow<Model>` khi cần phân biệt rõ với hàm one-shot (`get{Model}(): Model`) cùng tên gốc. [11]
 
-## 3. SOLID (áp dụng chọn lọc)
+## SOLID (áp dụng chọn lọc)
 
 - Áp dụng tăng dần, có chọn lọc - không áp cứng cả 5 nguyên tắc lên mọi class; bắt đầu từ chỗ đau nhất (một interface quá lớn, một phụ thuộc khó test). [14]
 - SRP: ViewModel không chứa logic truy cập dữ liệu/network; đẩy xuống Repository/UseCase. [3]
@@ -45,13 +63,13 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - Không tạo interface cho class chỉ có 1 impl và không cần fake khi test - tránh over-engineering. [14]
 - Không dùng Strategy/Hilt map multibinding/gateway khi chỉ có 1 consumer; không đưa component vào `:core:ui` (hay module dùng chung khác) khi chỉ có 1 nơi dùng - chờ nơi dùng thứ 2 (rule of three). [14,17]
 
-## 4. Clean Architecture ánh xạ vào UI -> Domain -> Data
+## Clean Architecture ánh xạ vào UI -> Domain -> Data
 
 - Chỉ dùng **nguyên tắc** dependency rule (lớp dưới không biết lớp trên; phụ thuộc qua abstraction hướng vào trong), ánh xạ vào đúng 3 lớp UI -> Domain -> Data đã có - không đặt tên lớp/khái niệm kiến trúc mới (không thêm 4 vòng đồng tâm kinh điển, không MVI/Redux). [3]
 - Domain layer là **optional**: chỉ tạo UseCase khi logic dùng lại ở >= 2 ViewModel hoặc một ViewModel đã quá phức tạp. [3]
 - UI/ViewModel không gọi thẳng DataSource - luôn qua Repository (1 nguồn dữ liệu/Single Source of Truth cho mỗi loại dữ liệu). [3]
 
-## 5. MVVM và luồng dữ liệu một chiều (UDF)
+## MVVM và luồng dữ liệu một chiều (UDF)
 
 - Mỗi màn hình có đúng 1 `val uiState: StateFlow<T>` bất biến (data class/sealed class); nếu dự án chưa chốt cách dựng khác thì dùng `stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)`. [3,4]
 - Không expose kiểu mutable (`MutableStateFlow`) ra ngoài ViewModel - chỉ expose `StateFlow`/`Flow` immutable. [1]
@@ -59,21 +77,21 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - ViewModel không giữ tham chiếu `Activity`/`Context`/`View`. [3]
 - Sự kiện one-shot: ưu tiên mô hình hoá thành state khi có thể; chỉ dùng cơ chế event riêng khi thật sự cần thiết và dự án đã có quyết định rõ cho trường hợp đó. [4]
 
-## 6. Best practice bổ sung
+## Best practice bổ sung
 
-### 6.1 Xử lý lỗi
+### Xử lý lỗi
 
 - Lỗi hiển thị cho người dùng là 1 trường trong `uiState` (message/flag), không phải exception ném ra ngoài UI. [4]
 - Dùng `runCatching`/`Result` built-in của Kotlin chỉ ở ranh giới cụ thể (vd. Repository) khi cần phân biệt loại lỗi - không tạo wrapper `Result<Success, Error>` generic phủ toàn bộ data layer. [1,4]
 - `runCatching` quanh code có suspend phải rethrow `CancellationException`, không nuốt. [1]
 
-### 6.2 Null-safety và bất biến
+### Null-safety và bất biến
 
 - Hạn chế dùng `!!`; ưu tiên `?:`, smart-cast, `val` thay vì `var`. [10]
 - Ưu tiên data class bất biến, dùng `copy()` thay vì mutate; tách rõ collection mutable/read-only. [13]
 - Khi Java gọi/được gọi từ Kotlin, khai báo rõ nullability (`@Nullable`/`@NonNull` phía Java) để tránh platform type rò rỉ vào code Kotlin. [8,10]
 
-### 6.3 Testing
+### Testing
 
 - TDD Red -> Green -> Refactor: viết test fail trước, code tối thiểu cho pass, rồi refactor. [16]
 - Hàm/class mới có logic (rẽ nhánh, vòng lặp, tính toán) phải có test nằm cùng commit của task; miễn trừ chỉ cho hàm ủy quyền thuần, getter, wiring. [6,16]
@@ -82,72 +100,13 @@ dòng / ~2000-3000 từ) - tách riêng để giữ `SKILL.md` gọn cho phần 
 - Test coroutine/Flow bằng `runTest`, inject `TestDispatcher` (`StandardTestDispatcher`/`UnconfinedTestDispatcher`) thay vì dispatcher thật. [1,6]
 - Test ViewModel qua `uiState` quan sát được, test Repository qua fake data source. [6]
 
-### 6.4 Dependency Injection với Hilt
+### Dependency Injection với Hilt
 
 - Constructor injection (`@Inject constructor`) là cách chính; dùng `@Binds` cho interface thay vì `@Provides`. [7]
 - Tránh anti-pattern: inject `ViewModel` vào `Repository`; inject `Context` tràn lan; lạm dụng `@Singleton`; trộn Service Locator thủ công với Hilt; nhét business logic vào Module DI. [7]
 
-### 6.5 Compose state hoisting
+### Compose state hoisting
 
 - Hoist state lên tới common parent thấp nhất của mọi composable cần đọc state đó. [5]
 - Ưu tiên truyền tham số (property drilling) hơn tạo wrapper class chỉ để gom state. [5]
 - State UI thuần tuý (vd. dropdown mở/đóng) giữ tại composable (`remember`/`rememberSaveable`); chỉ đẩy lên ViewModel khi có business logic thật sự cần đọc/ghi state đó. [5]
-
-## 7. Migrate Java -> Kotlin dần dần
-
-- Chỉ migrate file khi story sửa logic đáng kể trong file đó (không migrate chỉ vì đổi 1-2 dòng). Migrate là commit riêng đứng trước commit đổi hành vi; migrate lớn thì tách thành story riêng (chạy `/feature-workflow` cho story đó).
-- Nguyên tắc strangler/boy-scout: chỉ migrate phần đang chạm trong story, không thêm code theo pattern cũ, không big-bang rewrite. [9]
-- Đơn vị migrate là file/class/package, không phải cả module một lúc. [8,9]
-- Viết/giữ test trước khi convert, dùng test hiện có làm lưới an toàn; mỗi bước convert phải build và test xanh trước khi sang bước tiếp theo, tách commit riêng cho bước convert tự động (J2K) và phần chỉnh tay để dễ review. [9]
-- Thứ tự gợi ý khi không có ràng buộc khác: model/utility lá -> data source/repository -> ViewModel -> UI. [9]
-- Giữ API cho caller Java còn lại bằng `@JvmStatic`, `@JvmOverloads`, `@file:JvmName`, `@Throws` khi cần; bật Kotlin Interoperability lint check của Android Studio để phát hiện điểm ma sát sớm. [8]
-
-### Bridge Flow/coroutine cho code Java
-
-1. **Java callback/listener -> Flow**: bọc listener bằng `callbackFlow { ...; awaitClose { unregister() } }`.
-2. **Kotlin suspend/Flow -> caller Java** (Activity/Fragment Java còn lại): cung cấp hàm/lớp adapter Kotlin nhận `LifecycleOwner` + callback interface Java, bên trong dùng `lifecycleScope.launch` + `repeatOnLifecycle` để tự dừng đúng lifecycle; nếu dự án đang mở đã có ADR mô tả pattern bridge này thì theo ADR đó thay vì viết lại.
-3. **Blocking bridge**: `runBlocking` chỉ dùng trong test hoặc entrypoint chắc chắn không chạy trên main thread - không bao giờ gọi trên main thread; ưu tiên 2 pattern trên trước.
-4. UI Java còn dùng LiveData: `flow.asLiveData()` làm cầu tạm, gỡ bỏ khi UI đã chuyển sang Kotlin/Compose.
-
-Ví dụ pattern 1:
-
-```kotlin
-fun locationUpdates(source: JavaLocationSource): Flow<Location> = callbackFlow {
-    val listener = JavaLocationSource.Listener { trySend(it) }
-    source.registerListener(listener)
-    awaitClose { source.unregisterListener(listener) }
-}
-```
-
-Ví dụ pattern 2:
-
-```kotlin
-fun collectForJava(owner: LifecycleOwner, flow: Flow<Data>, callback: JavaCallback<Data>) {
-    owner.lifecycleScope.launch {
-        owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            flow.collect { callback.onData(it) }
-        }
-    }
-}
-```
-
-## 8. Nguồn tham chiếu
-
-1. Kotlin coroutines best practices - [developer.android.com/kotlin/coroutines/coroutines-best-practices](https://developer.android.com/kotlin/coroutines/coroutines-best-practices)
-2. Kotlin Flow on Android - [developer.android.com/kotlin/flow](https://developer.android.com/kotlin/flow)
-3. App architecture guide - [developer.android.com/topic/architecture](https://developer.android.com/topic/architecture)
-4. UI layer - [developer.android.com/topic/architecture/ui-layer](https://developer.android.com/topic/architecture/ui-layer)
-5. Compose - Where to hoist state - [developer.android.com/develop/ui/compose/state-hoisting](https://developer.android.com/develop/ui/compose/state-hoisting)
-6. Testing - Test doubles - [developer.android.com/training/testing/fundamentals/test-doubles](https://developer.android.com/training/testing/fundamentals/test-doubles)
-7. Dependency injection with Hilt - [developer.android.com/training/dependency-injection/hilt-android](https://developer.android.com/training/dependency-injection/hilt-android)
-8. Kotlin-Java interop - [developer.android.com/kotlin/interop](https://developer.android.com/kotlin/interop)
-9. Martin Fowler - Strangler Fig pattern for mobile apps - [martinfowler.com/articles/strangler-fig-mobile-apps.html](https://martinfowler.com/articles/strangler-fig-mobile-apps.html)
-10. Kotlin null safety - [kotlinlang.org/docs/null-safety.html](https://kotlinlang.org/docs/null-safety.html)
-11. Now in Android (Google reference app) - [github.com/android/nowinandroid](https://github.com/android/nowinandroid)
-12. Manuel Vivo (Android DevRel) - "A safer way to collect flows from Android UIs" - loạt bài coroutines/Flow trên Android Developers Medium.
-13. Marcin Moskała - *Effective Kotlin* (kt.academy) - "Item 1: Limit mutability".
-14. droidcon - "SOLID principles in practice: the clean architecture" (droidcon.com).
-15. Robert C. Martin - *Clean Code* (2008), ch.10 "Classes" - mô tả class ngắn gọn không dùng "and/or/if/but"; SRP.
-16. Kent Beck - *Test-Driven Development: By Example* (2002) - Red/Green/Refactor.
-17. Sandi Metz - "The Wrong Abstraction" (2016); Martin Fowler - *Refactoring* - rule of three.
-18. Ian Cooper - "TDD, Where Did It All Go Wrong" (NDC/DevTernity) - test hành vi qua API công khai, không test từng class.

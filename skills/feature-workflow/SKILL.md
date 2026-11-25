@@ -1,6 +1,6 @@
 ---
 name: feature-workflow
-description: Làm trọn một story hoặc tính năng, từ lúc chốt yêu cầu tới khi code đã được review độc lập và commit local. Dùng khi người dùng gõ /feature-workflow, yêu cầu rõ kiểu "chạy quy trình feature", "chạy quy trình story", hoặc khi android-standards-workflow / kmp-standards-workflow gọi tới. Không dùng cho yêu cầu tính năng thông thường, sửa vài dòng, hay điều tra bug đã xảy ra.
+description: Làm trọn một story hoặc tính năng, từ lúc chốt yêu cầu tới khi code đã được review độc lập và commit local. Dùng khi người dùng gõ /feature-workflow, yêu cầu rõ kiểu "chạy quy trình feature", "chạy quy trình story". Không dùng cho yêu cầu tính năng thông thường, sửa vài dòng, hay điều tra bug đã xảy ra.
 ---
 
 # Feature Workflow (4 bước)
@@ -65,7 +65,7 @@ thì không sang B2.
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
 (câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo;
-ràng buộc bất biến, nếu skill gọi tới (ví dụ `android-standards-workflow`) có truyền vào.
+ràng buộc bất biến người dùng nêu, nếu có.
 
 ## B2. Tìm giải pháp
 

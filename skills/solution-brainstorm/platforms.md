@@ -10,13 +10,13 @@ Every section has a **Detect** line. A section is either:
 ## Android
 
 - **Detect**: a Gradle build file that applies an Android application or library plugin; an Android manifest; `src/main` with `res/`.
-- **Standards**: Read `standards.md` in the `android-standards-workflow` skill folder. Look it up in this order: (1) `../android-standards-workflow/standards.md` next to this skill's "Base directory"; (2) Glob `**/android-standards-workflow/standards.md`; (3) if still missing, tell the user and continue with general best practice. Do not copy its content here. It holds the Java to Kotlin migration rules.
+- **Standards**: Read `SKILL.md` in the `android-standards` skill folder, then only the reference files its table names for the task. Look it up in this order: (1) `../android-standards/SKILL.md` next to this skill's "Base directory"; (2) Glob `**/android-standards/SKILL.md`; (3) if still missing, tell the user and continue with general best practice. Do not copy its content here. Its `migration.md` holds the Java to Kotlin migration rules.
 - **Outdated signals**: the Kotlin Android Extensions plugin (synthetics); `AsyncTask`; Support Library (`android.support.*`) instead of AndroidX; `kapt` where KSP is available.
 
 ## Kotlin Multiplatform
 
 - **Detect**: the Kotlin multiplatform Gradle plugin in a build file; `commonMain/` and per-target source set folders. A project that also has the Android plugin is still Kotlin Multiplatform.
-- **Standards**: Read `standards.md` in the `kmp-standards-workflow` skill folder, with the same lookup order as Android (replace the skill name). Do not copy its content here.
+- **Standards**: Read `SKILL.md` in the `kmp-standards` skill folder, with the same lookup order as Android (replace the skill name). Do not copy its content here.
 - **Outdated signals**: `freeze()` calls or the legacy Kotlin/Native memory model; `kotlinx-coroutines` `-native-mt` artifacts; deprecated target shortcuts such as `ios()` instead of the default hierarchy template; versions declared outside `gradle/libs.versions.toml`; the Kotlin Android Extensions plugin.
 
 ## iOS
