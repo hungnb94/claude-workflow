@@ -1,6 +1,6 @@
 # References
 
-Read by `agent-authoring` when no other file matches the task, or when the user asks why a rule exists. The principles were distilled on 2026-11-23 from 6 practitioners of 6 different schools; the Support column counts how many of them back each one. The field changes fast; review these rules about every 6 months.
+Read by `agent-authoring` when no other file matches the task, or when the user asks why a rule exists. The principles were distilled on 2026-11-23 from 6 practitioners of 6 different schools; the Support column counts how many of them back each one. Sources 12-16 were added later as evidence for C3 and C4 and do not change the Support counts. The field changes fast; review these rules about every 6 months.
 
 ## Principles
 
