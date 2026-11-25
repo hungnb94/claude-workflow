@@ -48,7 +48,8 @@ There are many more events; read <https://code.claude.com/docs/en/hooks> before 
 - A plugin hook runs in every repo that installs the plugin. Exit 0 quietly when the repo or file is not one the hook is for.
 - Keep it fast and set a `timeout`. A hook on every Edit runs hundreds of times a session.
 - Write the reason so the agent can fix the problem: which rule, which file, which command to run.
-- Read the input from stdin as JSON. Quote every variable. Never `eval` input.
+- Read the input from stdin as JSON with a real parser (`jq`), not a regex. Quote every variable. Never `eval` input.
+- A path guard on Edit and Write does not stop a `Bash` command that writes the same file. Pair it with a `permissions.deny` rule or a CI check when the rule must hold.
 - Put the logic in a script file, not inline in JSON, so it can be tested. In a plugin, call it through `${CLAUDE_PLUGIN_ROOT}`; in a project, through `$CLAUDE_PROJECT_DIR`.
 - Follow the hook layout the repo already has (`hooks/hooks.json` in a plugin, `.claude/settings.json` in a project).
 
@@ -75,8 +76,8 @@ There are many more events; read <https://code.claude.com/docs/en/hooks> before 
 
 ```sh
 #!/bin/sh
-input=$(cat)
-path=$(printf '%s' "$input" | sed -n 's/.*"file_path" *: *"\([^"]*\)".*/\1/p')
+command -v jq >/dev/null 2>&1 || { echo "guard.sh needs jq; the migrations/ guard is off." >&2; exit 1; }
+path=$(jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')
 case "$path" in
   */migrations/*) echo "migrations/ is generated. Create a new migration with the project's tool." >&2; exit 2 ;;
 esac
