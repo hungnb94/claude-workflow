@@ -830,7 +830,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         base = ROOT_DIR / "skills" / "agent-authoring"
         skill = (base / "SKILL.md").read_text(encoding="utf-8")
         rule4 = skill.split("4. **", 1)[1].split("\n5. ", 1)[0]
-        for token in ("after your last change", "exit code", "lint"):
+        for token in ("after your last change", "exit code", "lint", "should pass"):
             with self.subTest(token=token):
                 self.assertIn(token, rule4)
 
