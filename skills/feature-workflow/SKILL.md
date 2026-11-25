@@ -41,6 +41,9 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 
 **Vào:** `STORY`.
 
+Trước câu hỏi đầu tiên, tra chuẩn nền tảng theo `standards-lookup.md` (đường dẫn:
+`<Base directory của skill này>/../solution-brainstorm/standards-lookup.md`) và đọc chuẩn tìm được.
+
 Phỏng vấn người dùng theo cây quyết định, như skill grilling: mỗi vòng hỏi mọi câu đã đủ điều kiện để
 hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có thể gần như không biết gì về code, nên:
 
@@ -60,12 +63,14 @@ hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có t
 ➡️ Đề xuất: <lựa chọn>, vì <lý do>.
 ```
 
-Khi không còn quyết định nào mở, trình bản tóm tắt yêu cầu và chờ người dùng xác nhận. Chưa xác nhận
-thì không sang B2.
+Khi không còn quyết định nào mở, trình bản tóm tắt yêu cầu và chờ người dùng xác nhận. Bản tóm tắt có
+dòng nền tảng và chuẩn đã nhận diện; người dùng sửa thì dùng chuẩn họ chọn. Chưa xác nhận thì không sang
+B2.
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
 (câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo;
-ràng buộc bất biến người dùng nêu, nếu có.
+ràng buộc bất biến người dùng nêu, nếu có; mục `Chuẩn áp dụng` ghi những gì `standards-lookup.md` bảo
+ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ tự ưu tiên).
 
 ## B2. Tìm giải pháp
 
@@ -80,7 +85,8 @@ brainstorm.
 
 ## B3. Chọn giải pháp và code
 
-**Vào:** `02-solution.md`, và `01-requirements.md` để lấy acceptance criteria, ràng buộc và lệnh test.
+**Vào:** `02-solution.md`, và `01-requirements.md` để lấy acceptance criteria, ràng buộc, `Chuẩn áp dụng`
+và lệnh test.
 
 1. Chọn phương án có Total cao nhất mà cả tiêu chí #4 (Extensibility) và #7 (Maintainability) đều ≥ 4.
    Không phương án nào đạt thì dừng và hỏi người dùng.
@@ -94,8 +100,9 @@ brainstorm.
    thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các commit đã có.
 5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy build và test;
    xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
-6. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
-7. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
+6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, và code theo chúng.
+7. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
+8. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
 phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..HEAD`); lệnh test và kết quả.

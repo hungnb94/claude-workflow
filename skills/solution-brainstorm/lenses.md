@@ -12,7 +12,7 @@ Pick order: take `conventions` first, then the other lenses in the order below w
 
 ## conventions
 
-- **Knowledge**: CLAUDE.md, AGENTS.md, docs/adr, the matched `platforms.md` section and its Standards file, and the code around the target.
+- **Knowledge**: CLAUDE.md, AGENTS.md, docs/adr, the platform standards in the brief, and the code around the target.
 - **Ask**: which options fit the code and the conventions as they are today, from the smallest change to the most durable one?
 - **Pick**: always.
 

@@ -474,6 +474,37 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(stale_reference=path.name):
                 self.assertNotIn("standards-workflow", path.read_text(encoding="utf-8"))
 
+    def test_standards_lookup_is_single_source(self):
+        """Verify both callers detect standards through the shared lookup and every pointer resolves to a skill."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        lookup = read("skills", "solution-brainstorm", "standards-lookup.md")
+        for token in ("`platforms.md`", "**Detect**", "**Standards**", "Glob", "`không có`", "absolute paths"):
+            self.assertIn(token, lookup)
+        self.assertIn("standards-lookup.md", vi.SHARED_REFERENCE_FILES)
+        self.assertIn("standards-lookup.md", read("README.md"))
+
+        workflow = read("skills", "feature-workflow", "SKILL.md")
+        b1 = workflow.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        b3 = workflow.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("../solution-brainstorm/standards-lookup.md", b1)
+        self.assertIn("`Chuẩn áp dụng`", b1)
+        self.assertIn("`Chuẩn áp dụng`", b3)
+        brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
+        self.assertIn("standards-lookup.md", brainstorm)
+        for caller in (workflow, brainstorm):
+            self.assertNotIn("A section matches when", caller)
+
+        platforms = read("skills", "solution-brainstorm", "platforms.md")
+        pointers = re.findall(r"(?m)^- \*\*Standards\*\*: (.*)$", platforms)
+        self.assertGreaterEqual(len(pointers), 3)
+        for pointer in pointers:
+            with self.subTest(pointer=pointer):
+                name = re.match(r"skill `([a-z-]+)`", pointer).group(1)
+                self.assertTrue((ROOT_DIR / "skills" / name / "SKILL.md").is_file())
+
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladder in the shared legacy catalog."""
 

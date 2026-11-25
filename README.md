@@ -120,7 +120,7 @@ The workflow asks you questions in B1 and waits for you to confirm the requireme
 
 ### Platform standards
 
-Feature Workflow and Solution Brainstorm detect the platform from `skills/solution-brainstorm/platforms.md` and load its standards skill on their own, so there is no separate command per platform. Feature Workflow shows the detected platform and standards in the requirements summary for you to confirm. To add standards for a new platform, add a standards skill and point the platform's **Standards** line in `platforms.md` to it. You can also load a standards skill by hand:
+Feature Workflow and Solution Brainstorm detect the platform from `skills/solution-brainstorm/platforms.md` and load its standards skill on their own, both through the shared `standards-lookup.md`, so there is no separate command per platform. Feature Workflow shows the detected platform and standards in the requirements summary for you to confirm. To add standards for a new platform, add a standards skill and point the platform's **Standards** line in `platforms.md` to it. You can also load a standards skill by hand:
 
 ```bash
 /android-standards
@@ -375,6 +375,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── lenses.md            # Knowledge lens catalog: what each option generator reads and asks
 │   │   ├── platforms.md         # Platform registry: detect signals, architecture, patterns (agent artifacts point to agent-authoring)
 │   │   ├── legacy-techniques.md # Shared legacy refactoring catalog (cost ladder, techniques, Mikado), read by brainstorm
+│   │   ├── standards-lookup.md  # Shared procedure that turns platforms.md into the standards to apply, read by brainstorm and the feature workflow
 │   │   ├── comment-policy.md    # Shared code comment policy (no comment by default, WHY only), read by brainstorm and the feature workflow
 │   │   └── templates.md         # Fixed 7 criteria and output format
 │   ├── distill-expertise/
