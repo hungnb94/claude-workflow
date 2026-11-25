@@ -741,6 +741,43 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn(f"searches the web for {low}-{high} candidates", readme)
         self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
 
+    def test_agent_authoring_router_guardrails(self):
+        """Verify agent-authoring routes to every reference file directly and stays model-invocable."""
+        base = ROOT_DIR / "skills" / "agent-authoring"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        frontmatter = vi.parse_frontmatter(skill)
+        self.assertEqual(frontmatter["name"], "agent-authoring")
+        self.assertNotIn("disable-model-invocation", frontmatter)
+        description = frontmatter["description"]
+        self.assertLessEqual(len(description), 1024)
+        self.assertIn("Use when", description)
+        self.assertIn("Do not use", description)
+        self.assertLess(len(skill.splitlines()), 500)
+
+        router = skill.split("## Read only what you need", 1)[1].split("\n## ", 1)[0]
+        linked = set(re.findall(r"\| `([a-z-]+\.md)` \|", router))
+        references = {p.name for p in base.glob("*.md") if p.name != "SKILL.md"}
+        self.assertEqual(linked, references)
+        for name in references:
+            with self.subTest(reference=name):
+                text = (base / name).read_text(encoding="utf-8")
+                self.assertIn("Read by `agent-authoring`", text)
+                if len(text.splitlines()) > 100:
+                    self.assertIn("## Contents", text)
+
+        platforms = (ROOT_DIR / "skills" / "solution-brainstorm" / "platforms.md").read_text(encoding="utf-8")
+        section = platforms.split("## Claude Code agent artifacts", 1)[1].split("\n## ", 1)[0]
+        for field in ("- **Detect**:", "- **Standards**:", "- **Outdated signals**:"):
+            self.assertIn(field, section)
+        self.assertIn("`agent-authoring`", section)
+
+    def test_skill_file_names_are_case_unique(self):
+        """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""
+        for folder in (ROOT_DIR / "skills").iterdir():
+            if folder.is_dir():
+                names = [p.name.lower() for p in folder.iterdir()]
+                self.assertEqual(len(names), len(set(names)), folder.name)
+
 
 if __name__ == "__main__":
     unittest.main()
