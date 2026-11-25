@@ -116,7 +116,7 @@ For software feature development and code tasks that change observable behavior:
 /workflow:feature-workflow "<story description, Jira key, or .md path>"
 ```
 
-The workflow stops only to ask you questions in B1 and to confirm the requirements. It then runs B2-B4 on its own, commits on `feature/<slug>` (when you started on the default branch), and prints the `git push -u origin <branch>` command at the end; nothing is pushed.
+The workflow asks you questions in B1 and waits for you to confirm the requirements, then runs B2-B4 on its own. It also stops to ask when the task is a bug that already happened or a 1-2 line change, when `.workflows/<slug>/` already exists, when no option scores at least 4 on both extensibility and maintainability, when tests stay red after two fixes, or when Blocker or Major findings remain after the second review round. It commits on `feature/<slug>` (when you started on the default branch), and prints the `git push -u origin <branch>` command at the end; nothing is pushed.
 
 ### Running Android Standards Workflow
 
