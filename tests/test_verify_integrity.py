@@ -416,7 +416,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(len(description), 1024)
 
         fw_agents = sorted(f.stem for f in (ROOT_DIR / "agents").glob("fw-*.md"))
-        self.assertEqual(fw_agents, ["fw-4-review"])
+        self.assertEqual(fw_agents, ["fw-3-implement", "fw-4-review"])
         self.assertIn("`fw-4-review`", body)
         reviewer = read("agents", "fw-4-review.md")
         tools = vi.parse_frontmatter(reviewer)["tools"]
@@ -441,7 +441,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Không có vòng 3", review_step)
         self.assertIn("Tối đa 5 câu mỗi vòng", steps[0])
         self.assertIn("Không push, không tạo PR", body)
-        self.assertIn("Không giao việc viết code cho\nsubagent", body)
+        self.assertIn("Session chính không tự sửa code", body)
 
     def test_standards_skills_guardrails(self):
         """Verify each platform standards skill is model-invocable, routes to its reference files, and replaced the old wrappers."""
@@ -744,6 +744,50 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("ngay khi reviewer trả về", b4)
         self.assertIn("ghi ngay vào `04-review-<n>.md`", b4)
         self.assertIn("`Việc phát sinh`", body.split("## Báo cáo cuối", 1)[1])
+
+    def test_feature_workflow_codes_in_fresh_subagents(self):
+        """Verify each code step runs in a fresh, sequential implementer that cannot delegate or touch workflow files."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        body = read("skills", "feature-workflow", "SKILL.md").split("---", 2)[2]
+        rules = body.split("## Luật chuyển bước", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("`Explore`", rules)
+        self.assertIn("dòng tóm tắt và các dòng\n  lỗi", rules)
+
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        spawn = b3.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        for token in ("`fw-3-implement`", "Mỗi dòng một agent", "không chạy hai agent cùng lúc", '`subagent_type: "fork"`'):
+            with self.subTest(token=token):
+                self.assertIn(token, spawn)
+        implementer = read("agents", "fw-3-implement.md")
+        inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        passed = set(re.findall(r"^   - `([A-Z_]+)`:", spawn, flags=re.MULTILINE))
+        declared = set(re.findall(r"^- `([A-Z_]+)`:", inputs, flags=re.MULTILINE))
+        self.assertEqual(passed, declared)
+        self.assertIn("`hỏng <lý do>`", b3.split("\n6. ", 1)[1])
+        final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
+        for token in ("git diff BASE..HEAD", "nới lỏng", "Không tự sửa code"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_check)
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("`fw-3-implement` mới", b4)
+
+        frontmatter = vi.parse_frontmatter(implementer)
+        self.assertEqual(frontmatter["tools"], ["Read", "Edit", "Write", "Bash", "Grep", "Glob"])
+        constraints = implementer.split("<constraints>", 1)[1].split("</constraints>", 1)[0]
+        for token in ("`.workflows/`", "Không spawn\nsubagent", "push"):
+            with self.subTest(token=token):
+                self.assertIn(token, constraints)
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        for token in ("sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng"):
+            with self.subTest(token=token):
+                self.assertIn(token, steps)
+        output = implementer.split("<output>", 1)[1]
+        for token in ("`Kết quả: xong <commit hash>`", "exit code", "`Việc phát sinh`"):
+            with self.subTest(token=token):
+                self.assertIn(token, output)
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""

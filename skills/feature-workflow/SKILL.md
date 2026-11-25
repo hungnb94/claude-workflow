@@ -37,6 +37,9 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 - Trước khi làm bước N, đọc file Ra của bước N-1. Thiếu file hoặc thiếu dòng trạng thái thì làm lại bước
   N-1, không đoán nội dung của nó.
 - Xong mỗi bước, báo người dùng một dòng: bước nào xong, file nào.
+- Giữ context của session chính nhỏ: ở mọi bước, việc tìm kiếm hay đọc nhiều file giao subagent
+  `Explore` và chỉ nhận về bản tóm tắt có file:line; output dài của lệnh chỉ giữ dòng tóm tắt và các dòng
+  lỗi.
 - Trạng thái nằm trong file, không nằm trong chat: tiến độ, việc phát sinh và kết quả từng lần sửa được
   ghi vào file của bước ngay khi có, không đợi cuối bước.
 
@@ -144,14 +147,27 @@ và mục `Lệnh build và test`.
    - <việc ngoài phạm vi thấy trong lúc code, chưa làm>
    ```
 
-5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy các lệnh trong
-   `Lệnh build và test`; xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
-   Commit xong thì ghi ngay trạng thái của dòng đó trong `Bảng bước`: `xong <commit>` hoặc
-   `hỏng <lý do>`. Việc ngoài phạm vi thấy giữa chừng thì ghi vào `Việc phát sinh`, không làm luôn.
-6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, cùng những file tham chiếu mà bảng của chuẩn
-   chỉ tới cho thay đổi sắp code, và code theo chúng.
-7. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
-8. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
+5. Lần lượt với từng dòng `chưa` của `Bảng bước`, spawn một agent `fw-3-implement` mới (trong plugin:
+   `workflow:fw-3-implement`). Mỗi dòng một agent, không chạy hai agent cùng lúc, không dùng
+   `subagent_type: "fork"`: agent code trong context mới, chỉ biết những gì được truyền. Truyền:
+   - `STEP`: mục tiêu và file dự kiến của dòng đó.
+   - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
+   - `DESIGN`: đường dẫn tuyệt đối tới `02-solution.md` kèm heading của phương án đã chọn, hoặc tới
+     `03-implementation.md` kèm heading thiết kế nếu đã tự viết ở bước 3.
+   - `STANDARDS`: các đường dẫn trong `Chuẩn áp dụng`, hoặc `không có`.
+   - `COMMENT_POLICY`: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`.
+   - `COMMIT_STYLE`: `<Base directory của skill này>/../atomic-commit/SKILL.md`.
+   - `CHECKS`: các lệnh trong `Lệnh build và test`.
+
+   Agent code bước đó, có test cho hành vi mới nếu repo có test, chạy `CHECKS`, xanh mới tự commit (chỉ
+   `git add -- <file>`, không `--no-verify`).
+6. Agent trả về thì ghi ngay dòng đó trong `Bảng bước`: `xong <commit>` hoặc `hỏng <lý do>`, và chép các
+   việc trong `Việc phát sinh` của nó vào mục cùng tên của `03-implementation.md`; không làm luôn việc
+   ngoài phạm vi. Agent trả `lỗi` (test đỏ sau 2 lần sửa): dừng, báo người dùng lỗi và những gì đã thử.
+7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`. Kiểm không test hay
+   assertion nào bị xoá, skip hay nới lỏng, không file nào nằm ngoài yêu cầu, và mỗi commit chỉ một thay
+   đổi. Có vấn đề: thêm một dòng vào `Bảng bước` và sửa bằng một `fw-3-implement` mới (commit mới), rồi
+   kiểm lại. Không tự sửa code trong session chính.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
 phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit
@@ -167,9 +183,11 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    truyền `02-solution.md` hay `03-implementation.md`, không dùng `subagent_type: "fork"`: reviewer phải
    đánh giá code mà không biết ý định của người viết.
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
-3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi lần sửa là một commit
-   mới, test xanh; ghi ngay vào `04-review-<n>.md` phát hiện đó đã sửa ở commit nào. Phát hiện nào không
-   sửa thì ghi lý do.
+3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi phát hiện cần sửa là
+   một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
+   sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
+   hiện đó đã sửa ở commit nào. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các
+   commit sửa như bước 7 của B3.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng.
 
@@ -178,8 +196,8 @@ không sửa (lý do).
 
 ## Không làm
 
-Không push, không tạo PR, không merge, không viết lại commit đã có. Không giao việc viết code cho
-subagent.
+Không push, không tạo PR, không merge, không viết lại commit đã có. Session chính không tự sửa code: mọi
+thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 
 ## Báo cáo cuối
 

@@ -6,9 +6,9 @@ Structured agent workflows for feature development in Claude Code, plus best-pra
 
 ## Overview
 
-Claude Workflow packages one structured 4-step feature workflow with an independent reviewer subagent, two platform standards skills it applies on its own (Android and KMP), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
+Claude Workflow packages one structured 4-step feature workflow with a fresh implementer subagent per step and an independent reviewer subagent, two platform standards skills it applies on its own (Android and KMP), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
 
-1. **Feature Workflow** (`/feature-workflow`) - A 4-step workflow for one story or feature, run by the main session. B1 interviews you until the requirements are agreed, grilling-style, with each question written for a reader who knows little about the code (context, choices, impact against current behavior, and a recommendation). B2 calls Solution Brainstorm in caller mode. B3 picks the top-scoring option whose extensibility and maintainability scores are both at least 4, then codes it in small steps with one atomic commit each and green tests. B4 has the read-only `fw-4-review` subagent check the diff against the requirements and the detected platform standards only, including new functions or classes that duplicate code already in the repo, then fixes Blocker and Major findings, with at most 2 review rounds. Each step writes one file to `.workflows/<slug>/`, and the next step starts only when it can read that file. State lives in those files, not in the chat: step 3 keeps a step table and a list of out-of-scope work found on the way, updated after each commit, and step 4 records each fix as it lands, so you can open a fresh session and run `/feature-workflow <slug>` to resume from the first unfinished step. Before it marks step 3 done and before the final report, it reruns every build and test command and records each command, exit code, summary line from the output, and `HEAD`; a red run is never reported as done, and neither a clean lint nor the reviewer's run counts. Commits stay local; nothing is pushed.
+1. **Feature Workflow** (`/feature-workflow`) - A 4-step workflow for one story or feature, run by the main session. B1 interviews you until the requirements are agreed, grilling-style, with each question written for a reader who knows little about the code (context, choices, impact against current behavior, and a recommendation). B2 calls Solution Brainstorm in caller mode. B3 picks the top-scoring option whose extensibility and maintainability scores are both at least 4, then codes it in small steps: each row of a step table goes to a fresh `fw-3-implement` subagent, one at a time, which codes that step, runs the checks, and commits it when green, and the main session reads the whole diff once all rows are done. Wide searches go to `Explore` and long command output is cut to its summary, so the main session stays a small scheduler. B4 has the read-only `fw-4-review` subagent check the diff against the requirements and the detected platform standards only, including new functions or classes that duplicate code already in the repo, then fixes each Blocker and Major finding with a fresh `fw-3-implement`, with at most 2 review rounds. Each step writes one file to `.workflows/<slug>/`, and the next step starts only when it can read that file. State lives in those files, not in the chat: step 3 keeps a step table and a list of out-of-scope work found on the way, updated after each commit, and step 4 records each fix as it lands, so you can open a fresh session and run `/feature-workflow <slug>` to resume from the first unfinished step. Before it marks step 3 done and before the final report, it reruns every build and test command and records each command, exit code, summary line from the output, and `HEAD`; a red run is never reported as done, and neither a clean lint nor the reviewer's run counts. Commits stay local; nothing is pushed.
 2. **Android Standards** (`/android-standards`) - Android/Kotlin coding standards: Coroutines, Flow, SOLID, Clean Architecture, MVVM, Hilt, Compose state, and testing, led by mandatory scope rules (migrate only when logic changes substantially, in its own commit; behavior tests; no single-consumer abstractions). Java→Kotlin migration rules sit in `migration.md`, read only when a task touches Java. Feature Workflow and Solution Brainstorm load it when `platforms.md` detects an Android project, and the model can also invoke it whenever you write or review Android code. Written in Vietnamese.
 3. **KMP Standards** (`/kmp-standards`) - Kotlin Multiplatform coding standards: shared code and source set organization, expect/actual, Gradle multiplatform, cross-target coroutines/Flow, and Android/iOS/JVM/Native performance. Feature Workflow and Solution Brainstorm load it when `platforms.md` detects a Kotlin Multiplatform project, and the model can also invoke it whenever you write or review KMP code. Written in Vietnamese.
 4. **Issue Writing** (`/issue-writing`) - A lightweight, single-pass skill (no subagents) that drafts Jira or GitHub issues from plain-English templates: User Story/Feature, Bug, Task/Chore, and Spike. It applies title, acceptance criteria (checklist or Given/When/Then), INVEST sizing, and bug-report rules, and marks missing data as TBD with open questions instead of guessing. The model can also invoke it automatically. Written in English, unlike the other skills.
@@ -86,8 +86,9 @@ npx -y markdownlint-cli -c .markdownlint.json "**/*.md" --ignore ".workflows/**"
 
 ```text
 B1: Requirements      B2: Solution            B3: Code                 B4: Review + fix
-(main session,   -->  (solution-brainstorm -> (main session,      -->  [fw-4-review] (Opus, read-only)
- asks you)             caller mode)            atomic commits)          then main session fixes
+(main session,   -->  (solution-brainstorm -> ([fw-3-implement]   -->  [fw-4-review] (Opus, read-only)
+ asks you)             caller mode)            one per step,            then [fw-3-implement]
+                                               atomic commits)          per finding
       |                      |                       |                        |
       v                      v                       v                        v
 01-requirements.md     02-solution.md         03-implementation.md     04-review-<n>.md
@@ -100,7 +101,7 @@ Each step reads the file the previous step wrote and starts only when that file 
 1. **Target Workspace Portability**: The plugin code remains immutable and read-only. All runtime workflow artifacts are written directly into the target project's `<repo root>/.workflows/<slug>/` directory using absolute paths.
 2. **Progressive Disclosure & Token Economy**: Agent frontmatter descriptions are concise (under 40 tokens), minimizing system prompt overhead during registry discovery. Detailed instructions, rubrics, and workflows are placed in the markdown body and loaded only when a subagent is spawned.
 3. **Independent Quality Gate (Least Privilege)**: The review agent (`fw-4-review`) has no `Edit` or `Write` tool. It reads only the agreed requirements, the platform standards, and the diff, runs the tests, and reports findings, so it does not grade the plan it never saw.
-4. **One Writer**: Only the main session edits code, so you can watch every change and stop it at any point. Subagents only read: the brainstorm generators, the judge, and the reviewer.
+4. **One Writer at a Time**: Code is written only by `fw-3-implement`, one fresh agent per step, never two at once, so each step starts with a small context. The main session writes the workflow files and reads the diff. The other subagents only read: the brainstorm generators, the judge, and the reviewer.
 
 ## Usage
 
@@ -265,6 +266,7 @@ Notes:
 
 | Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
 |---|---|---|---|---|---|
+| `fw-3-implement` | Implementer | Inherit | Read, Edit, Write, Bash, Grep, Glob | ~30 | Code one step of the step table (or one review finding) in a fresh context, run the checks, and commit it when green; never touch `.workflows/` or spawn subagents |
 | `fw-4-review` | Independent Reviewer | Opus | Read, Grep, Glob, Bash | ~23 | Review the diff against the agreed requirements and platform standards without seeing the plan; report Blocker/Major/Minor with file:line (no Edit or Write) |
 
 *Note: footprint values measured via `claude plugin details`.*
@@ -336,6 +338,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   ├── plugin.json              # Plugin manifest (version 1.0.0, author, repo)
 │   └── marketplace.json         # Marketplace catalog distribution manifest
 ├── agents/
+│   ├── fw-3-implement.md        # Feature workflow B3/B4: Codes and commits one step in a fresh context
 │   ├── fw-4-review.md           # Feature workflow B4: Independent read-only reviewer (Opus)
 │   ├── sb-1-generator.md        # Brainstorm: Options through one knowledge lens
 │   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
