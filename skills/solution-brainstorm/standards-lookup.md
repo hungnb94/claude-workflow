@@ -13,7 +13,8 @@ turn `platforms.md` into the standards a task follows. Change the procedure here
    this order:
    1. `../<name>/SKILL.md` next to the folder of this file.
    2. Glob `**/<name>/SKILL.md`.
-   3. Still missing: tell the user, and use the primary section itself as the standards.
+   3. Still missing: tell the user, record `không có`, and use project conventions and general best
+      practice. A pointer section holds no rules of its own, so never use it as the standards.
 
    Read that `SKILL.md`, then only the reference files its table names for this task.
 3. The primary section has no **Standards** line: the standards are that section of `platforms.md`.
