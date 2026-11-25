@@ -61,7 +61,7 @@ Write in the user's language. Keep technical terms in English. Use these parts i
 
 ### 1. Context
 
-Two or three lines: the task, the detected platform, the architecture you found, and any project convention that shaped the options. Then one line naming the lenses the generators used, and any generator or judge pass that failed and what you did instead. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
+Two or three lines: the task, the detected platform and the paths of its standards, the architecture you found, and any project convention that shaped the options. Then one line naming the lenses the generators used, and any generator or judge pass that failed and what you did instead. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
 
 ### 2. Assumptions
 

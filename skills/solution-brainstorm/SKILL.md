@@ -16,7 +16,7 @@ Read-only: do not edit files, and do not write implementation code. Use subagent
 When sources disagree, the higher one wins:
 
 1. Project conventions: CLAUDE.md, AGENTS.md, docs/adr, and the existing code layout.
-2. The matched section in `platforms.md` (next to this file).
+2. The platform standards found at Step 1.
 3. General best practice.
 
 An option that goes against source 1 is still allowed. Label it **Trade-off** and name the convention it breaks.
@@ -32,17 +32,14 @@ When the argument contains the line `CALLER: feature-workflow`, the calling work
 ### Step 1. Survey and detect
 
 - Read the build files, the package or folder layout, CLAUDE.md, AGENTS.md, and docs/adr.
-- Read `platforms.md`. A section matches when at least one signal on its **Detect** line is present.
-  - Several match: use the one with the most distinctive signals (a section's Detect line may say it wins over another). Keep the others as secondary context.
-  - None match: tell the user and use general best practice.
-- If the chosen section has a **Standards** line, follow it and Read that file. Use only its architecture, pattern, and migration rules; ignore rules about how another workflow runs (slices, delegation, commits). If it cannot be read, say so and continue.
+- Follow `standards-lookup.md` (next to this file; if missing, Glob `**/solution-brainstorm/standards-lookup.md`) to pick the platform section in `platforms.md` and read its standards. When a caller is set (Step 0) and the requirements file already records the platform and standards, use those standards instead of looking them up again, but still read that platform's section in `platforms.md` for Step 2's **Outdated signals**. Write the platform and the absolute paths of its standards in your Context notes, so they reach `BRIEF`. Use only the architecture, pattern, and migration rules of the standards; ignore rules about how another workflow runs (slices, delegation, commits).
 - Mark the target as untested legacy when no test covers it or it cannot be instantiated in a test. Then Read `legacy-techniques.md` (next to this file; if missing, Glob `**/solution-brainstorm/legacy-techniques.md`). If it cannot be read, say so and continue. Use `Mũ: feature` techniques only when the task adds behavior; for a pure refactor use only `Mũ: chung` techniques (Two Hats).
 - Apply the SRP check (`## Kiểm tra SRP` in `legacy-techniques.md`) to every class and function the task changes, tested or not. Note each hit (file:line, test net or not) in Context.
 - Apply the owner scope check (`## Kiểm tra phạm vi owner` in `legacy-techniques.md`) to every lifecycle, listener, or scope dependency the task adds or rebinds. Note its owners (narrow to wide, with cause) in Context.
 
 ### Step 2. Check for outdated tech
 
-Compare the project with the **Outdated signals** line of the section and with the migration rules in the linked Standards file, if any.
+Compare the project with the **Outdated signals** line of the section and with the migration rules in the standards from Step 1, if any.
 
 - Signal found: list what you found (file and line). Add one question to Step 3: migrate as part of this task, or keep the current tech?
 - A convention in source 1 that already decides it counts as the answer. Do not ask.

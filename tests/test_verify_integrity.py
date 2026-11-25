@@ -427,6 +427,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         for hidden in ("`02-solution.md`", "`03-implementation.md`"):
             self.assertIn(hidden, review_step)
         self.assertIn('không dùng `subagent_type: "fork"`', review_step)
+        self.assertIn("`STANDARDS`", review_step)
+        self.assertIn("`STANDARDS`", reviewer.split("<inputs>", 1)[1].split("</inputs>", 1)[0])
+        self.assertIn("`Vi phạm chuẩn`", reviewer.split("<output>", 1)[1])
 
         self.assertIn("`01-requirements.md`", steps[2].split("1. Chọn", 1)[0])
         self.assertIn("#4 (Extensibility) và #7 (Maintainability) đều ≥ 4", steps[2])
@@ -441,19 +444,77 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Không giao việc viết code cho\nsubagent", body)
         self.assertNotIn("làm tiếp từ bước", body)
 
-    def test_standards_workflows_match_feature_workflow(self):
-        """Verify the Android and KMP wrappers pass constraints that fit the 4-step workflow."""
-        for name in ("android", "kmp"):
+    def test_standards_skills_guardrails(self):
+        """Verify each platform standards skill is model-invocable, routes to its reference files, and replaced the old wrappers."""
+        platforms = (ROOT_DIR / "skills" / "solution-brainstorm" / "platforms.md").read_text(encoding="utf-8")
+        for name, heading in (("android-standards", "## Android"), ("kmp-standards", "## Kotlin Multiplatform")):
             with self.subTest(skill=name):
-                folder = ROOT_DIR / "skills" / f"{name}-standards-workflow"
-                skill = (folder / "SKILL.md").read_text(encoding="utf-8")
-                section = skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
-                block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
-                self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
-                self.assertIn("01-requirements.md", block)
-                for text in (skill, (folder / "standards.md").read_text(encoding="utf-8")):
-                    for stale in ("slice", "7 bước", "01-spec.md"):
-                        self.assertNotIn(stale, text)
+                base = ROOT_DIR / "skills" / name
+                skill = (base / "SKILL.md").read_text(encoding="utf-8")
+                frontmatter = vi.parse_frontmatter(skill)
+                self.assertEqual(frontmatter["name"], name)
+                self.assertNotIn("disable-model-invocation", frontmatter)
+                description = frontmatter["description"]
+                self.assertLessEqual(len(description), 1024)
+                self.assertIn("Use when", description)
+                self.assertIn("Do not use", description)
+                self.assertLess(len(skill.splitlines()), 500)
+                self.assertIn("## Luật bắt buộc", skill)
+
+                router = skill.split("## Đọc thêm khi cần", 1)[1].split("\n## ", 1)[0]
+                linked = set(re.findall(r"\| `([a-z-]+\.md)` \|", router))
+                references = {p.name for p in base.glob("*.md") if p.name != "SKILL.md"}
+                self.assertEqual(linked, references)
+                for reference in references:
+                    self.assertIn(f"Read by `{name}`", (base / reference).read_text(encoding="utf-8"))
+
+                section = platforms.split(f"{heading}\n", 1)[1].split("\n## ", 1)[0]
+                self.assertIn(f"`{name}`", section)
+
+        self.assertIn("migration.md", (ROOT_DIR / "skills" / "android-standards" / "SKILL.md").read_text(encoding="utf-8"))
+        scanned = [ROOT_DIR / "README.md", *ROOT_DIR.glob(".claude-plugin/*.json"), *ROOT_DIR.glob("skills/*/*.md"), *ROOT_DIR.glob("agents/*.md")]
+        for path in scanned:
+            with self.subTest(stale_reference=path.name):
+                self.assertNotIn("standards-workflow", path.read_text(encoding="utf-8"))
+
+    def test_standards_lookup_is_single_source(self):
+        """Verify both callers detect standards through the shared lookup and every pointer resolves to a skill."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        lookup = read("skills", "solution-brainstorm", "standards-lookup.md")
+        for token in ("`platforms.md`", "**Detect**", "**Standards**", "Glob", "`không có`", "absolute paths", "Secondary:"):
+            self.assertIn(token, lookup)
+        missing_skill = lookup.split("Glob", 1)[1].split("\n3. ", 1)[0]
+        self.assertIn("`không có`", missing_skill)
+        self.assertNotIn("primary section itself", missing_skill)
+        self.assertIn("standards-lookup.md", vi.SHARED_REFERENCE_FILES)
+        self.assertIn("standards-lookup.md", read("README.md"))
+
+        workflow = read("skills", "feature-workflow", "SKILL.md")
+        b1 = workflow.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        b3 = workflow.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("../solution-brainstorm/standards-lookup.md", b1)
+        self.assertIn("`platforms.md`", b1)
+        self.assertIn("`Chuẩn áp dụng`", b1)
+        self.assertIn("`Chuẩn áp dụng`", b3)
+        brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
+        self.assertIn("standards-lookup.md", brainstorm)
+        step1 = brainstorm.split("### Step 1.", 1)[1].split("### Step 2.", 1)[0]
+        self.assertIn("absolute paths of its standards in your Context notes", step1)
+        self.assertIn("the platform standards in the brief", read("skills", "solution-brainstorm", "lenses.md"))
+        for caller in (workflow, brainstorm):
+            self.assertNotIn("A section matches when", caller)
+
+        platforms = read("skills", "solution-brainstorm", "platforms.md")
+        pointers = re.findall(r"(?m)^- \*\*Standards\*\*: (.*)$", platforms)
+        self.assertGreaterEqual(len(pointers), 3)
+        for pointer in pointers:
+            with self.subTest(pointer=pointer):
+                match = re.match(r"skill `([a-z-]+)`", pointer)
+                self.assertIsNotNone(match, "Standards line must name a skill as skill `<name>`")
+                self.assertTrue((ROOT_DIR / "skills" / match.group(1) / "SKILL.md").is_file())
 
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladder in the shared legacy catalog."""

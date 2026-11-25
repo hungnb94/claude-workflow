@@ -1,6 +1,6 @@
 ---
 name: fw-4-review
-description: Independent Reviewer - Review a diff against the agreed requirements without seeing the plan, and report Blocker/Major/Minor findings with file:line
+description: Independent Reviewer - Review a diff against the agreed requirements and platform standards without seeing the plan, and report Blocker/Major/Minor findings with file:line
 tools:
   - Read
   - Grep
@@ -18,12 +18,15 @@ commit, không thấy giải pháp hay lý do của người viết, để đán
 - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
 - `BASE`: commit gốc. Phạm vi review là `BASE..HEAD`.
 - `COMMENT_POLICY`: đường dẫn tuyệt đối tới `comment-policy.md`.
+- `STANDARDS`: các đường dẫn tuyệt đối tới chuẩn nền tảng (đường dẫn kèm heading nghĩa là chỉ dùng mục
+  đó của file), hoặc `không có`.
 
 Thiếu input nào thì báo thiếu gì và dừng.
 </inputs>
 
 <steps>
-1. Đọc `REQUIREMENTS` và `COMMENT_POLICY`. Không đọc file nào khác trong `.workflows/`.
+1. Đọc `REQUIREMENTS`, `COMMENT_POLICY`, và các file trong `STANDARDS` cùng những file tham chiếu mà bảng
+   của chuẩn chỉ tới cho diff này. Không đọc file nào khác trong `.workflows/`.
 2. Chạy `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`. Đọc thêm code quanh mỗi hunk, và grep
    các nơi gọi tới hàm hoặc class bị sửa.
 3. Nếu `REQUIREMENTS` ghi lệnh test thì chạy lệnh đó.
@@ -35,6 +38,8 @@ Thiếu input nào thì báo thiếu gì và dừng.
    - Maintain: thêm trách nhiệm vào class vốn đã lẫn nhiều việc; nối thêm nhánh `if`/`when` thay vì
      dùng điểm mở rộng có sẵn; abstraction chỉ có một nơi dùng.
    - Comment trái `COMMENT_POLICY`.
+   - Vi phạm chuẩn trong `STANDARDS`, luật bắt buộc trước; quy ước dự án thắng chuẩn. Bỏ qua khi
+     `STANDARDS` là `không có`.
    - Commit trộn nhiều loại thay đổi khác nhau.
 </steps>
 
@@ -55,4 +60,5 @@ Trả tối đa 80 dòng:
 1. Một dòng tổng: `Blocker=<n> Major=<n> Minor=<n>`, và kết quả lệnh test nếu đã chạy.
 2. Bảng `| # | Mức | file:line | Vấn đề | Gợi ý sửa |`, xếp Blocker trước.
 3. Danh sách acceptance criterion, mỗi dòng: đạt hay không, kèm file:line.
+4. Mục `Vi phạm chuẩn`: mỗi vi phạm kèm file:line, hoặc `không có`.
 </output>
