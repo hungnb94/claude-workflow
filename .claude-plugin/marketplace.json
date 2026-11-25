@@ -5,7 +5,7 @@
     "name": "Hung Nguyen",
     "email": "hungnb94@gmail.com"
   },
-  "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring skills",
+  "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring skills",
   "plugins": [
     {
       "name": "workflow",
@@ -13,8 +13,8 @@
         "source": "github",
         "repo": "hungnb94/claude-workflow"
       },
-      "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring skills",
-      "version": "3.10.0",
+      "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring skills",
+      "version": "4.0.0",
       "author": {
         "name": "Hung Nguyen",
         "email": "hungnb94@gmail.com"
