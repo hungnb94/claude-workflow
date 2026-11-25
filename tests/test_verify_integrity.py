@@ -742,6 +742,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("`04-review-<n>.md`", "git log --oneline BASE..HEAD", "không sửa một phát hiện hai lần"):
             with self.subTest(token=token):
                 self.assertIn(token, resume_b4)
+        self.assertIn("`hỏng`", resume_b4)
+        self.assertLess(resume.index("stash hoặc bỏ"), resume.index("git merge-base --is-ancestor"))
+        self.assertIn("bước 2 của mục `Làm tiếp`", init)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
         for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
@@ -782,6 +785,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("`fw-3-implement` mới", b4)
         self.assertIn("chạy `Bằng chứng xong` như bước 7 của B3", b4)
+        self.assertIn("`hỏng <lý do>`", b4)
+        self.assertIn("không thêm dòng vào `Bảng bước`", b4)
+        self.assertIn("`CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`", spawn)
 
         frontmatter = vi.parse_frontmatter(implementer)
         self.assertEqual(frontmatter["tools"], ["Read", "Edit", "Write", "Bash", "Grep", "Glob"])
@@ -790,7 +796,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, constraints)
         steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        for token in ("sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng"):
+        for token in ("sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng", "`không có lệnh kiểm`"):
             with self.subTest(token=token):
                 self.assertIn(token, steps)
         output = implementer.split("<output>", 1)[1]

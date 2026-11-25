@@ -26,7 +26,8 @@ Câu mở đầu: "Tôi đang dùng skill feature-workflow, gồm 4 bước."
   trước). Chạy lại mà `03-implementation.md` cũ có `BASE` và `BASE..HEAD` còn commit trên nhánh hiện tại:
   liệt kê các commit đó và hỏi người dùng giữ hay bỏ trước khi ghi đè. Không ghi đè im lặng.
 - `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): liệt kê và hỏi người dùng
-  commit hoặc stash trước. Không commit lẫn thay đổi có sẵn của người dùng.
+  commit hoặc stash trước. Không commit lẫn thay đổi có sẵn của người dùng. Người dùng chọn làm tiếp thì
+  theo bước 2 của mục `Làm tiếp` thay cho dòng này.
 
 ## Luật chuyển bước
 
@@ -49,19 +50,21 @@ Context đầy hoặc session bị ngắt thì người dùng có thể mở ses
 Khi người dùng chọn làm tiếp:
 
 1. Đọc file Ra theo thứ tự `01` tới `04`. Bước làm tiếp là bước đầu tiên có file Ra thiếu hoặc thiếu
-   `Trạng thái: xong`. Không dựa vào trí nhớ hay bản tóm tắt hội thoại cho bước đã xong.
-2. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
+   `Trạng thái: xong`. Không dựa vào trí nhớ hay bản tóm tắt hội thoại cho bước đã xong. Làm tiếp từ B1
+   mà `$ARGUMENTS` chỉ là slug: hỏi lại người dùng nội dung story.
+2. Có thay đổi chưa commit: đó thường là việc dở của một `fw-3-implement` bị ngắt, chưa qua `CHECKS`.
+   Đề nghị người dùng stash hoặc bỏ, không commit nó; bước đó làm lại bằng một agent mới. Làm bước này
+   trước khi switch nhánh.
+3. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
    `BASE` (`git merge-base --is-ancestor <BASE> <nhánh>`); switch sang nhánh đó. Không thoả thì dừng và
    hỏi người dùng.
-3. Có thay đổi chưa commit: đó thường là việc dở của một `fw-3-implement` bị ngắt, chưa qua `CHECKS`.
-   Đề nghị người dùng stash hoặc bỏ, không commit nó; bước đó làm lại bằng một agent mới.
 4. Đang ở B3: đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng
    `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi vào dòng tương ứng trước.
    Làm tiếp từ dòng đầu tiên chưa `xong`; dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Mọi dòng đã
    `xong` thì chạy bước 7 của B3.
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
    file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
-   đầu tiên chưa ghi đã sửa hay không sửa.
+   đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng làm lại hay dừng.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy `Báo cáo cuối`, kể cả lần chạy `Bằng chứng xong` của nó.
 
@@ -164,7 +167,7 @@ và mục `Lệnh build và test`.
    - `STANDARDS`: các đường dẫn trong `Chuẩn áp dụng`, hoặc `không có`.
    - `COMMENT_POLICY`: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`.
    - `COMMIT_STYLE`: `<Base directory của skill này>/../atomic-commit/SKILL.md`.
-   - `CHECKS`: các lệnh trong `Lệnh build và test`.
+   - `CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`.
 
    Agent code bước đó, có test cho hành vi mới nếu repo có test, chạy `CHECKS`, xanh mới tự commit (chỉ
    `git add -- <file>`, không `--no-verify`).
@@ -195,8 +198,10 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
 3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi phát hiện cần sửa là
    một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
    sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
-   hiện đó đã sửa ở commit nào. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các
-   commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ.
+   hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả `lỗi` thì dừng và báo người dùng như bước 6
+   của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các commit sửa
+   và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ, nhưng ghi lần sửa đó vào
+   `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng.
 

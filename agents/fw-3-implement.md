@@ -25,7 +25,7 @@ hội thoại, nên chỉ dựa vào input dưới đây và code trong repo.
   đó của file), hoặc `không có`.
 - `COMMENT_POLICY`: đường dẫn tuyệt đối tới `comment-policy.md`.
 - `COMMIT_STYLE`: đường dẫn tuyệt đối tới `SKILL.md` của skill `atomic-commit`.
-- `CHECKS`: các lệnh trong mục `Lệnh build và test` của `REQUIREMENTS`.
+- `CHECKS`: các lệnh trong mục `Lệnh build và test` của `REQUIREMENTS`, hoặc `không có`.
 
 Thiếu input nào thì báo thiếu gì và dừng.
 </inputs>
@@ -39,8 +39,10 @@ Thiếu input nào thì báo thiếu gì và dừng.
 4. Code chỉ `STEP`. Hành vi mới có test nếu repo có test. Không xoá, skip hay nới lỏng test hoặc assertion
    có sẵn. Thấy việc khác cần làm thì không làm, ghi vào `Việc phát sinh` của output.
 5. Chạy mọi lệnh trong `CHECKS`. Đỏ thì sửa rồi chạy lại; sửa 2 lần vẫn đỏ thì dừng, không commit, và
-   khôi phục các file đã sửa (`git restore --staged --worktree -- <file>`, xoá file mới tạo).
-6. Xanh thì commit một lần: chỉ `git add -- <file>`, message theo `COMMIT_STYLE`, không `--no-verify`.
+   khôi phục các file đã sửa (`git restore --staged --worktree -- <file>`, xoá file mới tạo). `CHECKS`
+   là `không có` thì bỏ qua bước này và ghi `không có lệnh kiểm` ở output.
+6. Xanh, hoặc `CHECKS` là `không có`, thì commit một lần: chỉ `git add -- <file>`, message theo
+   `COMMIT_STYLE`, không `--no-verify`.
 </steps>
 
 <constraints>
