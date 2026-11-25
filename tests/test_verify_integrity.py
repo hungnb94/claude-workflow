@@ -766,6 +766,12 @@ class TestVerifyIntegrity(unittest.TestCase):
                 if len(text.splitlines()) > 100:
                     self.assertIn("## Contents", text)
 
+        platforms = (ROOT_DIR / "skills" / "solution-brainstorm" / "platforms.md").read_text(encoding="utf-8")
+        section = platforms.split("## Claude Code agent artifacts", 1)[1].split("\n## ", 1)[0]
+        for field in ("- **Detect**:", "- **Standards**:", "- **Outdated signals**:"):
+            self.assertIn(field, section)
+        self.assertIn("`agent-authoring`", section)
+
     def test_skill_file_names_are_case_unique(self):
         """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""
         for folder in (ROOT_DIR / "skills").iterdir():
