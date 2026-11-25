@@ -10,8 +10,8 @@ plugin, tên module...) là minh hoạ generic, không gắn với module, lớp
 
 Quy ước KMP **đã chốt** của dự án đang mở thắng (`AGENTS.md`, `CLAUDE.md`, `docs/adr/`, tài liệu kiến
 trúc), rồi tới chuẩn này, rồi tới best practice chung của cộng đồng Kotlin/JetBrains. Khi mâu thuẫn thì
-theo dự án và ghi chú điều đó vào output của bước đang làm; không tự đổi quy ước dự án. Dự án chưa chốt
-điểm nào thì dùng chuẩn này làm mặc định.
+theo dự án và nói rõ điều đó; không tự đổi quy ước dự án. Dự án chưa chốt điểm nào thì dùng chuẩn này
+làm mặc định.
 
 ## Luật bắt buộc
 
