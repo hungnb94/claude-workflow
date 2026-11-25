@@ -742,5 +742,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
 
 
+    def test_skill_file_names_are_case_unique(self):
+        """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""
+        for folder in (ROOT_DIR / "skills").iterdir():
+            if folder.is_dir():
+                names = [p.name.lower() for p in folder.iterdir()]
+                self.assertEqual(len(names), len(set(names)), folder.name)
+
+
 if __name__ == "__main__":
     unittest.main()
