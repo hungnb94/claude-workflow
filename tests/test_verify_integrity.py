@@ -501,6 +501,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("`Chuẩn áp dụng`", b3)
         brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
         self.assertIn("standards-lookup.md", brainstorm)
+        step1 = brainstorm.split("### Step 1.", 1)[1].split("### Step 2.", 1)[0]
+        self.assertIn("absolute paths of its standards in your Context notes", step1)
+        self.assertIn("the platform standards in the brief", read("skills", "solution-brainstorm", "lenses.md"))
         for caller in (workflow, brainstorm):
             self.assertNotIn("A section matches when", caller)
 
