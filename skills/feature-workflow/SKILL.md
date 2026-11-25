@@ -41,8 +41,8 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 
 **Vào:** `STORY`.
 
-Trước câu hỏi đầu tiên, tra chuẩn nền tảng theo `standards-lookup.md` (đường dẫn:
-`<Base directory của skill này>/../solution-brainstorm/standards-lookup.md`) và đọc chuẩn tìm được.
+Trước câu hỏi đầu tiên, nhận diện nền tảng qua `platforms.md` theo `standards-lookup.md` (đường dẫn:
+`<Base directory của skill này>/../solution-brainstorm/standards-lookup.md`), rồi đọc chuẩn tìm được.
 
 Phỏng vấn người dùng theo cây quyết định, như skill grilling: mỗi vòng hỏi mọi câu đã đủ điều kiện để
 hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có thể gần như không biết gì về code, nên:

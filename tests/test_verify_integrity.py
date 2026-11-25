@@ -496,6 +496,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         b1 = workflow.split("## B1.", 1)[1].split("## B2.", 1)[0]
         b3 = workflow.split("## B3.", 1)[1].split("## B4.", 1)[0]
         self.assertIn("../solution-brainstorm/standards-lookup.md", b1)
+        self.assertIn("`platforms.md`", b1)
         self.assertIn("`Chuẩn áp dụng`", b1)
         self.assertIn("`Chuẩn áp dụng`", b3)
         brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
@@ -508,8 +509,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertGreaterEqual(len(pointers), 3)
         for pointer in pointers:
             with self.subTest(pointer=pointer):
-                name = re.match(r"skill `([a-z-]+)`", pointer).group(1)
-                self.assertTrue((ROOT_DIR / "skills" / name / "SKILL.md").is_file())
+                match = re.match(r"skill `([a-z-]+)`", pointer)
+                self.assertIsNotNone(match, "Standards line must name a skill as skill `<name>`")
+                self.assertTrue((ROOT_DIR / "skills" / match.group(1) / "SKILL.md").is_file())
 
     def test_cost_ladder_guardrails(self):
         """Verify the cheapest-first cost ladder in the shared legacy catalog."""
