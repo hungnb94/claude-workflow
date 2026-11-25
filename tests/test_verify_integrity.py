@@ -702,6 +702,25 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(heading, templates)
             self.assertIn(f"`{heading}`", generator + judge)
 
+    def test_feature_workflow_done_needs_fresh_evidence(self):
+        """Verify B3 and the final report point to one section that demands a fresh run before saying done."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        self.assertEqual(body.count("\n## Bằng chứng xong\n"), 1)
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        for token in ("`Lệnh build và test`", "`không có lệnh kiểm`", "exit code", "`HEAD`", "should pass", "Lint", "reviewer"):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+
+        b1 = body.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        self.assertIn("`Lệnh build và test`", b1)
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("`Lệnh build và test`", b3.split("\n\n1. ", 1)[0])
+        report = body.split("## Báo cáo cuối", 1)[1]
+        for part in (b3, report):
+            self.assertIn("`Bằng chứng xong`", part)
+        self.assertIn("kể cả khi B4 không sửa gì", report)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 
@@ -806,6 +825,21 @@ class TestVerifyIntegrity(unittest.TestCase):
         for field in ("- **Detect**:", "- **Standards**:", "- **Outdated signals**:"):
             self.assertIn(field, section)
         self.assertIn("`agent-authoring`", section)
+
+    def test_agent_authoring_done_needs_fresh_run(self):
+        """Verify rule 4 asks for a fresh run, and a subagent's report never replaces reading its diff."""
+        base = ROOT_DIR / "skills" / "agent-authoring"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        rule4 = skill.split("4. **", 1)[1].split("\n5. ", 1)[0]
+        for token in ("after your last change", "exit code", "lint", "should pass"):
+            with self.subTest(token=token):
+                self.assertIn(token, rule4)
+
+        rules = (base / "subagents.md").read_text(encoding="utf-8").split("## Rules", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("read its diff", rules)
+
+        references = (base / "references.md").read_text(encoding="utf-8")
+        self.assertIn("obra/superpowers/blob/main/skills/verification-before-completion", references)
 
     def test_skill_file_names_are_case_unique(self):
         """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""

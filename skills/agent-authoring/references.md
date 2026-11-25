@@ -30,3 +30,4 @@ Read by `agent-authoring` when no other file matches the task, or when the user 
 8. Walden Yan - Multi-Agents: What's Actually Working (2026-04-22). <https://cognition.com/blog/multi-agents-working>
 9. Hamel Husain - Evals Skills for Coding Agents (2026-03-03). <https://hamelhusain.substack.com/p/evals-skills-for-coding-agents>
 10. Anthropic - Claude Code docs for skills, hooks, slash commands, and subagents. <https://code.claude.com/docs/en/skills>, <https://code.claude.com/docs/en/hooks>, <https://code.claude.com/docs/en/sub-agents>
+11. Jesse Vincent - superpowers, `verification-before-completion` (2025-10). <https://github.com/obra/superpowers/blob/main/skills/verification-before-completion/SKILL.md>

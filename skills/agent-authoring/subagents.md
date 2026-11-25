@@ -18,6 +18,7 @@ Do the task in the main session when it already has the context, or when the tas
 - **Return a summary.** Ask for about 1,000-2,000 tokens with file:line references, not raw logs. (C4)
 - **Least privilege.** List `tools` explicitly. A reviewer gets read-only tools (`Read, Grep, Glob`) and no Edit or Write. (P1)
 - **Review against the spec.** Give a reviewer the diff and the spec or acceptance criteria, not the conversation. Ask it to report only correctness issues, with file:line, and to skip style. (P1)
+- **Check the work, not the report.** A subagent's "done" is a claim. Before you accept it, read its diff and rerun the check yourself. (C1)
 - **Short description.** Every description loads into every session. Say what the subagent does and when to delegate to it, in one or two sentences. Follow the repo's own limit if it has one.
 - **Brief it fully.** The subagent knows only its prompt. Pass the goal, absolute paths, what is already ruled out, and the output shape.
 - **Pick the model on purpose.** A cheaper model for search and mechanical steps; a stronger one for planning and review. Use `inherit` when unsure.
