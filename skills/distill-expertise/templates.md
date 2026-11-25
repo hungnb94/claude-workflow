@@ -18,7 +18,7 @@ Read by `distill-expertise`. The counts below are the only ones. Change a count 
 - Few voices: when N < 3, use no vote labels. Write `k/N` only, and warn at the top of the report that the result is not reliable enough to synthesize. In named mode, write "single-teacher report" instead of the warning.
 - Shortfall: when fewer teachers qualify than Kept, keep only those who do and say "only M teachers qualified". When the qualified teachers span fewer than Min schools schools, keep the best of each school and say "only S schools qualified". Votes then use the smaller N.
 - Lesson lines: `Consensus` 50-70, `Partial support` 30-45, `Lone view` 15-25. Under **Few voices**, lessons with the highest k get the `Consensus` length and the rest the `Partial support` length.
-- Main file: at most 550 lines, not counting the appendix. Cut words to fit, never verifiable details (numbers, quotes, commands, code).
+- Main file: at most 550 lines, not counting the appendix. Cut words to fit, never verifiable details (numbers, quotes, commands, code). When the lessons do not fit, this cap wins over **Lesson lines**: shorten the lowest-ranked lessons first.
 - Appendix: a code or configuration block longer than 15 lines goes to the appendix of the main file; the lesson keeps a short summary of what each part guards against and links to it.
 - Examples: 2 per lesson (1 in a `Lone view` lesson), easy to hard.
 - Self-check questions: 3 per lesson (1 in a `Lone view` lesson).
@@ -81,7 +81,7 @@ Why it works (the mechanism the teachers give), the exact thresholds and steps, 
 Short bullets: the myths, common mistakes, and ways the principle is misapplied or gamed that belong to this lesson (from filter 1 in `knowledge-filters.md`), and the disagreement on this lesson with when to pick which side.
 
 ### Apply
-In the Apply form of the domain row. Keep the core of the sources: prompts, rule lines, commands, code, routines. Each item says what failure it guards against. End with how to measure it.
+In the Apply form of the domain row. Keep the core of the sources: prompts, rule lines, commands, code, routines. Each item says what failure it guards against and how to measure it.
 
 ### Self-check
 As many questions as **Self-check questions** in Counts, climbing from understand to apply to analyze a realistic case. Each has an id `<lesson>.<n>` and ends with "Answer: see `<answers file name>`, <id>". No answers here.
@@ -146,12 +146,13 @@ Run this before saving. Fix every failed item, then check again.
 - [ ] No lesson is too vague to be wrong (filter 2).
 - [ ] Lessons whose newest source is older than the domain's freshness limit carry `Possibly outdated`.
 - [ ] Each lesson has every part of the lesson template, and its length fits **Lesson lines**; the main file fits **Main file**, and every block over **Appendix** sits in the appendix.
-- [ ] Every self-check id has an entry in the answers file, and every answer names the part of the lesson it relies on.
-- [ ] Every myth, common mistake, and disagreement found sits in a lesson's Pitfalls or in Other pitfalls.
+- [ ] Every self-check id has an entry in the answers file, and every answer says why and names the part of the lesson it relies on.
+- [ ] Every myth, common mistake, and disagreement found sits in a lesson's Pitfalls or in Other pitfalls; there is no separate table for them, and Other pitfalls is left out when empty.
+- [ ] The main file ends with one teach-back question and no grading rubric.
 - [ ] Teacher names in the main file appear only in quotes and footers.
 - [ ] The kept teachers span at least **Min schools** schools, or the shortfall is stated (in named mode, the report says "single-teacher report" instead).
 - [ ] Every claim about a teacher has an evidence label, and the report judges no one's character.
-- [ ] Every Apply item links to its lesson's principle and says how to measure it.
+- [ ] Every Apply item says what failure it guards against and how to measure it.
 - [ ] The three file names share one slug, which has at most **Max slug** characters and does not end in `-` or in a cut word.
 
 ## Chat summary
