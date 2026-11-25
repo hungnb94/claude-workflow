@@ -909,6 +909,28 @@ class TestVerifyIntegrity(unittest.TestCase):
         references = (base / "references.md").read_text(encoding="utf-8")
         self.assertIn("obra/superpowers/blob/main/skills/verification-before-completion", references)
 
+    def test_agent_authoring_keeps_context_small_and_state_in_files(self):
+        """Verify the context and state rules sit with the other agent rules and cite public sources only."""
+        base = ROOT_DIR / "skills" / "agent-authoring"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        working = skill.split("## Working with an agent on a task", 1)[1].split("\n## ", 1)[0]
+        context = working.split("- **Keep context small.**", 1)[1].split("\n- **", 1)[0]
+        for token in ("subagent", "60%", "fresh session"):
+            with self.subTest(token=token):
+                self.assertIn(token, context)
+        state = working.split("- **Keep state in files, not in the chat.**", 1)[1].split("\n- **", 1)[0]
+        for token in ("`git log`", "write its status back", "new item", "committing"):
+            with self.subTest(token=token):
+                self.assertIn(token, state)
+
+        references = (base / "references.md").read_text(encoding="utf-8")
+        principles = references.split("## Principles", 1)[1].split("\n## ", 1)[0]
+        self.assertEqual(len(re.findall(r"^\| [CPL]\d+ \|", principles, flags=re.MULTILINE)), 11)
+        for url in ("humanlayer/advanced-context-engineering-for-coding-agents", "ghuntley.com/ralph", "skills/subagent-driven-development", "steveyegge/beads"):
+            with self.subTest(url=url):
+                self.assertIn(url, references)
+        self.assertNotIn("docs/research", references + skill)
+
     def test_skill_file_names_are_case_unique(self):
         """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""
         for folder in (ROOT_DIR / "skills").iterdir():

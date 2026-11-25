@@ -35,6 +35,8 @@ Read every file whose row matches the task, and only those. All files sit next t
 ## Working with an agent on a task
 
 - **Plan when it is unclear.** A vague or multi-file task gets a plan first; each step names its check, and the user approves the plan before code. A small, clear task with a test goes straight to code. (C3)
+- **Keep context small.** A fuller context gives worse results, and compaction drops state in ways you cannot predict. Hand searches and reading many files to a subagent that returns a summary. Before the context passes about 60%, write the plan and progress to a file and start a fresh session that reads it. (C4)
+- **Keep state in files, not in the chat.** Start each session by reading the plan or progress file and `git log`. After each verified step, write its status back to the file. Log work found on the way as a new item; do not do it now or count on the agent to remember it. End the session by updating the file and committing. (C3)
 - **Reset after two failed corrections.** When the same fix failed twice, start a fresh session with a prompt that includes what you learned. Do not try a third time in the same conversation. (C3)
 - **Stop at the first cheating sign.** A deleted or loosened assertion, a skipped test, a feature nobody asked for, or a loop on the same error. Review every change to a test file on its own. (P4)
 - **Start with one agent.** Add subagents or a multi-step workflow only when a measure (evals, time, bugs found) shows it helps. (P3)

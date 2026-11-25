@@ -31,3 +31,8 @@ Read by `agent-authoring` when no other file matches the task, or when the user 
 9. Hamel Husain - Evals Skills for Coding Agents (2026-03-03). <https://hamelhusain.substack.com/p/evals-skills-for-coding-agents>
 10. Anthropic - Claude Code docs for skills, hooks, slash commands, and subagents. <https://code.claude.com/docs/en/skills>, <https://code.claude.com/docs/en/hooks>, <https://code.claude.com/docs/en/sub-agents>
 11. Jesse Vincent - superpowers, `verification-before-completion` (2025-10). <https://github.com/obra/superpowers/blob/main/skills/verification-before-completion/SKILL.md>
+12. Dex Horthy - Advanced Context Engineering for Coding Agents (2025-08): keep context use around 40-60%, compact progress into files. <https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/ace-fca.md>
+13. Geoffrey Huntley - Ralph Wiggum as a software engineer (2025-07-14): the more of the context window you use, the worse the outcomes; plan and specs live in files. <https://ghuntley.com/ralph/>
+14. Jesse Vincent - superpowers, `subagent-driven-development` (2025-2026): a fresh implementer subagent per task. <https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md>
+15. Jesse Vincent - Superpowers (2025-10-09). <https://blog.fsck.com/2025/10/09/superpowers/>
+16. Steve Yegge - Beads, an issue tracker that keeps agent work state outside the chat (2025-2026). <https://github.com/steveyegge/beads>
