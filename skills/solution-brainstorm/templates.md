@@ -16,7 +16,7 @@ Read at Steps 4-6 and by the brainstorm subagents. The counts and criteria below
 
 Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If a level has fewer fitting options than **Min per level**, fill it with the closest ones and say why in each one's Reason cell.
 
-Pick as many kept options as **Detailed**, highest averaged judge Total first; on a tie, the lower investment goes first, then the earlier label. The recommended option is always picked: if the rule leaves it out, it takes the place of the last one picked. Only the picked options get the full block in part 5.
+Rank the kept options by averaged judge Total, highest first; on a tie, the lower investment goes first, then the earlier label. The first **Detailed** of them are the top options, marked `⭐ top 1`, `⭐ top 2` and so on in rank order. The recommended option is always a top option: if the rank leaves it out, it takes the last top place and its marker. Top options get the full block in part 5; every other kept option gets the short block. The marker never changes the label order of parts 4 and 5.
 
 ## Criteria
 
@@ -77,9 +77,15 @@ Always one row per option, as many rows as **Options** in Counts. One or two lin
 
 As many rows as **Kept** in Counts are `Kept`, following the investment rule in Counts. Use `Merged into #n` only when a row shares the main pattern of an earlier row #n.
 
-### 4. Scores
+### 4. Kept options
 
-Only the kept options, one column each in label order. The table below shows one column per kept option; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same. Put the whole part inside `<details>` with the summary `Scores`, and leave a blank line after the summary.
+Only the kept options, one row each in label order. Put each top option's marker from Counts after its label, like `C ⭐ top 1`. One sentence per How it works cell and one phrase per When to choose cell. Total is the option's Total from the score table below.
+
+| Label | Option (main pattern) | Investment | How it works | When to choose | Total |
+|---|---|---|---|---|---|
+| <label> | Name (pattern) | Low / Mid / High | One sentence | One phrase | <Total>/35 |
+
+Right below that table, put the scores by criterion inside `<details>` with the summary `Scores by criterion`, and leave a blank line after the summary so the table renders. One column per kept option in label order; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
 
 | Criterion | A (Low) | B | C | D | E | F | G | H | I (High) |
 |---|---|---|---|---|---|---|---|---|---|
@@ -89,10 +95,12 @@ Only the kept options, one column each in label order. The table below shows one
 
 ### 5. Kept options in detail
 
-Repeat this block for each option picked by **Detailed** in Counts, in label order.
+One block per kept option, in label order. Every heading ends with the option's Total in parentheses, so the reader never scrolls back to the scores. A top option (Counts) uses the full block, with its marker after the label; every other kept option uses the short block.
+
+Full block, for a top option:
 
 ```markdown
-#### Option <label> - <name> (<main pattern>, <Low / Mid / High>)
+#### Option <label> <⭐ top n> - <name> (<main pattern>, <Low / Mid / High>) (<Total>/35)
 
 **Trade-off:** <only if it goes against the current architecture: which convention it breaks>
 
@@ -106,16 +114,25 @@ Repeat this block for each option picked by **Detailed** in Counts, in label ord
 - Effort: S | M | L
 ```
 
-Then put every other kept option into one table, one row each, in label order. One line per cell. When the full block would have a **Trade-off** line, start the How it works cell with `Trade-off: <convention it breaks>`. When the full block would have a Legacy technique & tests line, name the technique and rung in the How it works cell, plus `Lý do bậc rẻ hơn không đủ` if it climbs.
+Short block, for every other kept option:
 
-| Label | Option (main pattern) | Investment | How it works | When to choose | Effort |
-|---|---|---|---|---|---|
-| <label> | Name (pattern) | Low / Mid / High | One sentence | One phrase | S / M / L |
+```markdown
+#### Option <label> - <name> (<main pattern>, <Low / Mid / High>) (<Total>/35)
+
+**Trade-off:** <only if it goes against the current architecture: which convention it breaks>
+
+- How it works: 1-2 sentences.
+- Pros: one line.
+- Cons: one line.
+- When to choose:
+- Legacy technique (only when the full block would have a Legacy technique & tests line): technique and rung, plus `Lý do bậc rẻ hơn không đủ` if it climbs.
+- Effort: S | M | L
+```
 
 ### 6. Recommendation
 
 ```markdown
-**Recommendation:** Option <X>, because <reason tied to this project>.
+**Recommendation:** Option <X> (<Total>/35), because <reason tied to this project>.
 
 <only if X does not have the highest Total: why it still wins over the higher-scoring option>
 

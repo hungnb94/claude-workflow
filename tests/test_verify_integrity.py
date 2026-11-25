@@ -618,13 +618,46 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(f"details the top {detailed}", text)
         self.assertIn(f"keeps at least {per_level} options", readme)
 
-        scores = templates.split("### 4. Scores", 1)[1].split("### 5.", 1)[0]
+        scores = templates.split("### 4.", 1)[1].split("### 5.", 1)[0]
         header = next(line for line in scores.splitlines() if line.startswith("| Criterion"))
         self.assertEqual(header.strip("|").count("|"), kept)
 
         body = skill.split("---", 2)[2]
         self.assertNotRegex(body, r"\b\d+ options\b")
         self.assertNotRegex(body, r"best \d+\b")
+
+    def test_solution_brainstorm_output_shows_options_before_scores(self):
+        """Verify each kept option is shown with its total before the per-criterion scores, top ones marked."""
+        templates = (ROOT_DIR / "skills" / "solution-brainstorm" / "templates.md").read_text(encoding="utf-8")
+        counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
+        output =templates.split("## Output", 1)[1]
+        kept_part = output.split("### 4.", 1)[1].split("### 5.", 1)[0]
+        detail_part = output.split("### 5.", 1)[1].split("### 6.", 1)[0]
+        recommendation = output.split("### 6.", 1)[1]
+
+        self.assertIn("`⭐ top 1`", counts)
+        self.assertIn("lower investment goes first, then the earlier label", counts)
+        self.assertIn("takes the last top place", counts)
+        for part in (kept_part, detail_part):
+            self.assertNotIn("highest averaged judge Total", part)
+
+        short_table = kept_part.index("| Label | Option (main pattern) | Investment | How it works | When to choose | Total |")
+        self.assertLess(short_table, kept_part.index("summary `Scores by criterion`"))
+        self.assertLess(short_table, kept_part.index("| Criterion"))
+
+        self.assertIn("in label order", detail_part)
+        self.assertNotIn("| Label |", detail_part)
+        blocks = re.findall(r"```markdown\n(.*?)```", detail_part, flags=re.DOTALL)
+        self.assertEqual(len(blocks), 2)
+        full_block, short_block = blocks
+        for block in blocks:
+            self.assertRegex(block.splitlines()[0], r"^#### Option <label>.*\(<Total>/35\)$")
+        self.assertIn("⭐ top", full_block.splitlines()[0])
+        for field in ("Layers/files", "Skeleton"):
+            self.assertIn(field, full_block)
+            self.assertNotIn(field, short_block)
+
+        self.assertIn("**Recommendation:** Option <X> (<Total>/35)", recommendation)
 
     def test_lens_catalog_guardrails(self):
         """Verify every knowledge lens keeps its schema and conventions is always picked."""
