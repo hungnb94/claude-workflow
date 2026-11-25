@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "Seven-phase structured agent workflow for story development with Android and KMP standards variants, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring skills",
   "author": {
     "name": "Hung Nguyen",
