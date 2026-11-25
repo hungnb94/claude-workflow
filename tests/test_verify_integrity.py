@@ -442,7 +442,6 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Tối đa 5 câu mỗi vòng", steps[0])
         self.assertIn("Không push, không tạo PR", body)
         self.assertIn("Không giao việc viết code cho\nsubagent", body)
-        self.assertNotIn("làm tiếp từ bước", body)
 
     def test_standards_skills_guardrails(self):
         """Verify each platform standards skill is model-invocable, routes to its reference files, and replaced the old wrappers."""
@@ -720,6 +719,31 @@ class TestVerifyIntegrity(unittest.TestCase):
         for part in (b3, report):
             self.assertIn("`Bằng chứng xong`", part)
         self.assertIn("kể cả khi B4 không sửa gì", report)
+
+    def test_feature_workflow_keeps_state_in_files(self):
+        """Verify the workflow resumes from its files and writes progress to them as it happens."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        init = body.split("## Khởi tạo", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("làm tiếp (theo mục\n  `Làm tiếp`)", init)
+        self.assertIn("`STORY` trùng tên một thư mục trong `.workflows/`", init)
+        self.assertNotIn("Không làm tiếp giữa chừng", body)
+
+        self.assertEqual(body.count("\n## Làm tiếp\n"), 1)
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        for token in ("`Trạng thái: xong`", "git merge-base --is-ancestor", "`Bảng bước`", "`Việc phát sinh`", "git log --oneline BASE..HEAD", "`04-review-<n>.md`"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume)
+
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, b3)
+        self.assertIn("`Việc phát sinh`", b3.split("**Ra:**", 1)[1])
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("ngay khi reviewer trả về", b4)
+        self.assertIn("ghi ngay vào `04-review-<n>.md`", b4)
+        self.assertIn("`Việc phát sinh`", body.split("## Báo cáo cuối", 1)[1])
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
