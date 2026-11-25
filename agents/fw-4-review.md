@@ -36,7 +36,9 @@ Thiếu input nào thì báo thiếu gì và dừng.
    - Test: hành vi mới có test; không test nào bị xoá, nới lỏng hay skip.
    - Phạm vi: thay đổi nằm ngoài yêu cầu.
    - Maintain: thêm trách nhiệm vào class vốn đã lẫn nhiều việc; nối thêm nhánh `if`/`when` thay vì
-     dùng điểm mở rộng có sẵn; abstraction chỉ có một nơi dùng.
+     dùng điểm mở rộng có sẵn; abstraction chỉ có một nơi dùng; function hoặc class mới làm cùng việc
+     với code đã có trong repo (grep theo tên, từ đồng nghĩa và kiểu dữ liệu; dẫn file:line của bản có
+     sẵn).
    - Comment trái `COMMENT_POLICY`.
    - Vi phạm chuẩn trong `STANDARDS`, luật bắt buộc trước; quy ước dự án thắng chuẩn. Bỏ qua khi
      `STANDARDS` là `không có`.
