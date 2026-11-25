@@ -77,7 +77,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "description: Senior Quality Auditor - Objective review\n"
             "tools:\n"
             "  - Read\n"
-            "  - Write\n"
+            "  - Grep\n"
             "model: sonnet\n"
             "---\n"
             "Review content\n"
@@ -219,6 +219,19 @@ class TestVerifyIntegrity(unittest.TestCase):
             "tools:\n"
             "  - Read\n"
             "  - Edit\n"
+            "---\n"
+        )
+        (self.repo_root / "agents" / "fw-5-review.md").write_text(bad_review, encoding="utf-8")
+        self.assertFalse(vi.check_review_tool_isolation(self.repo_root))
+
+    def test_review_tool_isolation_fail_with_write(self):
+        bad_review = (
+            "---\n"
+            "name: fw-5-review\n"
+            "description: Senior Quality Auditor\n"
+            "tools:\n"
+            "  - Read\n"
+            "  - Write\n"
             "---\n"
         )
         (self.repo_root / "agents" / "fw-5-review.md").write_text(bad_review, encoding="utf-8")
@@ -375,191 +388,95 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("http://", text)
         self.assertNotIn("https://", text)
 
-    def test_feature_workflow_ocp_guardrails(self):
-        """Verify that OCP and extensibility guardrails are properly defined across all agents and docs."""
-        # 1. AC 1: SKILL.md and README.md define OCP and extensibility principles
-        skill_content = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("Open/Closed Principle (OCP)", skill_content)
-        self.assertIn("data-driven dispatch", skill_content)
+    def test_feature_workflow_four_steps(self):
+        """Verify the four steps, their artifact gates, and the blind read-only reviewer."""
 
-        readme_content = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
-        self.assertIn("Open/Closed Principle & Extensibility", readme_content)
-
-        # 1b. fw-1-spec surveys extension points and variation axes
-        fw1_content = (ROOT_DIR / "agents" / "fw-1-spec.md").read_text(encoding="utf-8")
-        self.assertIn("extension points", fw1_content)
-        self.assertIn("trục biến thiên", fw1_content)
-
-        # 2. AC 2: fw-2-research instructs researching OCP patterns & anti-patterns
-        fw2_content = (ROOT_DIR / "agents" / "fw-2-research.md").read_text(encoding="utf-8")
-        self.assertIn("Open/Closed Principle (OCP)", fw2_content)
-        self.assertIn("anti-pattern", fw2_content)
-
-        # 3. AC 3: fw-3-role-model requires OCP reference implementations & contrasting anti-patterns
-        fw3_content = (ROOT_DIR / "agents" / "fw-3-role-model.md").read_text(encoding="utf-8")
-        self.assertIn("Open/Closed Principle", fw3_content)
-        self.assertIn("anti-pattern", fw3_content)
-
-        # 4. AC 4: fw-4-plan instructs identifying extension points & OCP evaluation
-        fw4_content = (ROOT_DIR / "agents" / "fw-4-plan.md").read_text(encoding="utf-8")
-        self.assertIn("extension points", fw4_content)
-        self.assertIn("Open/Closed", fw4_content)
-        self.assertIn("### Extension Points & OCP Evaluation", fw4_content)
-
-        # 5. AC 5: fw-5-impl forbids patching conditionals & prioritizes data-driven lookups
-        fw5_content = (ROOT_DIR / "agents" / "fw-5-impl.md").read_text(encoding="utf-8")
-        self.assertIn("Open/Closed Principle (OCP)", fw5_content)
-        self.assertIn("hướng dữ liệu", fw5_content)
-
-        # 6. AC 6: fw-6-review includes Extensibility Audit rubric with Blocker/Major
-        fw6_content = (ROOT_DIR / "agents" / "fw-6-review.md").read_text(encoding="utf-8")
-        self.assertIn("Extensibility Audit", fw6_content)
-        self.assertIn("Blocker", fw6_content)
-        self.assertIn("Major", fw6_content)
-
-        # 7. AC 7: fw-7-fix enforces root-cause remediation without branching hotfixes
-        fw7_content = (ROOT_DIR / "agents" / "fw-7-fix.md").read_text(encoding="utf-8")
-        self.assertIn("Root-cause Remediation", fw7_content)
-        self.assertIn("hotfixing", fw7_content)
-
-        # 8. AC 9: fw-6-review strictly adheres to least privilege (no Edit tool)
-        fw6_tools = vi.parse_frontmatter(fw6_content).get("tools", [])
-        self.assertNotIn("Edit", fw6_tools)
-
-    def test_feature_workflow_slicing_guardrails(self):
-        """Verify that PR slicing, budget and rule-of-three guardrails are defined consistently."""
         def read(*parts):
             return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
 
         skill = read("skills", "feature-workflow", "SKILL.md")
-        for token in ("≤~400 dòng production", "≤~15 file", "<slug>/<n>-<tên-slice>", "slice chuẩn bị",
-                      "KHÔNG push", "KHÔNG tạo PR", "git push -u origin", "05-impl-<n>.md"):
-            self.assertIn(token, skill)
-        self.assertNotIn("chưa commit", skill)
-        self.assertNotIn("Mỗi slice đúng 1 commit", skill)
-        self.assertIn("Commit theo task", skill)
+        body = skill.split("---", 2)[2]
+        headings = re.findall(r"^## (B\d)\. ", body, flags=re.MULTILINE)
+        self.assertEqual(headings, ["B1", "B2", "B3", "B4"])
 
-        self.assertIn("Hướng mở rộng sau", read("agents", "fw-1-spec.md"))
+        artifacts = ["01-requirements.md", "02-solution.md", "03-implementation.md", "04-review-<n>.md"]
+        steps = re.split(r"^## B\d\. .*$", body, flags=re.MULTILINE)[1:]
+        for step, artifact in zip(steps, artifacts):
+            with self.subTest(artifact=artifact):
+                self.assertIn(f"**Ra:** `{artifact}`", step)
+        for step, previous in zip(steps[1:], artifacts):
+            with self.subTest(gate=previous):
+                self.assertIn(f"**Vào:** `{previous}`", step)
+        self.assertIn("`Trạng thái: xong`", body)
+        self.assertIn("`CALLER: feature-workflow`", body)
+        self.assertIn("comment-policy.md", body)
 
-        fw4 = read("agents", "fw-4-plan.md")
-        for token in ("Slice plan", "<slug>/<n>-<tên-slice>", "≥2 consumer", "Task plan", "PR title"):
-            self.assertIn(token, fw4)
-        for kind in ("`refactor`", "`add`", "`change`", "`switch`", "`remove`"):
-            self.assertIn(kind, fw4)
+        description = vi.parse_frontmatter(skill)["description"]
+        self.assertNotRegex(description, r"B\d")
+        self.assertLess(len(description), 1024)
 
-        fw5 = read("agents", "fw-5-impl.md")
-        self.assertNotIn("đúng 1 commit", fw5)
-        self.assertIn("Vòng task", fw5)
-        self.assertIn("Task Ledger", fw5)
-        self.assertIn("API công khai", fw5)
-        self.assertNotIn("CÙNG commit đầu", fw5)
+        fw_agents = sorted(f.stem for f in (ROOT_DIR / "agents").glob("fw-*.md"))
+        self.assertEqual(fw_agents, ["fw-4-review"])
+        self.assertIn("`fw-4-review`", body)
+        reviewer = read("agents", "fw-4-review.md")
+        tools = vi.parse_frontmatter(reviewer)["tools"]
+        self.assertNotIn("Edit", tools)
+        self.assertNotIn("Write", tools)
+        self.assertIn("Không đọc file nào khác trong `.workflows/`", reviewer)
+        review_step = steps[3]
+        for hidden in ("`02-solution.md`", "`03-implementation.md`"):
+            self.assertIn(hidden, review_step)
+        self.assertIn('không dùng `subagent_type: "fork"`', review_step)
 
-        fw6 = read("agents", "fw-6-review.md")
-        self.assertIn("git diff --numstat", fw6)
-        self.assertIn("Scope & Budget Audit", fw6)
-        self.assertIn("Commit Granularity Audit", fw6)
-        self.assertIn("[TASKS]", fw6)
-        self.assertNotIn("Số commit phải là 1", fw6)
-        self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools", []))
+        self.assertIn("`01-requirements.md`", steps[2].split("1. Chọn", 1)[0])
+        self.assertIn("#4 (Extensibility) và #7 (Maintainability) đều ≥ 4", steps[2])
+        templates = read("skills", "solution-brainstorm", "templates.md")
+        criteria = templates.split("## Criteria", 1)[1].split("## Option card", 1)[0]
+        self.assertRegex(criteria, r"(?m)^4\. Extensibility")
+        self.assertRegex(criteria, r"(?m)^7\. Maintainability")
+        self.assertIn("Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major", review_step)
+        self.assertIn("Không có vòng 3", review_step)
+        self.assertIn("Tối đa 5 câu mỗi vòng", steps[0])
+        self.assertIn("Không push, không tạo PR", body)
+        self.assertIn("Không giao việc viết code cho\nsubagent", body)
+        self.assertNotIn("làm tiếp từ bước", body)
 
-        fw7 = read("agents", "fw-7-fix.md")
-        self.assertIn("git push -u origin", fw7)
-        self.assertIn("Ship notes", fw7)
-        self.assertNotIn("do NOT commit", fw7)
-        self.assertIn("Không viết lại commit đã có", fw7)
-        self.assertNotIn("git rebase -i", fw7)
-        self.assertNotIn("git rev-list --count <base>..HEAD` = 1", fw7)
-
-        standards = read("skills", "android-standards-workflow", "standards.md")
-        for token in ("tách slice riêng", "/feature-workflow", ":core:ui"):
-            self.assertIn(token, standards)
-        self.assertNotIn("CÙNG commit đầu", standards)
-
-        android_skill = read("skills", "android-standards-workflow", "SKILL.md")
-        section = android_skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
-        block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
-        self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
-        self.assertIn("slice", block)
-
-        self.assertIn("stacked", read("README.md"))
+    def test_standards_workflows_match_feature_workflow(self):
+        """Verify the Android and KMP wrappers pass constraints that fit the 4-step workflow."""
+        for name in ("android", "kmp"):
+            with self.subTest(skill=name):
+                folder = ROOT_DIR / "skills" / f"{name}-standards-workflow"
+                skill = (folder / "SKILL.md").read_text(encoding="utf-8")
+                section = skill.split("## Bước 3", 1)[1].split("## Sau khi gọi", 1)[0]
+                block = re.search(r"```text\n(.*?)```", section, re.DOTALL).group(1)
+                self.assertIsNone(re.search(r"[A-Z][A-Z0-9]+-[0-9]+", block))
+                self.assertIn("01-requirements.md", block)
+                for text in (skill, (folder / "standards.md").read_text(encoding="utf-8")):
+                    for stale in ("slice", "7 bước", "01-spec.md"):
+                        self.assertNotIn(stale, text)
 
     def test_cost_ladder_guardrails(self):
-        """Verify the cheapest-first cost ladder in feature-workflow."""
+        """Verify the cheapest-first cost ladder in the shared legacy catalog."""
 
         def read(*parts):
             return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
 
-        def section(text, start, end):
-            return text.split(start, 1)[1].split(end, 1)[0]
-
-        def assert_ordered(text, tokens):
-            positions = []
-            for token in tokens:
-                self.assertIn(token, text)
-                positions.append(text.index(token))
-            self.assertEqual(positions, sorted(positions))
-
-        reason = "Lý do bậc rẻ hơn không đủ"
-        fw4 = read("agents", "fw-4-plan.md")
-        ladder = section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3.")
-        assert_ordered(
-            ladder,
-            [
-                "| 1. Sprout/Wrap",
-                "| 2. dependency-breaking Feathers",
-                "| 3. Branch by Abstraction",
-                "| 4. Strangler Fig",
-            ],
-        )
-        for token in (
-            "Sprout Method",
-            "Sprout Class",
-            "Wrap Method",
-            "Wrap Class",
-            "characterization test",
-            "≥2 consumer",
-        ):
-            self.assertIn(token, ladder)
-        self.assertIn(reason, section(fw4, "<constraints>", "</constraints>"))
-        self.assertIn(reason, fw4.split("<output>", 1)[1])
-
-        fw_skill = read("skills", "feature-workflow", "SKILL.md")
-        self.assertIn("Sprout/Wrap", fw_skill)
-        self.assertIn("fw-4-plan", fw_skill)
-        self.assertIn("legacy chưa test", read("agents", "fw-1-spec.md"))
-        self.assertIn("Sprout/Wrap", read("agents", "fw-2-research.md"))
-        fw5 = read("agents", "fw-5-impl.md")
-        self.assertIn("Sprout", fw5)
-        self.assertIn("điểm gọi", fw5)
-        fw6 = read("agents", "fw-6-review.md")
-        self.assertIn("bậc thấp nhất đủ dùng", fw6)
-        self.assertIn("điểm gọi", fw6)
-        self.assertNotIn("Edit", vi.parse_frontmatter(fw6).get("tools"))
-
         catalog = read("skills", "solution-brainstorm", "legacy-techniques.md")
-        mikado_heading = "### Mikado graph"
-        self.assertIn(mikado_heading, catalog)
-        self.assertIn(mikado_heading, fw4)
-        fw4_ladder = section(fw4, "## 2b. Thang chi phí cho legacy chưa test", "## 3.")
-        self.assertIn("legacy-techniques.md", fw4_ladder)
-        self.assertIn("Mikado", fw4_ladder)
-        for name in ("fw-5-impl", "fw-6-review"):
-            self.assertIn("Mikado", read("agents", f"{name}.md"))
-        self.assertIn("LEGACY_CATALOG", fw_skill)
-        self.assertIn("## Kiểm tra SRP", ladder)
-        self.assertIn("Đề xuất refactor tiếp", fw4.split("<output>", 1)[1])
-        self.assertIn("nợ SRP", fw6)
+        ladder = catalog.split("## Thang chi phí", 1)[1].split("## Quy ước chung", 1)[0]
+        positions = []
+        for token in ("Sprout/Wrap", "dependency-breaking Feathers", "Branch by Abstraction", "Strangler Fig"):
+            self.assertIn(token, ladder)
+            positions.append(ladder.index(token))
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn("Mikado", ladder)
+        self.assertIn("### Mikado graph", catalog)
 
         # Two Hats: solution-brainstorm filters techniques by hat for pure refactors
         self.assertIn("- Mũ: feature", catalog)
         self.assertIn("- Mũ: chung", catalog)
         brainstorm = read("skills", "solution-brainstorm", "SKILL.md")
-        for token in ("`Mũ: feature`", "`Mũ: chung`", "Two Hats"):
+        for token in ("`Mũ: feature`", "`Mũ: chung`", "Two Hats", "Lý do bậc rẻ hơn không đủ"):
             self.assertIn(token, brainstorm)
-
-        for text in (fw4, fw_skill):
-            self.assertNotIn("http://", text)
-            self.assertNotIn("https://", text)
 
         self.assertIn("cost ladder", read("README.md"))
 
@@ -593,6 +510,19 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("total out of 35", readme)
         self.assertIn("owner scope check", readme)
         self.assertIn("owner scope dependency", templates)
+
+    def test_solution_brainstorm_caller_mode(self):
+        """Verify a calling workflow can skip the clarify step and the final question."""
+        skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("`CALLER: feature-workflow`", skill.split("### Step 1.", 1)[0])
+        self.assertIn("a caller is set (Step 0)", skill.split("### Step 3.", 1)[1].split("### Step 4.", 1)[0])
+        self.assertIn("a caller is set (Step 0)", skill.split("### Step 6.", 1)[1])
+        caller = skill.split("### Step 0.", 1)[1].split("### Step 1.", 1)[0]
+        for token in ("Read the requirements file", "**Assumptions**", "`BRIEF`"):
+            self.assertIn(token, caller)
+        templates = (ROOT_DIR / "skills" / "solution-brainstorm" / "templates.md").read_text(encoding="utf-8")
+        self.assertIn("Leave out the closing question when a caller is set", templates)
+        self.assertIn("or a caller is set", templates.split("### 2. Assumptions", 1)[1].split("### 3.", 1)[0])
 
     def test_solution_brainstorm_counts_are_single_source(self):
         """Verify option counts live only in templates.md and the summaries quote them."""
@@ -690,12 +620,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("comment-policy.md", read("skills", "solution-brainstorm", "SKILL.md"))
         self.assertIn("comment-policy.md", read("skills", "solution-brainstorm", "templates.md"))
         self.assertIn("COMMENT_POLICY", read("skills", "feature-workflow", "SKILL.md"))
-        for name in ("fw-3-role-model", "fw-5-impl", "fw-6-review", "fw-7-fix"):
-            agent = read("agents", f"{name}.md")
-            self.assertIn("COMMENT_POLICY", agent, name)
-            self.assertIn("**/solution-brainstorm/comment-policy.md", agent, name)
-            self.assertNotIn("nhãn/banner", agent, name)
-            self.assertNotIn("từ 3 chỗ trong diff", agent, name)
+        reviewer = read("agents", "fw-4-review.md")
+        self.assertIn("COMMENT_POLICY", reviewer)
+        self.assertNotIn("nhãn/banner", reviewer)
         self.assertIn("comment-policy.md", vi.SHARED_REFERENCE_FILES)
         self.assertIn("comment-policy.md", read("README.md"))
 

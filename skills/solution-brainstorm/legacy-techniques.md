@@ -26,7 +26,7 @@ Luật mũ (Two Hats): mục `Mũ: feature` chỉ dành cho task thêm tính nă
 | Bậc | fw (thêm tính năng) | Đủ khi | Leo bậc kế khi |
 |---|---|---|---|
 | 1 | Sprout/Wrap | Thay đổi nhỏ, độc lập, không cần sửa logic cũ | Phải sửa logic đang có, hoặc điểm gọi buộc thêm nhánh điều kiện |
-| 2 | dependency-breaking Feathers | Sửa/tạo seam được trong ngân sách slice  | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice |
+| 2 | dependency-breaking Feathers | Sửa/tạo seam được trong phạm vi một story | Phải thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều commit |
 | 3 | Branch by Abstraction | Phần thay thế nằm trong codebase | Thay cả hệ thống con qua ranh giới ngoài |
 | 4 | Strangler Fig | Bậc cuối | Không có - đề nghị chẻ story |
 
@@ -139,7 +139,7 @@ Test: `test_tax_for_known_region`, `test_tax_for_zero_amount`, `test_tax_for_unk
 
 - Bậc: 3
 - Mũ: chung
-- Khi dùng: thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều slice. Parallel Change (expand, migrate, contract) là biến thể nhỏ.
+- Khi dùng: thay thành phần có ≥2 consumer, đường cũ/mới cùng tồn tại qua nhiều commit. Parallel Change (expand, migrate, contract) là biến thể nhỏ.
 - Khi leo bậc: thay cả hệ thống con qua ranh giới ngoài (sang Strangler Fig).
 - Các bước: dựng abstraction trên đường cũ; chuyển từng consumer sang abstraction; thêm đường mới sau abstraction; chuyển hẳn rồi xoá đường cũ.
 - Test bắt buộc: characterization test đường cũ; unit test happy/edge/error đường mới; mỗi bước giữ test xanh.

@@ -1,12 +1,12 @@
 ---
 name: android-standards-workflow
 disable-model-invocation: true
-description: Lớp priming chuẩn Android/Kotlin (Coroutine, Flow, SOLID, Clean Architecture, MVVM, migrate Java->Kotlin) rồi chạy feature-workflow 7 bước với các chuẩn đó làm ràng buộc. Chỉ chạy khi người dùng gõ /android-standards-workflow.
+description: Lớp priming chuẩn Android/Kotlin (Coroutine, Flow, SOLID, Clean Architecture, MVVM, migrate Java->Kotlin) rồi chạy feature-workflow với các chuẩn đó làm ràng buộc. Chỉ chạy khi người dùng gõ /android-standards-workflow.
 ---
 
 # Android Standards Workflow (priming + feature-workflow)
 
-Lớp phủ chuẩn Android/Kotlin trước khi chạy quy trình 7 bước - **không** thay thế, không làm lại logic của skill `feature-workflow`.
+Lớp phủ chuẩn Android/Kotlin trước khi chạy quy trình 4 bước của `feature-workflow` - **không** thay thế, không làm lại logic của skill `feature-workflow`.
 
 **Câu mở đầu bắt buộc:** "Tôi đang dùng skill android-standards-workflow: nạp chuẩn Android/Kotlin rồi chạy feature-workflow."
 
@@ -14,7 +14,7 @@ Lớp phủ chuẩn Android/Kotlin trước khi chạy quy trình 7 bước - **
 
 - `$ARGUMENTS` rỗng hoặc chỉ khoảng trắng: hỏi người dùng feature/task là gì, **không bịa, không gọi feature-workflow** cho tới khi có câu trả lời. Lý do: sau khi nối khối ràng buộc ở Bước 3, args không bao giờ rỗng nữa nên cổng hỏi mặc định của feature-workflow không còn tác dụng.
 - Không thấy dấu hiệu dự án Android (không có `build.gradle`/`build.gradle.kts`/`settings.gradle*` hoặc `AndroidManifest.xml`): báo cho người dùng và hỏi có muốn tiếp tục không.
-- Các cổng khác (bug đã xảy ra, story quá nhỏ/quá lớn): để **feature-workflow** tự xử lý, không lặp lại ở đây.
+- Các cổng khác (bug đã xảy ra, chỉ sửa vài dòng): để **feature-workflow** tự xử lý, không lặp lại ở đây.
 
 ## Bước 1 - Nạp chuẩn
 
@@ -35,8 +35,8 @@ Dùng **Skill tool** với `skill: "feature-workflow"`. Ghép `args` theo đúng
 Ràng buộc bất biến (từ /android-standards-workflow):
 - Mọi bước tuân theo chuẩn Android/Kotlin tại [STANDARDS_PATH] - đọc trực tiếp file này.
 - Thứ tự ưu tiên: quy ước đã chốt của dự án (AGENTS.md, CLAUDE.md, docs/adr) > file chuẩn trên > best practice chung.
-- Chẻ PR theo luật slice của feature-workflow; luật Android ở §0, §3, §6.3, §7 của file chuẩn: migrate chỉ khi sửa logic đáng kể, test theo hành vi và không tính vào ngân sách, không thêm abstraction hay đưa vào :core:ui khi chỉ có 1 consumer.
-- Bước 1 ghi nguyên văn 3 dòng trên vào mục "Ràng buộc bất biến" của 01-spec.md.
+- Luật Android ở §0, §3, §6.3, §7 của file chuẩn: migrate chỉ khi sửa logic đáng kể và commit riêng trước khi đổi hành vi, test theo hành vi, không thêm abstraction hay đưa vào :core:ui khi chỉ có 1 consumer.
+- B1 ghi nguyên văn 3 dòng trên vào mục "Ràng buộc bất biến" của 01-requirements.md.
 - Nếu STORY được thay bằng nội dung Jira ticket, nối nguyên khối này vào cuối STORY.
 ```
 
@@ -44,4 +44,4 @@ Quy tắc khi ghép: thay `[STANDARDS_PATH]` bằng đường dẫn tuyệt đ�
 
 ## Sau khi gọi
 
-`feature-workflow` tiếp quản toàn bộ (resume, cổng duyệt, 7 bước Research/Plan/Impl/Review/Fix). Chẻ PR theo slice là việc của feature-workflow. Skill này không tự spawn subagent, không tự làm lại Research/Plan/Impl/Review/Fix. Nếu Skill tool không tìm thấy `feature-workflow`: báo người dùng cài plugin `workflow@claude-workflow`, không tự mô phỏng quy trình 7 bước.
+`feature-workflow` tiếp quản toàn bộ 4 bước (chốt yêu cầu, tìm giải pháp, code, review và sửa). Skill này không tự spawn subagent, không tự làm lại các bước đó. Nếu Skill tool không tìm thấy `feature-workflow`: báo người dùng cài plugin `workflow@claude-workflow`, không tự mô phỏng quy trình.

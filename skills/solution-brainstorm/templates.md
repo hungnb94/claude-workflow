@@ -65,7 +65,7 @@ Two or three lines: the task, the detected platform, the architecture you found,
 
 ### 2. Assumptions
 
-Only if the user said to just go. One bullet per assumption.
+Only if the user said to just go, or a caller is set. One bullet per assumption.
 
 ### 3. All options
 
@@ -125,3 +125,5 @@ Then put every other kept option into one table, one row each, in label order. O
 
 Which option do you choose? After that I can implement it, or you can hand it to `/feature-workflow`.
 ```
+
+Leave out the closing question when a caller is set (`SKILL.md` Step 0).
