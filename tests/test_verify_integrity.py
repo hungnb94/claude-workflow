@@ -731,7 +731,7 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertEqual(body.count("\n## Làm tiếp\n"), 1)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
-        for token in ("`Trạng thái: xong`", "git merge-base --is-ancestor", "`Bảng bước`", "`Việc phát sinh`", "git log --oneline BASE..HEAD", "`04-review-<n>.md`"):
+        for token in ("`Trạng thái: xong`", "git merge-base --is-ancestor", "nhánh ghi trong file đó", "`Bảng bước`", "`Việc phát sinh`", "git log --oneline BASE..HEAD", "`04-review-<n>.md`", "chạy vòng 2 của B4", "`Báo cáo cuối`"):
             with self.subTest(token=token):
                 self.assertIn(token, resume)
 

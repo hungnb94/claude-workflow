@@ -50,13 +50,15 @@ Khi người dùng chọn làm tiếp:
 
 1. Đọc file Ra theo thứ tự `01` tới `04`. Bước làm tiếp là bước đầu tiên có file Ra thiếu hoặc thiếu
    `Trạng thái: xong`. Không dựa vào trí nhớ hay bản tóm tắt hội thoại cho bước đã xong.
-2. Đã có `03-implementation.md`: nhánh `feature/<SLUG>` phải còn và chứa `BASE`
-   (`git merge-base --is-ancestor <BASE> feature/<SLUG>`); switch sang nhánh đó. Không thoả thì dừng và
+2. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
+   `BASE` (`git merge-base --is-ancestor <BASE> <nhánh>`); switch sang nhánh đó. Không thoả thì dừng và
    hỏi người dùng.
 3. Đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng `git log --oneline BASE..HEAD`.
    Commit có trên nhánh mà bảng chưa ghi: cập nhật dòng đó trước. Làm tiếp từ dòng đầu tiên chưa `xong`.
 4. Đang ở B4: đọc `04-review-<n>.md` mới nhất, làm tiếp từ phát hiện đầu tiên chưa ghi đã sửa hay không
    sửa.
+5. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
+   còn lại chạy `Báo cáo cuối`, kể cả lần chạy `Bằng chứng xong` của nó.
 
 ## Bằng chứng xong
 
