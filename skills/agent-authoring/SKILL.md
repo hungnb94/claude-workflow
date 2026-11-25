@@ -29,7 +29,7 @@ Read every file whose row matches the task, and only those. All files sit next t
 1. **Start from a real failure.** Name what the agent got wrong without the artifact: a real run, or a correction the user had to give twice. If nobody can name one, say so and ask before you write. A rule written from imagination costs context on every task and can make the agent overdo it. (C2)
 2. **Pick the weakest tool that holds the rule.** A rule with exceptions or judgment goes in words, in CLAUDE.md or a skill. A rule with zero exceptions that a machine can check goes in a hook, a deny rule, or CI. Do not add IMPORTANT, MUST, or capitals to make words stronger; move the rule to a hook instead. (P2)
 3. **Write the smallest text that fixes the failure.** Use plain sentences. Leave out what the agent can read from the repo. (P5)
-4. **Give a pass/fail check and run it before you say done.** For example: validate the JSON, feed the hook script a sample input, run `claude plugin validate`, or run the repo's tests. Done means the check is green, not that the file looks right. (C1)
+4. **Give a pass/fail check and run it before you say done.** For example: validate the JSON, feed the hook script a sample input, run `claude plugin validate`, or run the repo's tests. Run it again after your last change and read the exit code; an earlier run, a clean lint, or "should pass" does not count. Done means the check is green, not that the file looks right. (C1)
 5. **Test with a fresh agent.** Run the failing case from rule 1 again in a clean session or subagent that has the new artifact, and compare. If you did not run it, say so in your reply. (C2)
 
 ## Working with an agent on a task

@@ -822,6 +822,21 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(field, section)
         self.assertIn("`agent-authoring`", section)
 
+    def test_agent_authoring_done_needs_fresh_run(self):
+        """Verify rule 4 asks for a fresh run, and a subagent's report never replaces reading its diff."""
+        base = ROOT_DIR / "skills" / "agent-authoring"
+        skill = (base / "SKILL.md").read_text(encoding="utf-8")
+        rule4 = skill.split("4. **", 1)[1].split("\n5. ", 1)[0]
+        for token in ("after your last change", "exit code", "lint"):
+            with self.subTest(token=token):
+                self.assertIn(token, rule4)
+
+        rules = (base / "subagents.md").read_text(encoding="utf-8").split("## Rules", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("read its diff", rules)
+
+        references = (base / "references.md").read_text(encoding="utf-8")
+        self.assertIn("obra/superpowers/blob/main/skills/verification-before-completion", references)
+
     def test_skill_file_names_are_case_unique(self):
         """Verify no skill folder has two files whose names differ only by case (they collide on macOS)."""
         for folder in (ROOT_DIR / "skills").iterdir():
