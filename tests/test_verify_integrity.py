@@ -741,7 +741,6 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn(f"searches the web for {low}-{high} candidates", readme)
         self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
 
-
     def test_agent_authoring_router_guardrails(self):
         """Verify agent-authoring routes to every reference file directly and stays model-invocable."""
         base = ROOT_DIR / "skills" / "agent-authoring"
