@@ -2,7 +2,6 @@
 
 Read by `kmp-standards` khi cần nguồn của một luật. Số thứ tự khớp với `[n]` trong `SKILL.md`.
 
-
 1. Hierarchical project structure - [kotlinlang.org/docs/multiplatform/multiplatform-hierarchy.html](https://kotlinlang.org/docs/multiplatform/multiplatform-hierarchy.html)
 2. Kotlin Multiplatform overview - [developer.android.com/kotlin/multiplatform](https://developer.android.com/kotlin/multiplatform)
 3. Expected and actual declarations - [kotlinlang.org/docs/multiplatform/multiplatform-expect-actual.html](https://kotlinlang.org/docs/multiplatform/multiplatform-expect-actual.html)
