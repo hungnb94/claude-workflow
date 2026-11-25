@@ -42,7 +42,8 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 **Vào:** `STORY`.
 
 Trước câu hỏi đầu tiên, nhận diện nền tảng qua `platforms.md` theo `standards-lookup.md` (đường dẫn:
-`<Base directory của skill này>/../solution-brainstorm/standards-lookup.md`), rồi đọc chuẩn tìm được.
+`<Base directory của skill này>/../solution-brainstorm/standards-lookup.md`; không có thì Glob
+`**/solution-brainstorm/standards-lookup.md`), rồi đọc chuẩn tìm được.
 
 Phỏng vấn người dùng theo cây quyết định, như skill grilling: mỗi vòng hỏi mọi câu đã đủ điều kiện để
 hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có thể gần như không biết gì về code, nên:
@@ -64,8 +65,8 @@ hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có t
 ```
 
 Khi không còn quyết định nào mở, trình bản tóm tắt yêu cầu và chờ người dùng xác nhận. Bản tóm tắt có
-dòng nền tảng và chuẩn đã nhận diện; người dùng sửa thì dùng chuẩn họ chọn. Chưa xác nhận thì không sang
-B2.
+dòng nền tảng và chuẩn đã nhận diện; người dùng sửa thì dùng chuẩn họ chọn, tìm đường dẫn tuyệt đối của
+nó theo bước 2 của `standards-lookup.md`. Chưa xác nhận thì không sang B2.
 
 **Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
 (câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; lệnh build và test của repo;
