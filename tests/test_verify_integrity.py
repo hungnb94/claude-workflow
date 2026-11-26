@@ -738,7 +738,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "`EVIDENCE_DIR` = `DIR/evidence/`",
             "Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả",
             "`đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`",
-            "thì ghi `chưa kiểm`",
+            "thì ghi `chưa kiểm: không có file bằng\n  chứng`",
             "`RUN_DIR` agent trả",
             "nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`)",
             "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
@@ -759,7 +759,8 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("đường dẫn tuyệt đối tới\n   `RUN_DIR`", output)
         self.assertNotIn("`EVIDENCE_DIR/<HEAD>/`", agent)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
-        self.assertIn("Lần chạy `Bằng chứng xong` bị ngắt: bỏ thư mục dở", resume)
+        self.assertIn("Lần chạy `Bằng chứng xong` bị ngắt", resume)
+        self.assertIn("bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính", resume)
         self.assertIn("bằng một `fw-3-evidence` mới", resume)
         for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
             with self.subTest(status=status):
@@ -826,9 +827,9 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(word, intake)
         self.assertLess(intake.index("viết lại"), intake.index("trình bản tóm tắt yêu cầu"))
 
-        header = "   | # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |"
-        self.assertIn("   ```markdown\n" + header + "\n", out)
-        self.assertNotRegex(out, r"(?m)^\| # \| AC ")
+        header = "| # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |"
+        self.assertIn("\n```markdown\n" + header + "\n|---|---|---|---|---|---|\n", out)
+        self.assertEqual(out.count(header), 1)
         for token in ("`lệnh`", "`script so với mốc`", "`người kiểm theo kịch bản`", "`máy`", "`verify`", "`người ký`"):
             with self.subTest(token=token):
                 self.assertIn(token, out)

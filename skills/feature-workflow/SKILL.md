@@ -73,7 +73,8 @@ Khi người dùng chọn làm tiếp:
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
    `Bằng chứng xong` của nó.
-7. Lần chạy `Bằng chứng xong` bị ngắt: bỏ thư mục dở của nó trong `DIR/evidence/` và chạy lại
+7. Lần chạy `Bằng chứng xong` bị ngắt (thư mục trong `DIR/evidence/` mà chưa có `RUN_DIR` nào đã ghi trỏ
+   tới): bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính; rồi chạy lại
    `Bằng chứng xong` bằng một `fw-3-evidence` mới.
 
 ## Bằng chứng xong
@@ -88,13 +89,15 @@ ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo c
 - Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, `HEAD` lúc chạy và `RUN_DIR` agent trả.
   Agent ghi `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
 - Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
-  nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm`; file ở thư mục khác không
-  tính.
+  nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm: không có file bằng
+  chứng`; file ở thư mục khác không tính.
 - Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của `03-implementation.md` và vào báo cáo cuối,
   không ghi vào `01-requirements.md`; file đó không đổi sau B1.
 - Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
-- Agent trả `lỗi`: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người dùng.
+- Agent trả `lỗi` vì working tree bẩn: xử lý như bước 2 của `Làm tiếp` (đề nghị người dùng stash hoặc
+  bỏ), không chạy lại agent. Lỗi khác: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người
+  dùng.
 - Không viết "should pass", "looks correct" khi không kèm output. Lint sạch không thay build hay test. Kết
   quả test của reviewer không thay lần chạy này.
 
@@ -139,11 +142,11 @@ nó theo bước 2 của `standards-lookup.md`. Chưa xác nhận thì không sa
 ghi những gì `standards-lookup.md` bảo ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ
 tự ưu tiên).
 
-   ```markdown
-   | # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |
-   |---|---|---|---|---|---|
-   | 1 | <điều kiện đo được> | <lệnh / script so với mốc / người kiểm theo kịch bản> | <nơi chạy> | <file sẽ có> | <máy / verify / người ký> |
-   ```
+```markdown
+| # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |
+|---|---|---|---|---|---|
+| 1 | <điều kiện đo được> | <lệnh / script so với mốc / người kiểm theo kịch bản> | <nơi chạy> | <file sẽ có> | <máy / verify / người ký> |
+```
 
 `Phép kiểm` là một trong `lệnh`, `script so với mốc`, `người kiểm theo kịch bản`. `Người chấm` là một
 trong `máy`, `verify`, `người ký`. Bảng AC còn ô trống thì chưa ghi `Trạng thái: xong` và chưa sang B2.
@@ -209,8 +212,8 @@ và mục `Lệnh build và test`.
    assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu; rồi chạy theo mục
    `Bằng chứng xong`. Diff có vấn đề, có lệnh đỏ hoặc AC `không đạt`: thêm một dòng vào `Bảng bước` và
    sửa bằng một `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng
-   và báo người dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh`
-   và nói trong báo cáo cuối. Không tự sửa code trong session chính.
+   và báo người dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào
+   `Việc phát sinh` và nói trong báo cáo cuối. Không tự sửa code trong session chính.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
 phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit

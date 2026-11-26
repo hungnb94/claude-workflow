@@ -26,16 +26,19 @@ Thiếu input nào thì báo thiếu gì và dừng.
 
 <steps>
 1. Đọc `REQUIREMENTS` (bảng AC). Không đọc file nào khác trong `.workflows/`.
-2. `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): dừng và trả `lỗi`. Ghi `HEAD`
-   = `git rev-parse --short HEAD`. Tạo thư mục mới `RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`
-   (`date +%Y%m%d-%H%M%S`) bằng `mkdir` không `-p`; đã có thì lấy timestamp mới. Mọi file của lần chạy
+2. `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): dừng và trả
+   `lỗi working tree bẩn`. Ghi `HEAD` = `git rev-parse --short HEAD`. Tạo thư mục mới
+   `RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/` (`date +%Y%m%d-%H%M%S`) bằng `mkdir` không `-p`; đã có
+   thì lấy timestamp mới. Mọi file của lần chạy
    này nằm trong `RUN_DIR`.
 3. Chạy từng lệnh trong `CHECKS`, lưu lệnh, exit code và output vào một file log. `CHECKS` là `không có`
    thì ghi `không có lệnh kiểm`.
 4. Với từng AC, theo cột `Phép kiểm` và `Môi trường`: `lệnh` hay `script so với mốc` thì chạy và lưu
    lệnh, exit code, output (và file diff nếu có); `người kiểm theo kịch bản` thì làm theo kịch bản bằng
    công cụ có trong môi trường (chạy app, screenshot, video, dump UI) và lưu file. Bằng chứng phải là
-   output thật của lần chạy này; không chép kết quả cũ, không tự viết kết quả.
+   output thật của lần chạy này; không chép kết quả cũ, không tự viết kết quả. AC có `lệnh` trùng một
+   lệnh trong `CHECKS` thì không chạy lại, dẫn file log của bước 3. Phép kiểm có nhắc `BASE` (ví dụ
+   `git diff BASE..HEAD`) thì dùng giá trị input `BASE`.
 5. Chấm từng AC theo cột `Người chấm`: `máy` theo exit code hoặc kết quả so; `verify` thì mở file bằng
    chứng và chấm `đạt` hoặc `không đạt` theo đúng câu AC; `người ký` thì không chấm, ghi `chờ người ký`
    kèm bằng chứng nếu tạo được. Không chạy được môi trường cam kết (không có thiết bị, công cụ) hoặc chỉ
