@@ -806,6 +806,65 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
+    def test_implementer_fixes_final_minors_in_one_pass(self):
+        """Verify the implementer takes the final Minor list, runs the checks once, and commits each Minor on its own."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        self.assertIn("danh sách Minor của lượt cuối B4", inputs)
+        self.assertIn("lượt Minor cuối của B4", implementer.split("<role>", 1)[1].split("</role>", 1)[0])
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        self.assertIn("một lần trên toàn bộ thay đổi", check_step)
+        self.assertIn("hoàn tác phần đã sửa cho\n   nó trước bước 5", steps.split("\n4. ", 1)[1].split("\n5. ", 1)[0])
+        commit_step = steps.split("\n6. ", 1)[1]
+        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu", "Không stage một phần file", "`git status --porcelain` phải sạch"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit_step)
+        self.assertIn("hoặc danh sách Minor (mỗi Minor một commit)", inputs)
+        self.assertIn("final pass of review Minors", vi.parse_frontmatter(implementer)["description"])
+        output = implementer.split("<output>", 1)[1]
+        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
+            with self.subTest(token=token):
+                self.assertIn(token, output)
+
+    def test_feature_workflow_fixes_minors_in_one_final_pass(self):
+        """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Sửa Minor khi sửa nhỏ", body)
+        fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        for token in ("`chờ lượt cuối`", "mục `## Minor` của `04-review-<n>.md`", "`không sửa: <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, fix_step)
+        round_two = b4.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
+        for token in ("chép các Minor còn `chờ lượt cuối` của vòng 1", "bỏ dòng trùng"):
+            with self.subTest(token=token):
+                self.assertIn(token, round_two)
+        final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
+        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`", "theo đúng dòng agent trả cho Minor đó", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`hỏng <lý do>` cho mọi Minor của lượt này"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_pass)
+        out = b4.split("**Ra:**", 1)[1]
+        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "`chờ lượt cuối`", "`không sửa: <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, out)
+
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        resume_b4 = resume.split("Đang ở B4:", 1)[1]
+        self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
+        self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
+        self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
+        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi", "Minor chưa có trạng thái"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
+        report = body.split("## Báo cáo cuối", 1)[1]
+        self.assertNotIn("như bước 7 của B3", report)
+        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`", "mở agent mới"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+        self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 
