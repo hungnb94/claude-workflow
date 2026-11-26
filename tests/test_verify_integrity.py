@@ -824,6 +824,35 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
+    def test_feature_workflow_fixes_minors_in_one_final_pass(self):
+        """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Sửa Minor khi sửa nhỏ", body)
+        fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        for token in ("`chờ lượt cuối`", "mục `## Minor` của `04-review-<n>.md`", "`không sửa: <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, fix_step)
+        final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
+        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_pass)
+        out = b4.split("**Ra:**", 1)[1]
+        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "`chờ lượt cuối`", "`không sửa: <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, out)
+
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        resume_b4 = resume.split("Đang ở B4:", 1)[1]
+        self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
+        self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
+        report = body.split("## Báo cáo cuối", 1)[1]
+        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+        self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 

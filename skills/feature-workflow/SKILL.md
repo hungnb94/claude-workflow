@@ -65,8 +65,11 @@ Khi người dùng chọn làm tiếp:
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
    file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
    đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng làm lại hay dừng.
+   Minor `chờ lượt cuối` trong mục `## Minor` mà commit sửa đã có trên nhánh: ghi `xong <commit>` trước,
+   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
-   còn lại chạy `Báo cáo cuối`, kể cả lần chạy `Bằng chứng xong` của nó.
+   còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
+   `Bằng chứng xong` của nó.
 
 ## Bằng chứng xong
 
@@ -195,8 +198,9 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    truyền `02-solution.md` hay `03-implementation.md`, không dùng `subagent_type: "fork"`: reviewer phải
    đánh giá code mà không biết ý định của người viết.
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
-3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi phát hiện cần sửa là
-   một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
+3. Sửa hết Blocker và Major. Minor không sửa trong vòng: Minor sửa nhỏ và không mở rộng phạm vi thì ghi
+   `chờ lượt cuối` vào mục `## Minor` của `04-review-<n>.md`, Minor khác ghi `không sửa: <lý do>`. Mỗi
+   Blocker hoặc Major là một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
    sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
    hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả `lỗi` thì dừng và báo người dùng như bước 6
    của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các commit sửa
@@ -204,9 +208,25 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng.
+5. Lượt Minor cuối: sau vòng review cuối, còn Minor `chờ lượt cuối` trong mục `## Minor` của mọi
+   `04-review-<n>.md` thì spawn đúng một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là
+   danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay vào dòng
+   của từng Minor `xong <commit>`; agent trả `lỗi` thì ghi `hỏng <lý do>` cho mọi Minor của lượt này và
+   không dừng. Lượt này không chạy `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và
+   chạy lần đó.
 
 **Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào) hay
-không sửa (lý do).
+không sửa (lý do); Minor ghi trong mục `## Minor` theo khung:
+
+   ```markdown
+   ## Minor
+
+   | # | file:line | Vấn đề | Trạng thái |
+   |---|---|---|---|
+   | 1 | <file:line> | <vấn đề> | chờ lượt cuối |
+   ```
+
+Trạng thái Minor: `chờ lượt cuối`, `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`.
 
 ## Không làm
 
@@ -215,6 +235,9 @@ thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 
 ## Báo cáo cuối
 
-Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì (bằng chứng của B3 không thay lần chạy
-này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, `Việc phát sinh`, đường dẫn `DIR`, và lệnh
+Có lượt Minor cuối thì trước tiên kiểm diff các commit của lượt đó như bước 7 của B3 (không test hay
+assertion nào bị xoá, skip hay nới lỏng). Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
+(bằng chứng của B3 không thay lần chạy này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng
+chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng` và `không sửa` trong
+mục `## Minor`), `Việc phát sinh`, đường dẫn `DIR`, và lệnh
 `git push -u origin <nhánh>` để họ tự push.
