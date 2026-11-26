@@ -79,10 +79,17 @@ Khi người dùng chọn làm tiếp:
 "Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Trước khi
 ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo cuối:
 
-- Chạy lại mọi lệnh trong `Lệnh build và test` của `01-requirements.md`, sau thay đổi cuối cùng. Mục đó
-  không có lệnh nào thì ghi `không có lệnh kiểm`, và nói rõ trong báo cáo cuối là chưa có lần chạy nào.
-- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, và `HEAD` lúc chạy.
-- Có lệnh đỏ: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
+- Sau thay đổi cuối cùng, spawn một agent `fw-3-evidence` mới (trong plugin: `workflow:fw-3-evidence`),
+  không dùng `subagent_type: "fork"`. Truyền `REQUIREMENTS` (đường dẫn tuyệt đối tới
+  `01-requirements.md`), `BASE`, `CHECKS` (các lệnh trong `Lệnh build và test`, hoặc `không có`) và
+  `EVIDENCE_DIR` = `DIR/evidence/`. Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả.
+- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, và `HEAD` lúc chạy. Agent ghi
+  `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
+- Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
+  có trong `EVIDENCE_DIR` (kiểm bằng `ls`) thì ghi `chưa kiểm`.
+- Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
+  `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
+- Agent trả `lỗi`: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người dùng.
 - Không viết "should pass", "looks correct" khi không kèm output. Lint sạch không thay build hay test. Kết
   quả test của reviewer không thay lần chạy này.
 
@@ -195,14 +202,15 @@ và mục `Lệnh build và test`.
    ngoài phạm vi. Agent trả `lỗi` (test đỏ sau 2 lần sửa): dừng, báo người dùng lỗi và những gì đã thử.
 7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`, kiểm không test hay
    assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu; rồi chạy theo mục
-   `Bằng chứng xong`. Diff có vấn đề hoặc có lệnh đỏ: thêm một dòng vào `Bảng bước` và sửa bằng một
-   `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người
-   dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh`
+   `Bằng chứng xong`. Diff có vấn đề, có lệnh đỏ hoặc AC `không đạt`: thêm một dòng vào `Bảng bước` và
+   sửa bằng một `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng
+   và báo người dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh`
    và nói trong báo cáo cuối. Không tự sửa code trong session chính.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
 phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit
-(`git log --oneline BASE..HEAD`); bằng chứng theo mục `Bằng chứng xong`.
+(`git log --oneline BASE..HEAD`); bằng chứng theo mục `Bằng chứng xong`, gồm kết quả lệnh và mục
+`Bằng chứng theo AC` (bảng agent trả).
 
 ## B4. Review và sửa
 
@@ -220,8 +228,8 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    (file:line, vấn đề, gợi ý sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì
    ghi ngay vào `04-review-<n>.md` phát hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả
    `lỗi` thì dừng và báo người dùng như bước 6 của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong
-   thì kiểm diff của các commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ,
-   nhưng ghi lần sửa đó vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
+   thì kiểm diff của các commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ
+   hoặc có AC `không đạt`, nhưng ghi lần sửa đó vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
    `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng. Khi ghi `04-review-2.md`, chép các Minor còn `chờ lượt cuối` của vòng 1 sang mục
@@ -258,6 +266,7 @@ Có lượt Minor cuối thì trước tiên kiểm diff các commit của lư�
 skip hay nới lỏng); diff có vấn đề thì ghi vào `04-review-<n>.md` mới nhất và nêu trong báo cáo cuối, không
 mở agent mới. Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
 (bằng chứng của B3 không thay lần chạy này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng
-chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng` và `không sửa` trong
-mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`, đường dẫn `DIR`, và lệnh
-`git push -u origin <nhánh>` để họ tự push.
+chứng của lần chạy đó, bảng trạng thái AC, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng`
+và `không sửa` trong mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`, đường dẫn `DIR`, và
+lệnh `git push -u origin <nhánh>` để họ tự push. Còn AC `chưa kiểm` hoặc `chờ người ký` thì báo
+"chờ kiểm N AC" kèm danh sách AC đó và lý do, không báo xong.

@@ -722,6 +722,53 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn("`Bằng chứng xong`", part)
         self.assertIn("kể cả khi B4 không sửa gì", report)
 
+    def test_feature_workflow_evidence_runs_in_fresh_agent(self):
+        """Verify the done check is delegated to a fresh fw-3-evidence and AC statuses gate B3, B4, and the final report."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        body = read("skills", "feature-workflow", "SKILL.md").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Chạy lại mọi lệnh", section)
+        for token in (
+            "`fw-3-evidence` mới",
+            "`workflow:fw-3-evidence`",
+            'không dùng `subagent_type: "fork"`',
+            "`EVIDENCE_DIR` = `DIR/evidence/`",
+            "Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả",
+            "`đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`",
+            "thì ghi `chưa kiểm`",
+            "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
+            "không chặn B3, B4",
+            "chạy lại một lần bằng agent mới",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+
+        agent = read("agents", "fw-3-evidence.md")
+        inputs = agent.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        declared = set(re.findall(r"^- `([A-Z_]+)`:", inputs, flags=re.MULTILINE))
+        self.assertEqual(declared, {"REQUIREMENTS", "BASE", "CHECKS", "EVIDENCE_DIR"})
+        for name in declared:
+            with self.subTest(input=name):
+                self.assertIn(f"`{name}`", section)
+        output = agent.split("<output>", 1)[1]
+        for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
+            with self.subTest(status=status):
+                self.assertIn(status, output)
+                self.assertIn(status, section)
+
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("có lệnh đỏ hoặc AC `không đạt`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
+        self.assertIn("mục\n`Bằng chứng theo AC` (bảng agent trả)", b3.split("**Ra:**", 1)[1])
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        report = body.split("## Báo cáo cuối", 1)[1]
+        for token in ("bảng trạng thái AC", "Còn AC `chưa kiểm` hoặc `chờ người ký`", '"chờ kiểm N AC"', "lý do, không báo xong"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+
     def test_feature_workflow_b1_gates_each_ac_on_a_check(self):
         """Verify B1 writes every AC as a full table row with a measurable check before the user confirms."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
