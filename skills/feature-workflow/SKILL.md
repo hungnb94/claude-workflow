@@ -91,13 +91,14 @@ ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo c
 - Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
   nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm: không có file bằng
   chứng`; file ở thư mục khác không tính.
-- Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của `03-implementation.md` và vào báo cáo cuối,
-  không ghi vào `01-requirements.md`; file đó không đổi sau B1.
+- Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở
+  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không
+  đổi sau B1.
 - Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
-- Agent trả `lỗi` vì working tree bẩn: xử lý như bước 2 của `Làm tiếp` (đề nghị người dùng stash hoặc
-  bỏ), không chạy lại agent. Lỗi khác: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người
-  dùng.
+- Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit
+  nó; chỉ chạy lại bằng agent mới khi working tree đã sạch. Lỗi khác: chạy lại một lần bằng agent mới;
+  vẫn lỗi thì dừng và báo người dùng.
 - Không viết "should pass", "looks correct" khi không kèm output. Lint sạch không thay build hay test. Kết
   quả test của reviewer không thay lần chạy này.
 
@@ -237,7 +238,8 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    ghi ngay vào `04-review-<n>.md` phát hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả
    `lỗi` thì dừng và báo người dùng như bước 6 của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong
    thì kiểm diff của các commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ
-   hoặc có AC `không đạt`, nhưng ghi lần sửa đó vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
+   hoặc có AC `không đạt`, nhưng ghi lần sửa đó và kết quả của lần chạy (lệnh, `RUN_DIR`, mục
+   `Bằng chứng theo AC`) vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
    `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng. Khi ghi `04-review-2.md`, chép các Minor còn `chờ lượt cuối` của vòng 1 sang mục
@@ -251,7 +253,7 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và chạy lần đó.
 
 **Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào) hay
-không sửa (lý do); Minor ghi trong mục `## Minor` theo khung:
+không sửa (lý do); kết quả lần chạy `Bằng chứng xong` sau khi sửa, nếu có; Minor ghi trong mục `## Minor` theo khung:
 
    ```markdown
    ## Minor

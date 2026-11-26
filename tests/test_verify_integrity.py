@@ -758,6 +758,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         output = agent.split("<output>", 1)[1]
         self.assertIn("đường dẫn tuyệt đối tới\n   `RUN_DIR`", output)
         self.assertNotIn("`EVIDENCE_DIR/<HEAD>/`", agent)
+        self.assertIn("`mkdir -p EVIDENCE_DIR`, rồi\n   `mkdir RUN_DIR` không `-p`", agent)
+        self.assertIn("không tính bảng AC ở mục 3: bảng luôn đủ mọi AC", output)
+        self.assertIn("chỉ chạy lại bằng agent mới khi working tree đã sạch", section)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
         self.assertIn("Lần chạy `Bằng chứng xong` bị ngắt", resume)
         self.assertIn("bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính", resume)
@@ -772,18 +775,20 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("mục\n`Bằng chứng theo AC` (bảng agent trả)", b3.split("**Ra:**", 1)[1])
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        self.assertIn("`Bằng chứng theo AC`) vào `04-review-<n>.md`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]
         for token in ("bảng trạng thái AC", "Còn AC `chưa kiểm` hoặc `chờ người ký`", '"chờ kiểm N AC"', "lý do, không báo xong"):
             with self.subTest(token=token):
                 self.assertIn(token, report)
 
     def test_feature_workflow_ac_status_stays_out_of_requirements(self):
-        """Verify AC statuses go only to 03-implementation.md and the final report, never to 01-requirements.md."""
+        """Verify AC statuses go only to the running step's file and the final report, never to 01-requirements.md."""
         body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
         section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
         rule = (
-            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của `03-implementation.md` và vào báo cáo cuối,\n"
-            "  không ghi vào `01-requirements.md`; file đó không đổi sau B1."
+            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở\n"
+            "  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không\n"
+            "  đổi sau B1."
         )
         self.assertIn(rule, section)
         sentences = re.split(r"(?<=[.:;])\s", body.replace("\n", " "))
@@ -941,7 +946,7 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, output)
 
     def test_evidence_agent_is_blind_and_writes_only_evidence(self):
-        """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to EVIDENCE_DIR."""
+        """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to its RUN_DIR."""
         agent = (ROOT_DIR / "agents" / "fw-3-evidence.md").read_text(encoding="utf-8")
         frontmatter = vi.parse_frontmatter(agent)
         self.assertEqual(frontmatter["name"], "fw-3-evidence")
@@ -956,7 +961,7 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, inputs)
 
         steps = agent.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`", "`mkdir` không `-p`", "Mọi file của lần chạy\n   này nằm trong `RUN_DIR`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `RUN_DIR`"):
+        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`", "`mkdir RUN_DIR` không `-p`", "Mọi file của lần chạy này nằm\n   trong `RUN_DIR`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `RUN_DIR`"):
             with self.subTest(token=token):
                 self.assertIn(token, steps)
 
@@ -966,7 +971,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         for hidden in ("02-solution.md", "03-implementation.md"):
             with self.subTest(hidden=hidden):
                 self.assertEqual(agent.count(hidden), 1)
-        for token in ("Chỉ tạo file trong `EVIDENCE_DIR`", "Không sửa code", "Không commit", "không spawn subagent"):
+        for token in ("Chỉ tạo file bằng chứng trong `RUN_DIR`", "Không sửa code", "Không commit", "không spawn subagent"):
             with self.subTest(token=token):
                 self.assertIn(token, constraints)
 

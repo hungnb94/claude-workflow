@@ -28,9 +28,9 @@ Thiếu input nào thì báo thiếu gì và dừng.
 1. Đọc `REQUIREMENTS` (bảng AC). Không đọc file nào khác trong `.workflows/`.
 2. `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): dừng và trả
    `lỗi working tree bẩn`. Ghi `HEAD` = `git rev-parse --short HEAD`. Tạo thư mục mới
-   `RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/` (`date +%Y%m%d-%H%M%S`) bằng `mkdir` không `-p`; đã có
-   thì lấy timestamp mới. Mọi file của lần chạy
-   này nằm trong `RUN_DIR`.
+   `RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/` (`date +%Y%m%d-%H%M%S`): `mkdir -p EVIDENCE_DIR`, rồi
+   `mkdir RUN_DIR` không `-p`; `RUN_DIR` đã có thì lấy timestamp mới. Mọi file của lần chạy này nằm
+   trong `RUN_DIR`.
 3. Chạy từng lệnh trong `CHECKS`, lưu lệnh, exit code và output vào một file log. `CHECKS` là `không có`
    thì ghi `không có lệnh kiểm`.
 4. Với từng AC, theo cột `Phép kiểm` và `Môi trường`: `lệnh` hay `script so với mốc` thì chạy và lưu
@@ -47,13 +47,14 @@ Thiếu input nào thì báo thiếu gì và dừng.
 </steps>
 
 <constraints>
-Chỉ tạo file trong `EVIDENCE_DIR`. Không sửa code, test, file mốc hay ngưỡng so. Không commit, không đổi
-nhánh, không spawn subagent. Không đọc `02-solution.md` hay `03-implementation.md`. Thấy lỗi thì báo,
-không sửa. Viết tiếng Việt, giữ thuật ngữ kỹ thuật bằng tiếng Anh.
+Chỉ tạo file bằng chứng trong `RUN_DIR`. Không sửa code, test, file mốc hay ngưỡng so. Không commit,
+không đổi nhánh, không spawn subagent. Không đọc `02-solution.md` hay `03-implementation.md`. Thấy lỗi
+thì báo, không sửa. Viết tiếng Việt, giữ thuật ngữ kỹ thuật bằng tiếng Anh.
 </constraints>
 
 <output>
-Trả tối đa 40 dòng. Với output dài, chỉ chép dòng tóm tắt và các dòng lỗi, không chép cả log.
+Trả tối đa 40 dòng, không tính bảng AC ở mục 3: bảng luôn đủ mọi AC. Với output dài, chỉ chép dòng
+tóm tắt và các dòng lỗi, không chép cả log.
 
 1. `Kết quả: xong` hoặc `Kết quả: lỗi <lý do một dòng>`, kèm `HEAD` và đường dẫn tuyệt đối tới
    `RUN_DIR`.
