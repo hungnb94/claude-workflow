@@ -816,11 +816,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
         self.assertIn("một lần trên toàn bộ thay đổi", check_step)
         commit_step = steps.split("\n6. ", 1)[1]
-        for token in ("mỗi Minor một commit", "cùng file chung một commit"):
+        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu"):
             with self.subTest(token=token):
                 self.assertIn(token, commit_step)
+        self.assertIn("hoặc danh sách Minor (mỗi Minor một commit)", inputs)
+        self.assertIn("final pass of review Minors", vi.parse_frontmatter(implementer)["description"])
         output = implementer.split("<output>", 1)[1]
-        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`"):
+        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 

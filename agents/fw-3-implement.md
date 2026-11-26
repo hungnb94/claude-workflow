@@ -1,6 +1,6 @@
 ---
 name: fw-3-implement
-description: Implementer - Code one small step of /feature-workflow in a fresh context, run the checks, and commit it when they are green; return the commit and the check results
+description: Implementer - Code one small step of /feature-workflow, or its final pass of review Minors, in a fresh context, run the checks, and commit when they are green; return the commits and the check results
 tools:
   - Read
   - Edit
@@ -17,9 +17,9 @@ Bạn code đúng một bước nhỏ cho B3 hoặc B4 của `/feature-workflow`
 </role>
 
 <inputs>
-- `STEP`: một việc, một commit: mục tiêu và file dự kiến của một dòng trong bảng bước, hoặc một phát hiện
-  của review kèm file:line và gợi ý sửa; hoặc danh sách Minor của lượt cuối B4, mỗi mục kèm file:line,
-  vấn đề và gợi ý sửa.
+- `STEP`: một việc một commit, hoặc danh sách Minor (mỗi Minor một commit). Một việc là mục tiêu và file
+  dự kiến của một dòng trong bảng bước, hoặc một phát hiện của review kèm file:line và gợi ý sửa; danh
+  sách là danh sách Minor của lượt cuối B4, mỗi mục kèm file:line, vấn đề và gợi ý sửa.
 - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
 - `DESIGN`: đường dẫn tuyệt đối tới file chứa thiết kế của phương án đã chọn, kèm heading của phần đó.
 - `STANDARDS`: các đường dẫn tuyệt đối tới chuẩn nền tảng (đường dẫn kèm heading nghĩa là chỉ dùng mục
@@ -46,7 +46,8 @@ Thiếu input nào thì báo thiếu gì và dừng.
    bước này và ghi `không có lệnh kiểm` ở output.
 6. Xanh, hoặc `CHECKS` là `không có`, thì commit: chỉ `git add -- <file>`, message theo `COMMIT_STYLE`,
    không `--no-verify`. Một việc thì commit một lần. Danh sách Minor thì mỗi Minor một commit, chỉ add
-   file của Minor đó; các Minor cùng file chung một commit và ghi rõ trong output.
+   file của Minor đó; các Minor cùng file chung một commit, kể cả bắc cầu (Minor có chung bất kỳ file
+   nào với một Minor trong nhóm thì vào nhóm đó), và ghi rõ trong output.
 </steps>
 
 <constraints>
@@ -57,8 +58,8 @@ subagent. Viết tiếng Việt, giữ thuật ngữ kỹ thuật bằng tiếng
 <output>
 Trả tối đa 30 dòng. Với output dài, chỉ chép dòng tóm tắt và các dòng lỗi, không chép cả log.
 
-1. `Kết quả: xong <commit hash>` hoặc `Kết quả: lỗi <lý do một dòng>`. Với danh sách Minor, thêm một
-   dòng mỗi Minor: `<#> xong <hash>` hoặc `<#> hỏng <lý do>`.
+1. `Kết quả: xong <commit hash>` hoặc `Kết quả: lỗi <lý do một dòng>`. Với danh sách Minor, ghi
+   `Kết quả: xong` không kèm hash và thêm một dòng mỗi Minor: `<#> xong <hash>` hoặc `<#> hỏng <lý do>`.
 2. File đã sửa.
 3. Mỗi lệnh trong `CHECKS`: lệnh, exit code, dòng tóm tắt chép từ output. Khi lỗi: thêm tối đa 10 dòng lỗi
    và những gì đã thử.
