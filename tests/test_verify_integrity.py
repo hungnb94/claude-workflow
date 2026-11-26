@@ -418,7 +418,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(len(description), 1024)
 
         fw_agents = sorted(f.stem for f in (ROOT_DIR / "agents").glob("fw-*.md"))
-        self.assertEqual(fw_agents, ["fw-3-implement", "fw-4-review"])
+        self.assertEqual(fw_agents, ["fw-3-evidence", "fw-3-implement", "fw-4-review"])
         self.assertIn("`fw-4-review`", body)
         reviewer = read("agents", "fw-4-review.md")
         tools = vi.parse_frontmatter(reviewer)["tools"]
@@ -722,6 +722,124 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn("`Bằng chứng xong`", part)
         self.assertIn("kể cả khi B4 không sửa gì", report)
 
+    def test_feature_workflow_evidence_runs_in_fresh_agent(self):
+        """Verify the done check is delegated to a fresh fw-3-evidence and AC statuses gate B3, B4, and the final report."""
+
+        def read(*parts):
+            return (ROOT_DIR.joinpath(*parts)).read_text(encoding="utf-8")
+
+        body = read("skills", "feature-workflow", "SKILL.md").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Chạy lại mọi lệnh", section)
+        for token in (
+            "`fw-3-evidence` mới",
+            "`workflow:fw-3-evidence`",
+            'không dùng `subagent_type: "fork"`',
+            "`EVIDENCE_DIR` = `DIR/evidence/`",
+            "Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả",
+            "`đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`",
+            "thì ghi `chưa kiểm: không có file bằng\n  chứng`",
+            "`RUN_DIR` agent trả",
+            "nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`)",
+            "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
+            "không chặn B3, B4",
+            "chạy lại một lần bằng agent mới",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+
+        agent = read("agents", "fw-3-evidence.md")
+        inputs = agent.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        declared = set(re.findall(r"^- `([A-Z_]+)`:", inputs, flags=re.MULTILINE))
+        self.assertEqual(declared, {"REQUIREMENTS", "BASE", "CHECKS", "EVIDENCE_DIR"})
+        for name in declared:
+            with self.subTest(input=name):
+                self.assertIn(f"`{name}`", section)
+        output = agent.split("<output>", 1)[1]
+        self.assertIn("đường dẫn tuyệt đối tới\n   `RUN_DIR`", output)
+        self.assertNotIn("`EVIDENCE_DIR/<HEAD>/`", agent)
+        self.assertIn("`mkdir -p EVIDENCE_DIR`, rồi\n   `mkdir RUN_DIR` không `-p`", agent)
+        self.assertIn("không tính bảng AC ở mục 3: bảng luôn đủ mọi AC", output)
+        self.assertIn("chỉ chạy lại bằng agent mới khi working tree đã sạch", section)
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("Lần chạy `Bằng chứng xong` bị ngắt", resume)
+        self.assertIn("bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính", resume)
+        self.assertIn("bằng một `fw-3-evidence` mới", resume)
+        for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
+            with self.subTest(status=status):
+                self.assertIn(status, output)
+                self.assertIn(status, section)
+
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        self.assertIn("có lệnh đỏ hoặc AC `không đạt`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
+        self.assertIn("mục\n`Bằng chứng theo AC` (bảng agent trả)", b3.split("**Ra:**", 1)[1])
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        self.assertIn("`Bằng chứng theo AC`) vào `04-review-<n>.md`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        report = body.split("## Báo cáo cuối", 1)[1]
+        for token in ("bảng trạng thái AC", "Còn AC `chưa kiểm` hoặc `chờ người ký`", '"chờ kiểm N AC"', "lý do, không báo xong"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+
+    def test_feature_workflow_ac_status_stays_out_of_requirements(self):
+        """Verify AC statuses go only to the running step's file and the final report, never to 01-requirements.md."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        rule = (
+            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở\n"
+            "  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không\n"
+            "  đổi sau B1."
+        )
+        self.assertIn(rule, section)
+        sentences = re.split(r"(?<=[.:;])\s", body.replace("\n", " "))
+        for sentence in sentences:
+            if "01-requirements.md" in sentence and re.search(r"(?i)trạng thái AC", sentence):
+                with self.subTest(sentence=sentence):
+                    self.assertIn("không ghi vào `01-requirements.md`", sentence)
+
+    def test_readme_names_evidence_agent_in_each_feature_workflow_part(self):
+        """Verify README names fw-3-evidence in the overview, diagram, One Writer principle, agent table, and tree."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        overview = readme.split("\n## Overview\n", 1)[1].split("\n## ", 1)[0]
+        feature = next(line for line in overview.splitlines() if line.startswith("1. **Feature Workflow**"))
+        architecture = readme.split("\n### Four-Step Feature Workflow\n", 1)[1].split("\n### ", 1)[0]
+        diagram = architecture.split("```text\n", 1)[1].split("```", 1)[0]
+        principles = readme.split("\n### Architectural Principles\n", 1)[1].split("\n## ", 1)[0]
+        writer = next(line for line in principles.splitlines() if line.startswith("4. **One Writer at a Time**"))
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        tree = readme.split("\n## Project Structure\n", 1)[1].split("\n## ", 1)[0]
+        parts = {
+            "overview": (feature, "`fw-3-evidence`"),
+            "diagram": (diagram, "[fw-3-evidence]"),
+            "principle": (writer, "`fw-3-evidence` writes only evidence files into `.workflows/<slug>/evidence/`"),
+            "agent table": (agents, "\n| `fw-3-evidence` |"),
+            "tree": (tree, "fw-3-evidence.md"),
+        }
+        for name, (part, token) in parts.items():
+            with self.subTest(part=name):
+                self.assertIn(token, part)
+
+    def test_feature_workflow_b1_gates_each_ac_on_a_check(self):
+        """Verify B1 writes every AC as a full table row with a measurable check before the user confirms."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        b1 = body.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        self.assertNotIn("acceptance criteria kiểm được", b1)
+
+        intake, out = b1.split("**Ra:**", 1)
+        for word in ('"giống"', '"đúng"', '"đẹp"', '"không bị đè"', "viết lại"):
+            with self.subTest(word=word):
+                self.assertIn(word, intake)
+        self.assertLess(intake.index("viết lại"), intake.index("trình bản tóm tắt yêu cầu"))
+
+        header = "| # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |"
+        self.assertIn("\n```markdown\n" + header + "\n|---|---|---|---|---|---|\n", out)
+        self.assertEqual(out.count(header), 1)
+        for token in ("`lệnh`", "`script so với mốc`", "`người kiểm theo kịch bản`", "`máy`", "`verify`", "`người ký`"):
+            with self.subTest(token=token):
+                self.assertIn(token, out)
+        self.assertIn("còn ô trống thì chưa ghi `Trạng thái: xong` và chưa sang B2", out)
+
     def test_feature_workflow_keeps_state_in_files(self):
         """Verify the workflow resumes from its files and writes progress to them as it happens."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
@@ -826,6 +944,42 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
+
+    def test_evidence_agent_is_blind_and_writes_only_evidence(self):
+        """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to its RUN_DIR."""
+        agent = (ROOT_DIR / "agents" / "fw-3-evidence.md").read_text(encoding="utf-8")
+        frontmatter = vi.parse_frontmatter(agent)
+        self.assertEqual(frontmatter["name"], "fw-3-evidence")
+        self.assertEqual(sorted(frontmatter["tools"]), ["Bash", "Glob", "Grep", "Read", "Write"])
+        self.assertNotIn("Edit", frontmatter["tools"])
+        self.assertEqual(frontmatter["model"], "inherit")
+        self.assertNotIn("-review", frontmatter["name"])
+
+        inputs = agent.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        for token in ("`REQUIREMENTS`", "`BASE`", "`CHECKS`", "`EVIDENCE_DIR`", "`DIR/evidence/`", "báo thiếu gì và dừng"):
+            with self.subTest(token=token):
+                self.assertIn(token, inputs)
+
+        steps = agent.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`", "`mkdir RUN_DIR` không `-p`", "Mọi file của lần chạy này nằm\n   trong `RUN_DIR`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `RUN_DIR`"):
+            with self.subTest(token=token):
+                self.assertIn(token, steps)
+
+        constraints = agent.split("<constraints>", 1)[1].split("</constraints>", 1)[0]
+        banned = "Không đọc `02-solution.md` hay `03-implementation.md`."
+        self.assertIn(banned, constraints)
+        for hidden in ("02-solution.md", "03-implementation.md"):
+            with self.subTest(hidden=hidden):
+                self.assertEqual(agent.count(hidden), 1)
+        for token in ("Chỉ tạo file bằng chứng trong `RUN_DIR`", "Không sửa code", "Không commit", "không spawn subagent"):
+            with self.subTest(token=token):
+                self.assertIn(token, constraints)
+
+        output = agent.split("<output>", 1)[1]
+        self.assertIn("| # | Trạng thái | File bằng chứng | Ghi chú |", output)
+        for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
+            with self.subTest(status=status):
+                self.assertIn(status, output)
 
     def test_feature_workflow_fixes_minors_in_one_final_pass(self):
         """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
