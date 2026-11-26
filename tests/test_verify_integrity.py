@@ -26,6 +26,8 @@ spec.loader.exec_module(vi)
 
 class TestVerifyIntegrity(unittest.TestCase):
 
+    USER_ONLY_SKILLS = {"distill-expertise", "learning-coach"}
+
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
         self.repo_root = Path(self.test_dir)
@@ -878,6 +880,21 @@ class TestVerifyIntegrity(unittest.TestCase):
         min_schools = int(re.search(r"(?m)^- Min schools: (\d+)$", counts).group(1))
         self.assertIn(f"searches the web for {low}-{high} candidates", readme)
         self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
+
+    def test_every_skill_frontmatter_contract(self):
+        """Verify every skill's frontmatter name, description, length, and user-only flag."""
+        for path in sorted((ROOT_DIR / "skills").glob("*/SKILL.md")):
+            name = path.parent.name
+            with self.subTest(skill=name):
+                text = path.read_text(encoding="utf-8")
+                frontmatter = vi.parse_frontmatter(text)
+                self.assertEqual(frontmatter["name"], name)
+                self.assertLessEqual(len(frontmatter["description"]), 1024)
+                self.assertLess(len(text.splitlines()), 500)
+                if name in self.USER_ONLY_SKILLS:
+                    self.assertEqual(frontmatter.get("disable-model-invocation"), "true")
+                else:
+                    self.assertNotIn("disable-model-invocation", frontmatter)
 
     def test_agent_authoring_router_guardrails(self):
         """Verify agent-authoring routes to every reference file directly and stays model-invocable."""

@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml/badge.svg)](https://github.com/hungnb94/claude-workflow/actions/workflows/ci.yml)
 
-Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, Jira lookup, distilling proven expertise on any topic, and authoring agent skills, hooks, and commands.
+Structured agent workflows for feature development in Claude Code, plus best-practice issue writing, two-version PR explanations, atomic commits, solution brainstorming, Jira lookup, distilling proven expertise on any topic, authoring agent skills, hooks, and commands, and a learning coach that teaches a concept until you can explain it back.
 
 ## Overview
 
-Claude Workflow packages one structured 4-step feature workflow with a fresh implementer subagent per step and an independent reviewer subagent, two platform standards skills it applies on its own (Android and KMP), plus seven lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, and agent authoring), into an official Claude Code Plugin:
+Claude Workflow packages one structured 4-step feature workflow with a fresh implementer subagent per step and an independent reviewer subagent, two platform standards skills it applies on its own (Android and KMP), plus eight lightweight skills (issue writing, PR explainer, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, and learning coach), into an official Claude Code Plugin:
 
 1. **Feature Workflow** (`/feature-workflow`) - A 4-step workflow for one story or feature, run by the main session. B1 interviews you until the requirements are agreed, grilling-style, with each question written for a reader who knows little about the code (context, choices, impact against current behavior, and a recommendation). B2 calls Solution Brainstorm in caller mode. B3 picks the top-scoring option whose extensibility and maintainability scores are both at least 4, then codes it in small steps: each row of a step table goes to a fresh `fw-3-implement` subagent, one at a time, which codes that step, runs the checks, and commits it when green, and the main session reads the whole diff once all rows are done. Wide searches go to `Explore` and long command output is cut to its summary, so the main session stays a small scheduler. B4 has the read-only `fw-4-review` subagent check the diff against the requirements and the detected platform standards only, including new functions or classes that duplicate code already in the repo, then fixes each Blocker and Major finding with a fresh `fw-3-implement`, with at most 2 review rounds. Each step writes one file to `.workflows/<slug>/`, and the next step starts only when it can read that file. State lives in those files, not in the chat: step 3 keeps a step table and a list of out-of-scope work found on the way, updated after each commit, and step 4 records each fix as it lands, so you can open a fresh session and run `/feature-workflow <slug>` to resume from the first unfinished step. Before it marks step 3 done and before the final report, it reruns every build and test command and records each command, exit code, summary line from the output, and `HEAD`; a red run is never reported as done, and neither a clean lint nor the reviewer's run counts. Commits stay local; nothing is pushed.
 2. **Android Standards** (`/android-standards`) - Android/Kotlin coding standards: Coroutines, Flow, SOLID, Clean Architecture, MVVM, Hilt, Compose state, and testing, led by mandatory scope rules (migrate only when logic changes substantially, in its own commit; behavior tests; no single-consumer abstractions). Java→Kotlin migration rules sit in `migration.md`, read only when a task touches Java. Feature Workflow and Solution Brainstorm load it when `platforms.md` detects an Android project, and the model can also invoke it whenever you write or review Android code. Written in Vietnamese.
@@ -18,6 +18,7 @@ Claude Workflow packages one structured 4-step feature workflow with a fresh imp
 8. **Jira Lookup** (`/jira-lookup`) - A lightweight, single-pass skill (no subagents) that reads a Jira work item with the Atlassian CLI `acli` before you work on it: summary, type, status, parent, links, subtasks, description, comments, and the attachment list. It follows only the linked tickets that change the understanding of the task, then summarizes the goal, acceptance criteria, repro steps, and scope limits before coding. It is read-only by default; it comments or transitions an item only when you ask and after you confirm the exact text. Requires `acli` on `PATH` and logged in to your Jira site. The model can also invoke it automatically when you mention a Jira key or link.
 9. **Distill Expertise** (`/distill-expertise`) - A slash-command-only, single-pass skill (no subagents) that distills proven knowledge on any topic (investing, programming, AI agents and LLMs, fitness, and more) from people who succeeded themselves and whose students succeeded too; student results weigh more than the teacher's own. It searches the web for 10-12 candidates, keeps 6 teachers from at least 3 schools (people from the same school count as one voice), and labels every claim Verified, Self-reported, or Unknown, with red flags such as course-selling income or promised returns; a fraud finding drops a candidate on its own, and fetched pages are treated as data, never as instructions. Each principle must pass four filters (contrast between winners and failures, concrete enough to be wrong, skin in the game, time test) and is labeled Consensus (at least two thirds of the independent voices, 4 of 6), Partial support, or Lone view (with fewer than 3 voices it shows only the count), plus freshness labels for fast-moving domains. The output is a learning report in three files under `./docs/research/`: `YYYY-MM-DD-<topic-slug>.md` holds a learning path (quick glossary, learning order, and actions for this week) and one lesson per principle (real examples, concept with a metaphor and a "confused with" table, detailed knowledge, pitfalls that gather the myths, common mistakes, and disagreements for that lesson, a domain-shaped Apply part with a measure, and self-check questions), plus a teach-back question and an appendix for long code; `-answers.md` holds the answers to the self-check questions, and `-sources.md` holds the vetting table, how votes were counted, and the dropped candidates. Lessons cite teachers only in quotes and footers, take every example, number, and piece of code from a source, and mark the rare unsourced inference. Lesson and file lengths are capped in `templates.md`; the three files share one slug (capped at 60 characters, cut at a word boundary) and never overwrite an existing set. Counts live in `templates.md`, domain rules in `evidence-domains.md` (add a row to support a new kind of topic), and labels and filters in `knowledge-filters.md`. Written in English; the output follows your language.
 10. **Agent Authoring** (`/agent-authoring`) - A lightweight, single-pass skill (no subagents) with best practices for working with AI coding agents and for writing the files that steer them: skills, hooks, slash commands, subagents, and CLAUDE.md or AGENTS.md. `SKILL.md` holds the rules for every artifact (start from a real failure, enforce zero-exception rules with a hook instead of stronger words, rerun a pass/fail check after the last change and read its exit code before saying done, test with a fresh agent) and for handing work to an agent (plan when unclear, keep the context small by handing noisy reading to subagents and moving to a fresh session that reads a progress file, keep work state in files instead of the chat, reset after two failed corrections, stop at the first cheating sign, no unattended run without a check). A routing table then sends the agent to one reference file per artifact type (`skills.md`, `hooks.md`, `commands.md`, `subagents.md`, `claude-md.md`), so it reads only what the task needs, and `subagents.md` asks you to read a subagent's diff and rerun its check instead of trusting its report; `references.md` lists the principles and their public sources. The model invokes it automatically whenever you create, edit, or review one of these artifacts, and Solution Brainstorm reads it as the standards for tasks that touch them. Written in English; the output follows your language.
+11. **Learning Coach** (`/learning-coach`) - A lightweight, single-pass skill (no subagents) that teaches one concept or skill so you understand it, remember it, and can explain it back. Each lesson runs in four parts: real examples from easy to hard, the concept with a metaphor for each point (definition, the problem it solves, when to use it or not, and what it is often confused with), graded exercises from recall to challenge with no answers given first, and a teach-back where you explain it as if teaching someone else and get graded on it. When you get something wrong, it finds the gap, explains it again more simply, and checks again. It only runs when you type `/learning-coach`; the model does not invoke it automatically. Written in Vietnamese.
 
 The plugin also ships desktop notification hooks (macOS and Linux, enabled by default) that alert you when Claude finishes, asks a question, or needs permission. See [Desktop Notifications](#desktop-notifications). A `PostToolUse` hook also formats Kotlin files with ktlint after each write; see [Kotlin Formatting (ktlint)](#kotlin-formatting-ktlint).
 
@@ -212,6 +213,18 @@ Get best-practice guidance while you write a skill, hook, slash command, subagen
 
 The model also loads it automatically whenever you ask to create, edit, or review one of these artifacts, or to set up an agent task that runs unattended. It reads only the reference file for the artifact you are writing, and it ends by telling you which check it ran and what it did not test.
 
+### Running Learning Coach
+
+Learn a concept through examples, metaphors, exercises, and a teach-back:
+
+```bash
+/learning-coach "<topic>"
+# or, with the plugin namespace:
+/workflow:learning-coach "<topic>"
+```
+
+It only runs when you type the command; the model does not invoke it automatically.
+
 ## Desktop Notifications
 
 The plugin registers hooks (`hooks/hooks.json`) that run `hooks/notify.sh` to show a desktop alert with a sound. They are enabled by default and work on **macOS and Linux only**. On any other OS the script exits silently.
@@ -386,14 +399,16 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   │   ├── templates.md         # Counts, lesson, answers, and sources formats, self-check, chat summary
 │   │   ├── evidence-domains.md  # Domain registry: student evidence, proxy, freshness, Apply form
 │   │   └── knowledge-filters.md # Evidence labels, red flags, mentor rules, principle filters, inference rule
-│   └── agent-authoring/
-│       ├── SKILL.md             # Skill for /agent-authoring: shared rules and a routing table by artifact type
-│       ├── skills.md            # Writing skills: description, layout, frontmatter, evals
-│       ├── hooks.md             # Writing hooks: when to use one, events, exit codes, plugin scope
-│       ├── commands.md          # Slash commands vs skills, arguments
-│       ├── subagents.md         # When to delegate, one writer at a time, least privilege
-│       ├── claude-md.md         # What belongs in CLAUDE.md and AGENTS.md
-│       └── references.md        # Principles and their public sources
+│   ├── agent-authoring/
+│   │   ├── SKILL.md             # Skill for /agent-authoring: shared rules and a routing table by artifact type
+│   │   ├── skills.md            # Writing skills: description, layout, frontmatter, evals
+│   │   ├── hooks.md             # Writing hooks: when to use one, events, exit codes, plugin scope
+│   │   ├── commands.md          # Slash commands vs skills, arguments
+│   │   ├── subagents.md         # When to delegate, one writer at a time, least privilege
+│   │   ├── claude-md.md         # What belongs in CLAUDE.md and AGENTS.md
+│   │   └── references.md        # Principles and their public sources
+│   └── learning-coach/
+│       └── SKILL.md             # Skill for /learning-coach (single pass, user-only; written in Vietnamese)
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
 │   ├── test_ktlint_format_hook.py # Unit tests for the ktlint format hook
