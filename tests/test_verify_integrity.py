@@ -776,6 +776,43 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, report)
 
+    def test_feature_workflow_ac_status_stays_out_of_requirements(self):
+        """Verify AC statuses go only to 03-implementation.md and the final report, never to 01-requirements.md."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        rule = (
+            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của `03-implementation.md` và vào báo cáo cuối,\n"
+            "  không ghi vào `01-requirements.md`; file đó không đổi sau B1."
+        )
+        self.assertIn(rule, section)
+        sentences = re.split(r"(?<=[.:;])\s", body.replace("\n", " "))
+        for sentence in sentences:
+            if "01-requirements.md" in sentence and re.search(r"(?i)trạng thái AC", sentence):
+                with self.subTest(sentence=sentence):
+                    self.assertIn("không ghi vào `01-requirements.md`", sentence)
+
+    def test_readme_names_evidence_agent_in_each_feature_workflow_part(self):
+        """Verify README names fw-3-evidence in the overview, diagram, One Writer principle, agent table, and tree."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        overview = readme.split("\n## Overview\n", 1)[1].split("\n## ", 1)[0]
+        feature = next(line for line in overview.splitlines() if line.startswith("1. **Feature Workflow**"))
+        architecture = readme.split("\n### Four-Step Feature Workflow\n", 1)[1].split("\n### ", 1)[0]
+        diagram = architecture.split("```text\n", 1)[1].split("```", 1)[0]
+        principles = readme.split("\n### Architectural Principles\n", 1)[1].split("\n## ", 1)[0]
+        writer = next(line for line in principles.splitlines() if line.startswith("4. **One Writer at a Time**"))
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        tree = readme.split("\n## Project Structure\n", 1)[1].split("\n## ", 1)[0]
+        parts = {
+            "overview": (feature, "`fw-3-evidence`"),
+            "diagram": (diagram, "[fw-3-evidence]"),
+            "principle": (writer, "`fw-3-evidence` writes only evidence files into `.workflows/<slug>/evidence/`"),
+            "agent table": (agents, "\n| `fw-3-evidence` |"),
+            "tree": (tree, "fw-3-evidence.md"),
+        }
+        for name, (part, token) in parts.items():
+            with self.subTest(part=name):
+                self.assertIn(token, part)
+
     def test_feature_workflow_b1_gates_each_ac_on_a_check(self):
         """Verify B1 writes every AC as a full table row with a measurable check before the user confirms."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")

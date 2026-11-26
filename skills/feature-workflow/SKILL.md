@@ -90,6 +90,8 @@ ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo c
 - Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
   nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm`; file ở thư mục khác không
   tính.
+- Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của `03-implementation.md` và vào báo cáo cuối,
+  không ghi vào `01-requirements.md`; file đó không đổi sau B1.
 - Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
 - Agent trả `lỗi`: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người dùng.
