@@ -839,7 +839,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, round_two)
         final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`"):
+        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`", "theo đúng dòng agent trả cho Minor đó", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`hỏng <lý do>` cho mọi Minor của lượt này"):
             with self.subTest(token=token):
                 self.assertIn(token, final_pass)
         out = b4.split("**Ra:**", 1)[1]

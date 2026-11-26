@@ -212,8 +212,9 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
 5. Lượt Minor cuối: sau vòng review cuối, còn Minor `chờ lượt cuối` trong mục `## Minor` của
    `04-review-<n>.md` mới nhất thì spawn đúng một `fw-3-implement` mới, truyền như bước 5 của B3 với
    `STEP` là danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay
-   vào dòng của từng Minor trong file mới nhất đó `xong <commit>`; agent trả `lỗi` thì ghi `hỏng <lý do>` cho mọi Minor của lượt này và
-   không dừng. Lượt này không chạy `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và
+   vào dòng của từng Minor trong file mới nhất đó trạng thái theo đúng dòng agent trả cho Minor đó:
+   `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`; agent trả `lỗi` thì ghi
+   `hỏng <lý do>` cho mọi Minor của lượt này. Cả hai trường hợp đều không dừng. Lượt này không chạy `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và
    chạy lần đó.
 
 **Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào) hay
