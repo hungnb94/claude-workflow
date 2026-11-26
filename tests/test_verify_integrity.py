@@ -815,8 +815,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
         check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
         self.assertIn("một lần trên toàn bộ thay đổi", check_step)
+        self.assertIn("hoàn tác phần đã sửa cho\n   nó trước bước 5", steps.split("\n4. ", 1)[1].split("\n5. ", 1)[0])
         commit_step = steps.split("\n6. ", 1)[1]
-        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu"):
+        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu", "Không stage một phần file", "`git status --porcelain` phải sạch"):
             with self.subTest(token=token):
                 self.assertIn(token, commit_step)
         self.assertIn("hoặc danh sách Minor (mỗi Minor một commit)", inputs)
@@ -854,7 +855,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
         self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
         self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
-        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi"):
+        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi", "Minor chưa có trạng thái"):
             with self.subTest(token=token):
                 self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]

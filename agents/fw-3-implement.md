@@ -39,7 +39,8 @@ Thiếu input nào thì báo thiếu gì và dừng.
 3. Đọc code quanh chỗ sẽ sửa; grep trước khi viết function hoặc class mới để không làm trùng cái đã có.
 4. Code chỉ `STEP`; với danh sách Minor, sửa đúng các Minor trong danh sách. Hành vi mới có test nếu
    repo có test. Không xoá, skip hay nới lỏng test hoặc assertion có sẵn. Thấy việc khác cần làm thì
-   không làm, ghi vào `Việc phát sinh` của output.
+   không làm, ghi vào `Việc phát sinh` của output. Minor nào không sửa được thì hoàn tác phần đã sửa cho
+   nó trước bước 5, để không còn thay đổi nào chưa qua `CHECKS` hay chưa commit, và ghi `<#> hỏng`.
 5. Chạy mọi lệnh trong `CHECKS` một lần trên toàn bộ thay đổi, kể cả khi `STEP` là danh sách Minor. Đỏ
    thì sửa rồi chạy lại; sửa 2 lần vẫn đỏ thì dừng, không commit, và khôi phục các file đã sửa
    (`git restore --staged --worktree -- <file>`, xoá file mới tạo). `CHECKS` là `không có` thì bỏ qua
@@ -47,7 +48,9 @@ Thiếu input nào thì báo thiếu gì và dừng.
 6. Xanh, hoặc `CHECKS` là `không có`, thì commit: chỉ `git add -- <file>`, message theo `COMMIT_STYLE`,
    không `--no-verify`. Một việc thì commit một lần. Danh sách Minor thì mỗi Minor một commit, chỉ add
    file của Minor đó; các Minor cùng file chung một commit, kể cả bắc cầu (Minor có chung bất kỳ file
-   nào với một Minor trong nhóm thì vào nhóm đó), và ghi rõ trong output.
+   nào với một Minor trong nhóm thì vào nhóm đó), và ghi rõ trong output. Không stage một phần file
+   (`git add -p`, `git apply --cached`): commit nào cũng chứa trọn các file của nó. Commit xong thì
+   `git status --porcelain` phải sạch.
 </steps>
 
 <constraints>

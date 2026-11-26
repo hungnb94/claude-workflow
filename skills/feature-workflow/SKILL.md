@@ -68,7 +68,8 @@ Khi người dùng chọn làm tiếp:
    làm lại hay dừng. Minor `chờ lượt cuối` coi như đã ghi, chỉ xử lý ở lượt Minor cuối; Minor `hỏng` vào
    "Minor đã bỏ qua" của `Báo cáo cuối`, không hỏi. Minor `chờ lượt cuối` trong mục
    `## Minor` của file mới nhất đó mà commit sửa đã có trên nhánh: ghi `xong <commit>` vào file đó trước,
-   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
+   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối. Minor chưa có trạng thái (bị ngắt giữa bước 2
+   và bước 3 của B4) thì ghi trạng thái như bước 3 của B4 trước.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
    `Bằng chứng xong` của nó.
