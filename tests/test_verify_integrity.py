@@ -852,8 +852,12 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
         self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
         self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
+        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]
-        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`"):
+        self.assertNotIn("như bước 7 của B3", report)
+        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`", "mở agent mới"):
             with self.subTest(token=token):
                 self.assertIn(token, report)
         self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))

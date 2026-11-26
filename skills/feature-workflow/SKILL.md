@@ -63,10 +63,12 @@ Khi người dùng chọn làm tiếp:
    Làm tiếp từ dòng đầu tiên chưa `xong`; dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Mọi dòng đã
    `xong` thì chạy bước 7 của B3.
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
-   file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
-   đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng làm lại hay dừng.
-   Minor `chờ lượt cuối` trong mục `## Minor` của file mới nhất đó mà commit sửa đã có trên nhánh: ghi
-   `xong <commit>` vào file đó trước, chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
+   file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Với Blocker và Major:
+   làm tiếp từ phát hiện đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng
+   làm lại hay dừng. Minor `chờ lượt cuối` coi như đã ghi, chỉ xử lý ở lượt Minor cuối; Minor `hỏng` vào
+   "Minor đã bỏ qua" của `Báo cáo cuối`, không hỏi. Minor `chờ lượt cuối` trong mục
+   `## Minor` của file mới nhất đó mà commit sửa đã có trên nhánh: ghi `xong <commit>` vào file đó trước,
+   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
    `Bằng chứng xong` của nó.
@@ -200,12 +202,13 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
 3. Sửa hết Blocker và Major. Minor không sửa trong vòng: Minor sửa nhỏ và không mở rộng phạm vi thì ghi
    `chờ lượt cuối` vào mục `## Minor` của `04-review-<n>.md`, Minor khác ghi `không sửa: <lý do>`. Mỗi
-   Blocker hoặc Major là một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
-   sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
-   hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả `lỗi` thì dừng và báo người dùng như bước 6
-   của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các commit sửa
-   và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ, nhưng ghi lần sửa đó vào
-   `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
+   Blocker hoặc Major là một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó
+   (file:line, vấn đề, gợi ý sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì
+   ghi ngay vào `04-review-<n>.md` phát hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả
+   `lỗi` thì dừng và báo người dùng như bước 6 của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong
+   thì kiểm diff của các commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ,
+   nhưng ghi lần sửa đó vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
+   `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng. Khi ghi `04-review-2.md`, chép các Minor còn `chờ lượt cuối` của vòng 1 sang mục
    `## Minor` của file đó và bỏ dòng trùng (cùng file:line và vấn đề), để mỗi Minor chỉ nằm một lần.
@@ -214,8 +217,8 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    `STEP` là danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay
    vào dòng của từng Minor trong file mới nhất đó trạng thái theo đúng dòng agent trả cho Minor đó:
    `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`; agent trả `lỗi` thì ghi
-   `hỏng <lý do>` cho mọi Minor của lượt này. Cả hai trường hợp đều không dừng. Lượt này không chạy `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và
-   chạy lần đó.
+   `hỏng <lý do>` cho mọi Minor của lượt này. Cả hai trường hợp đều không dừng. Lượt này không chạy
+   `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và chạy lần đó.
 
 **Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào) hay
 không sửa (lý do); Minor ghi trong mục `## Minor` theo khung:
@@ -237,8 +240,9 @@ thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 
 ## Báo cáo cuối
 
-Có lượt Minor cuối thì trước tiên kiểm diff các commit của lượt đó như bước 7 của B3 (không test hay
-assertion nào bị xoá, skip hay nới lỏng). Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
+Có lượt Minor cuối thì trước tiên kiểm diff các commit của lượt đó (không test hay assertion nào bị xoá,
+skip hay nới lỏng); diff có vấn đề thì ghi vào `04-review-<n>.md` mới nhất và nêu trong báo cáo cuối, không
+mở agent mới. Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
 (bằng chứng của B3 không thay lần chạy này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng
 chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng` và `không sửa` trong
 mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`, đường dẫn `DIR`, và lệnh
