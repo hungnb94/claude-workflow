@@ -879,7 +879,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn(f"searches the web for {low}-{high} candidates", readme)
         self.assertIn(f"keeps {kept} teachers from at least {min_schools} schools", readme)
 
-    USER_ONLY_SKILLS = {"distill-expertise"}
+    USER_ONLY_SKILLS = {"distill-expertise", "learning-coach"}
 
     def test_every_skill_frontmatter_contract(self):
         """Verify every skill's frontmatter name, description, length, and user-only flag."""
