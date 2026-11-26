@@ -418,7 +418,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(len(description), 1024)
 
         fw_agents = sorted(f.stem for f in (ROOT_DIR / "agents").glob("fw-*.md"))
-        self.assertEqual(fw_agents, ["fw-3-implement", "fw-4-review"])
+        self.assertEqual(fw_agents, ["fw-3-evidence", "fw-3-implement", "fw-4-review"])
         self.assertIn("`fw-4-review`", body)
         reviewer = read("agents", "fw-4-review.md")
         tools = vi.parse_frontmatter(reviewer)["tools"]
@@ -826,6 +826,42 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
+
+    def test_evidence_agent_is_blind_and_writes_only_evidence(self):
+        """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to EVIDENCE_DIR."""
+        agent = (ROOT_DIR / "agents" / "fw-3-evidence.md").read_text(encoding="utf-8")
+        frontmatter = vi.parse_frontmatter(agent)
+        self.assertEqual(frontmatter["name"], "fw-3-evidence")
+        self.assertEqual(sorted(frontmatter["tools"]), ["Bash", "Glob", "Grep", "Read", "Write"])
+        self.assertNotIn("Edit", frontmatter["tools"])
+        self.assertEqual(frontmatter["model"], "inherit")
+        self.assertNotIn("-review", frontmatter["name"])
+
+        inputs = agent.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        for token in ("`REQUIREMENTS`", "`BASE`", "`CHECKS`", "`EVIDENCE_DIR`", "`DIR/evidence/`", "báo thiếu gì và dừng"):
+            with self.subTest(token=token):
+                self.assertIn(token, inputs)
+
+        steps = agent.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`EVIDENCE_DIR/<HEAD>/`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `EVIDENCE_DIR`"):
+            with self.subTest(token=token):
+                self.assertIn(token, steps)
+
+        constraints = agent.split("<constraints>", 1)[1].split("</constraints>", 1)[0]
+        banned = "Không đọc `02-solution.md` hay `03-implementation.md`."
+        self.assertIn(banned, constraints)
+        for hidden in ("02-solution.md", "03-implementation.md"):
+            with self.subTest(hidden=hidden):
+                self.assertEqual(agent.count(hidden), 1)
+        for token in ("Chỉ tạo file trong `EVIDENCE_DIR`", "Không sửa code", "Không commit", "không spawn subagent"):
+            with self.subTest(token=token):
+                self.assertIn(token, constraints)
+
+        output = agent.split("<output>", 1)[1]
+        self.assertIn("| # | Trạng thái | File bằng chứng | Ghi chú |", output)
+        for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
+            with self.subTest(status=status):
+                self.assertIn(status, output)
 
     def test_feature_workflow_fixes_minors_in_one_final_pass(self):
         """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
