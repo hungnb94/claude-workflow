@@ -27,7 +27,9 @@ Thiếu input nào thì báo thiếu gì và dừng.
 <steps>
 1. Đọc `REQUIREMENTS` (bảng AC). Không đọc file nào khác trong `.workflows/`.
 2. `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): dừng và trả `lỗi`. Ghi `HEAD`
-   = `git rev-parse --short HEAD`; mọi file tạo ra nằm trong `EVIDENCE_DIR/<HEAD>/`.
+   = `git rev-parse --short HEAD`. Tạo thư mục mới `RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`
+   (`date +%Y%m%d-%H%M%S`) bằng `mkdir` không `-p`; đã có thì lấy timestamp mới. Mọi file của lần chạy
+   này nằm trong `RUN_DIR`.
 3. Chạy từng lệnh trong `CHECKS`, lưu lệnh, exit code và output vào một file log. `CHECKS` là `không có`
    thì ghi `không có lệnh kiểm`.
 4. Với từng AC, theo cột `Phép kiểm` và `Môi trường`: `lệnh` hay `script so với mốc` thì chạy và lưu
@@ -38,7 +40,7 @@ Thiếu input nào thì báo thiếu gì và dừng.
    chứng và chấm `đạt` hoặc `không đạt` theo đúng câu AC; `người ký` thì không chấm, ghi `chờ người ký`
    kèm bằng chứng nếu tạo được. Không chạy được môi trường cam kết (không có thiết bị, công cụ) hoặc chỉ
    chạy được môi trường khác: ghi `chưa kiểm: <lý do>`, không ghi `đạt`. Mọi `đạt` và `không đạt` phải
-   dẫn file trong `EVIDENCE_DIR`.
+   dẫn file trong `RUN_DIR`.
 </steps>
 
 <constraints>
@@ -50,7 +52,8 @@ không sửa. Viết tiếng Việt, giữ thuật ngữ kỹ thuật bằng ti�
 <output>
 Trả tối đa 40 dòng. Với output dài, chỉ chép dòng tóm tắt và các dòng lỗi, không chép cả log.
 
-1. `Kết quả: xong` hoặc `Kết quả: lỗi <lý do một dòng>`, kèm `HEAD`.
+1. `Kết quả: xong` hoặc `Kết quả: lỗi <lý do một dòng>`, kèm `HEAD` và đường dẫn tuyệt đối tới
+   `RUN_DIR`.
 2. Mỗi lệnh trong `CHECKS`: lệnh, exit code, dòng tóm tắt chép từ output, file log; hoặc
    `không có lệnh kiểm`.
 3. Bảng `| # | Trạng thái | File bằng chứng | Ghi chú |` cho mọi AC. Trạng thái là `đạt`, `không đạt`,

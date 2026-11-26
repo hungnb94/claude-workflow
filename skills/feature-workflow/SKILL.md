@@ -73,6 +73,8 @@ Khi người dùng chọn làm tiếp:
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
    `Bằng chứng xong` của nó.
+7. Lần chạy `Bằng chứng xong` bị ngắt: bỏ thư mục dở của nó trong `DIR/evidence/` và chạy lại
+   `Bằng chứng xong` bằng một `fw-3-evidence` mới.
 
 ## Bằng chứng xong
 
@@ -83,10 +85,11 @@ ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo c
   không dùng `subagent_type: "fork"`. Truyền `REQUIREMENTS` (đường dẫn tuyệt đối tới
   `01-requirements.md`), `BASE`, `CHECKS` (các lệnh trong `Lệnh build và test`, hoặc `không có`) và
   `EVIDENCE_DIR` = `DIR/evidence/`. Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả.
-- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, và `HEAD` lúc chạy. Agent ghi
-  `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
+- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, `HEAD` lúc chạy và `RUN_DIR` agent trả.
+  Agent ghi `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
 - Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
-  có trong `EVIDENCE_DIR` (kiểm bằng `ls`) thì ghi `chưa kiểm`.
+  nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm`; file ở thư mục khác không
+  tính.
 - Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
 - Agent trả `lỗi`: chạy lại một lần bằng agent mới; vẫn lỗi thì dừng và báo người dùng.

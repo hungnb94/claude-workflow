@@ -739,6 +739,8 @@ class TestVerifyIntegrity(unittest.TestCase):
             "Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả",
             "`đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`",
             "thì ghi `chưa kiểm`",
+            "`RUN_DIR` agent trả",
+            "nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`)",
             "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
             "không chặn B3, B4",
             "chạy lại một lần bằng agent mới",
@@ -754,6 +756,11 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(input=name):
                 self.assertIn(f"`{name}`", section)
         output = agent.split("<output>", 1)[1]
+        self.assertIn("đường dẫn tuyệt đối tới\n   `RUN_DIR`", output)
+        self.assertNotIn("`EVIDENCE_DIR/<HEAD>/`", agent)
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("Lần chạy `Bằng chứng xong` bị ngắt: bỏ thư mục dở", resume)
+        self.assertIn("bằng một `fw-3-evidence` mới", resume)
         for status in ("`đạt`", "`không đạt`", "`chờ người ký`", "`chưa kiểm: <lý do>`"):
             with self.subTest(status=status):
                 self.assertIn(status, output)
@@ -911,7 +918,7 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, inputs)
 
         steps = agent.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`EVIDENCE_DIR/<HEAD>/`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `EVIDENCE_DIR`"):
+        for token in ("Không đọc file nào khác trong `.workflows/`", "`git rev-parse --short HEAD`", "`RUN_DIR` = `EVIDENCE_DIR/<HEAD>-<timestamp>/`", "`mkdir` không `-p`", "Mọi file của lần chạy\n   này nằm trong `RUN_DIR`", "exit code", "`không có lệnh kiểm`", "không chép kết quả cũ", "`chưa kiểm: <lý do>`", "`chờ người ký`", "phải\n   dẫn file trong `RUN_DIR`"):
             with self.subTest(token=token):
                 self.assertIn(token, steps)
 
