@@ -17,15 +17,17 @@ Câu mở đầu: "Tôi đang dùng skill feature-workflow, gồm 4 bước."
   quy trình không.
 - Có Jira key (kể cả nằm trong URL): dùng skill `jira-lookup` lấy title và description làm
   `STORY`.
-- `SLUG`: Jira key nếu có; không có thì kebab-case tối đa 4 từ.
+- `SLUG`: Jira key nếu có; `STORY` trùng tên một thư mục trong `.workflows/` thì dùng tên đó; còn lại
+  kebab-case tối đa 4 từ.
 - `DIR` = `<repo root>/.workflows/<SLUG>/`, luôn dùng đường dẫn tuyệt đối. `git check-ignore -q .workflows/`
   báo chưa ignore thì thêm dòng `.workflows/` vào `.git/info/exclude`, không sửa `.gitignore`.
-- `DIR` đã có file, hoặc nhánh `feature/<SLUG>` đã tồn tại: hỏi người dùng muốn đặt slug mới, hay chạy
-  lại từ đầu (ghi đè file; nhánh cũ do người dùng tự xoá hoặc đổi tên trước). Chạy lại mà
-  `03-implementation.md` cũ có `BASE` và `BASE..HEAD` còn commit trên nhánh hiện tại: liệt kê các commit
-  đó và hỏi người dùng giữ hay bỏ trước khi ghi đè. Không làm tiếp giữa chừng, không ghi đè im lặng.
+- `DIR` đã có file, hoặc nhánh `feature/<SLUG>` đã tồn tại: hỏi người dùng muốn làm tiếp (theo mục
+  `Làm tiếp`), đặt slug mới, hay chạy lại từ đầu (ghi đè file; nhánh cũ do người dùng tự xoá hoặc đổi tên
+  trước). Chạy lại mà `03-implementation.md` cũ có `BASE` và `BASE..HEAD` còn commit trên nhánh hiện tại:
+  liệt kê các commit đó và hỏi người dùng giữ hay bỏ trước khi ghi đè. Không ghi đè im lặng.
 - `git status --porcelain` có thay đổi chưa commit (ngoài `.workflows/`): liệt kê và hỏi người dùng
-  commit hoặc stash trước. Không commit lẫn thay đổi có sẵn của người dùng.
+  commit hoặc stash trước. Không commit lẫn thay đổi có sẵn của người dùng. Người dùng chọn làm tiếp thì
+  theo bước 2 của mục `Làm tiếp` thay cho dòng này.
 
 ## Luật chuyển bước
 
@@ -36,6 +38,35 @@ Hội thoại dài sẽ bị tóm tắt và mất chi tiết; file trong `DIR` t
 - Trước khi làm bước N, đọc file Ra của bước N-1. Thiếu file hoặc thiếu dòng trạng thái thì làm lại bước
   N-1, không đoán nội dung của nó.
 - Xong mỗi bước, báo người dùng một dòng: bước nào xong, file nào.
+- Giữ context của session chính nhỏ: ở mọi bước, việc tìm kiếm hay đọc nhiều file giao subagent
+  `Explore` và chỉ nhận về bản tóm tắt có file:line; output dài của lệnh chỉ giữ dòng tóm tắt và các dòng
+  lỗi.
+- Trạng thái nằm trong file, không nằm trong chat: tiến độ, việc phát sinh và kết quả từng lần sửa được
+  ghi vào file của bước ngay khi có, không đợi cuối bước.
+
+## Làm tiếp
+
+Context đầy hoặc session bị ngắt thì người dùng có thể mở session mới và chạy `/feature-workflow <SLUG>`.
+Khi người dùng chọn làm tiếp:
+
+1. Đọc file Ra theo thứ tự `01` tới `04`. Bước làm tiếp là bước đầu tiên có file Ra thiếu hoặc thiếu
+   `Trạng thái: xong`. Không dựa vào trí nhớ hay bản tóm tắt hội thoại cho bước đã xong. Làm tiếp từ B1
+   mà `$ARGUMENTS` chỉ là slug: hỏi lại người dùng nội dung story.
+2. Có thay đổi chưa commit: đó thường là việc dở của một `fw-3-implement` bị ngắt, chưa qua `CHECKS`.
+   Đề nghị người dùng stash hoặc bỏ, không commit nó; bước đó làm lại bằng một agent mới. Làm bước này
+   trước khi switch nhánh.
+3. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
+   `BASE` (`git merge-base --is-ancestor <BASE> <nhánh>`); switch sang nhánh đó. Không thoả thì dừng và
+   hỏi người dùng.
+4. Đang ở B3: đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng
+   `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi vào dòng tương ứng trước.
+   Làm tiếp từ dòng đầu tiên chưa `xong`; dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Mọi dòng đã
+   `xong` thì chạy bước 7 của B3.
+5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
+   file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
+   đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng làm lại hay dừng.
+6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
+   còn lại chạy `Báo cáo cuối`, kể cả lần chạy `Bằng chứng xong` của nó.
 
 ## Bằng chứng xong
 
@@ -110,18 +141,49 @@ và mục `Lệnh build và test`.
    đó trước khi code.
 4. Đang ở nhánh mặc định hoặc detached HEAD thì `git switch -c feature/<SLUG>`. Trước commit đầu tiên,
    ghi ngay vào `03-implementation.md` (chưa có dòng trạng thái): phương án, đánh giá, thiết kế ở bước 3
-   nếu có, nhánh, và `BASE` = `git rev-parse HEAD`. Làm lại B3 mà `03-implementation.md` đã có `BASE`
-   thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các commit đã có.
-5. Code từng bước nhỏ, mỗi bước một thay đổi. Hành vi mới có test nếu repo có test. Chạy các lệnh trong
-   `Lệnh build và test`; xanh mới commit. Message theo skill `atomic-commit`; chỉ `git add -- <file>`, không `--no-verify`.
-6. Đọc lại các file trong `Chuẩn áp dụng` trước khi code, cùng những file tham chiếu mà bảng của chuẩn
-   chỉ tới cho thay đổi sắp code, và code theo chúng.
-7. Comment theo `comment-policy.md` (đường dẫn: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`).
-8. Test đỏ mà sửa 2 lần vẫn đỏ: dừng, báo người dùng lỗi và những gì đã thử.
+   nếu có, nhánh, `BASE` = `git rev-parse HEAD`, `Bảng bước` và `Việc phát sinh` theo khung dưới. Làm lại
+   B3 mà `03-implementation.md` đã có `BASE` thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các
+   commit đã có.
+
+   ```markdown
+   ## Bảng bước
+
+   | # | Mục tiêu | File dự kiến | Trạng thái |
+   |---|---|---|---|
+   | 1 | <một thay đổi, một commit> | <file> | chưa |
+
+   ## Việc phát sinh
+
+   - <việc ngoài phạm vi thấy trong lúc code, chưa làm>
+   ```
+
+5. Lần lượt với từng dòng `chưa` của `Bảng bước`, spawn một agent `fw-3-implement` mới (trong plugin:
+   `workflow:fw-3-implement`). Mỗi dòng một agent, không chạy hai agent cùng lúc, không dùng
+   `subagent_type: "fork"`: agent code trong context mới, chỉ biết những gì được truyền. Truyền:
+   - `STEP`: mục tiêu và file dự kiến của dòng đó.
+   - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
+   - `DESIGN`: đường dẫn tuyệt đối tới `02-solution.md` kèm heading của phương án đã chọn, hoặc tới
+     `03-implementation.md` kèm heading thiết kế nếu đã tự viết ở bước 3.
+   - `STANDARDS`: các đường dẫn trong `Chuẩn áp dụng`, hoặc `không có`.
+   - `COMMENT_POLICY`: `<Base directory của skill này>/../solution-brainstorm/comment-policy.md`.
+   - `COMMIT_STYLE`: `<Base directory của skill này>/../atomic-commit/SKILL.md`.
+   - `CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`.
+
+   Agent code bước đó, có test cho hành vi mới nếu repo có test, chạy `CHECKS`, xanh mới tự commit (chỉ
+   `git add -- <file>`, không `--no-verify`).
+6. Agent trả về thì ghi ngay dòng đó trong `Bảng bước`: `xong <commit>` hoặc `hỏng <lý do>`, và chép các
+   việc trong `Việc phát sinh` của nó vào mục cùng tên của `03-implementation.md`; không làm luôn việc
+   ngoài phạm vi. Agent trả `lỗi` (test đỏ sau 2 lần sửa): dừng, báo người dùng lỗi và những gì đã thử.
+7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`, kiểm không test hay
+   assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu; rồi chạy theo mục
+   `Bằng chứng xong`. Diff có vấn đề hoặc có lệnh đỏ: thêm một dòng vào `Bảng bước` và sửa bằng một
+   `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người
+   dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh`
+   và nói trong báo cáo cuối. Không tự sửa code trong session chính.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
-phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..HEAD`); bằng chứng theo mục
-`Bằng chứng xong`.
+phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit
+(`git log --oneline BASE..HEAD`); bằng chứng theo mục `Bằng chứng xong`.
 
 ## B4. Review và sửa
 
@@ -132,9 +194,14 @@ phải tự viết; nhánh; `BASE`; danh sách commit (`git log --oneline BASE..
    `STANDARDS` (các đường dẫn trong `Chuẩn áp dụng`, hoặc `không có`). Không
    truyền `02-solution.md` hay `03-implementation.md`, không dùng `subagent_type: "fork"`: reviewer phải
    đánh giá code mà không biết ý định của người viết.
-2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng).
-3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi lần sửa là một commit
-   mới, test xanh. Phát hiện nào không sửa thì ghi lý do.
+2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
+3. Sửa hết Blocker và Major. Sửa Minor khi sửa nhỏ và không mở rộng phạm vi. Mỗi phát hiện cần sửa là
+   một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó (file:line, vấn đề, gợi ý
+   sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì ghi ngay vào `04-review-<n>.md` phát
+   hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả `lỗi` thì dừng và báo người dùng như bước 6
+   của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong thì kiểm diff của các commit sửa
+   và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ, nhưng ghi lần sửa đó vào
+   `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
    thì báo người dùng.
 
@@ -143,11 +210,11 @@ không sửa (lý do).
 
 ## Không làm
 
-Không push, không tạo PR, không merge, không viết lại commit đã có. Không giao việc viết code cho
-subagent.
+Không push, không tạo PR, không merge, không viết lại commit đã có. Session chính không tự sửa code: mọi
+thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 
 ## Báo cáo cuối
 
 Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì (bằng chứng của B3 không thay lần chạy
-này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, đường dẫn `DIR`, và lệnh
+này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua, `Việc phát sinh`, đường dẫn `DIR`, và lệnh
 `git push -u origin <nhánh>` để họ tự push.

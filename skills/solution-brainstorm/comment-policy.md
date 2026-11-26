@@ -1,7 +1,7 @@
 # Comment policy
 
 Nguồn duy nhất cho quy tắc comment trong code do workflow viết hoặc sửa. Đọc bởi `/solution-brainstorm`
-(skeleton và bước implement ngay sau brainstorm), `/feature-workflow` (B3) và agent `fw-4-review`. Sửa quy tắc
+(skeleton và bước implement ngay sau brainstorm), `/feature-workflow` (B3), agent `fw-3-implement` và agent `fw-4-review`. Sửa quy tắc
 ở đây, không chép lại vào skill hay agent.
 
 ## Mặc định
