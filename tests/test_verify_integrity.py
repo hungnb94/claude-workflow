@@ -806,6 +806,24 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
+    def test_implementer_fixes_final_minors_in_one_pass(self):
+        """Verify the implementer takes the final Minor list, runs the checks once, and commits each Minor on its own."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        self.assertIn("danh sách Minor của lượt cuối B4", inputs)
+        self.assertIn("lượt Minor cuối của B4", implementer.split("<role>", 1)[1].split("</role>", 1)[0])
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        self.assertIn("một lần trên toàn bộ thay đổi", check_step)
+        commit_step = steps.split("\n6. ", 1)[1]
+        for token in ("mỗi Minor một commit", "cùng file chung một commit"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit_step)
+        output = implementer.split("<output>", 1)[1]
+        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, output)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 
