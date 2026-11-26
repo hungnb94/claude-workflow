@@ -65,8 +65,8 @@ Khi người dùng chọn làm tiếp:
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
    file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Làm tiếp từ phát hiện
    đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng làm lại hay dừng.
-   Minor `chờ lượt cuối` trong mục `## Minor` mà commit sửa đã có trên nhánh: ghi `xong <commit>` trước,
-   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
+   Minor `chờ lượt cuối` trong mục `## Minor` của file mới nhất đó mà commit sửa đã có trên nhánh: ghi
+   `xong <commit>` vào file đó trước, chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
    `Bằng chứng xong` của nó.
@@ -207,11 +207,12 @@ phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `
    và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ, nhưng ghi lần sửa đó vào
    `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
-   thì báo người dùng.
-5. Lượt Minor cuối: sau vòng review cuối, còn Minor `chờ lượt cuối` trong mục `## Minor` của mọi
-   `04-review-<n>.md` thì spawn đúng một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là
-   danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay vào dòng
-   của từng Minor `xong <commit>`; agent trả `lỗi` thì ghi `hỏng <lý do>` cho mọi Minor của lượt này và
+   thì báo người dùng. Khi ghi `04-review-2.md`, chép các Minor còn `chờ lượt cuối` của vòng 1 sang mục
+   `## Minor` của file đó và bỏ dòng trùng (cùng file:line và vấn đề), để mỗi Minor chỉ nằm một lần.
+5. Lượt Minor cuối: sau vòng review cuối, còn Minor `chờ lượt cuối` trong mục `## Minor` của
+   `04-review-<n>.md` mới nhất thì spawn đúng một `fw-3-implement` mới, truyền như bước 5 của B3 với
+   `STEP` là danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay
+   vào dòng của từng Minor trong file mới nhất đó `xong <commit>`; agent trả `lỗi` thì ghi `hỏng <lý do>` cho mọi Minor của lượt này và
    không dừng. Lượt này không chạy `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và
    chạy lần đó.
 
@@ -239,5 +240,5 @@ Có lượt Minor cuối thì trước tiên kiểm diff các commit của lư�
 assertion nào bị xoá, skip hay nới lỏng). Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
 (bằng chứng của B3 không thay lần chạy này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng
 chứng của lần chạy đó, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng` và `không sửa` trong
-mục `## Minor`), `Việc phát sinh`, đường dẫn `DIR`, và lệnh
+mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`, đường dẫn `DIR`, và lệnh
 `git push -u origin <nhánh>` để họ tự push.

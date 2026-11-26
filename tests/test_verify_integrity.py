@@ -834,8 +834,12 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("`chờ lượt cuối`", "mục `## Minor` của `04-review-<n>.md`", "`không sửa: <lý do>`"):
             with self.subTest(token=token):
                 self.assertIn(token, fix_step)
+        round_two = b4.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
+        for token in ("chép các Minor còn `chờ lượt cuối` của vòng 1", "bỏ dòng trùng"):
+            with self.subTest(token=token):
+                self.assertIn(token, round_two)
         final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`"):
+        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`"):
             with self.subTest(token=token):
                 self.assertIn(token, final_pass)
         out = b4.split("**Ra:**", 1)[1]
@@ -846,6 +850,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
         resume_b4 = resume.split("Đang ở B4:", 1)[1]
         self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
+        self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
         self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
         report = body.split("## Báo cáo cuối", 1)[1]
         for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`"):
