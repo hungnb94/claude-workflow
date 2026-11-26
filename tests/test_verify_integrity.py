@@ -722,6 +722,27 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn("`Bằng chứng xong`", part)
         self.assertIn("kể cả khi B4 không sửa gì", report)
 
+    def test_feature_workflow_b1_gates_each_ac_on_a_check(self):
+        """Verify B1 writes every AC as a full table row with a measurable check before the user confirms."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        b1 = body.split("## B1.", 1)[1].split("## B2.", 1)[0]
+        self.assertNotIn("acceptance criteria kiểm được", b1)
+
+        intake, out = b1.split("**Ra:**", 1)
+        for word in ('"giống"', '"đúng"', '"đẹp"', '"không bị đè"', "viết lại"):
+            with self.subTest(word=word):
+                self.assertIn(word, intake)
+        self.assertLess(intake.index("viết lại"), intake.index("trình bản tóm tắt yêu cầu"))
+
+        header = "   | # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |"
+        self.assertIn("   ```markdown\n" + header + "\n", out)
+        self.assertNotRegex(out, r"(?m)^\| # \| AC ")
+        for token in ("`lệnh`", "`script so với mốc`", "`người kiểm theo kịch bản`", "`máy`", "`verify`", "`người ký`"):
+            with self.subTest(token=token):
+                self.assertIn(token, out)
+        self.assertIn("còn ô trống thì chưa ghi `Trạng thái: xong` và chưa sang B2", out)
+
     def test_feature_workflow_keeps_state_in_files(self):
         """Verify the workflow resumes from its files and writes progress to them as it happens."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")

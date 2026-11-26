@@ -113,15 +113,28 @@ hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có t
 ➡️ Đề xuất: <lựa chọn>, vì <lý do>.
 ```
 
+Trước khi trình bản tóm tắt, mỗi AC phải đủ các cột của bảng AC trong **Ra**. AC có từ như "giống",
+"đúng", "đẹp", "không bị đè" mà không có cách đo thì viết lại thành điều kiện đo được (con số, mốc so,
+kịch bản kiểm).
+
 Khi không còn quyết định nào mở, trình bản tóm tắt yêu cầu và chờ người dùng xác nhận. Bản tóm tắt có
 dòng nền tảng và chuẩn đã nhận diện; người dùng sửa thì dùng chuẩn họ chọn, tìm đường dẫn tuyệt đối của
 nó theo bước 2 của `standards-lookup.md`. Chưa xác nhận thì không sang B2.
 
-**Ra:** `01-requirements.md` gồm: mục tiêu; acceptance criteria kiểm được; ngoài phạm vi; các quyết định
+**Ra:** `01-requirements.md` gồm: mục tiêu; bảng AC theo khung dưới; ngoài phạm vi; các quyết định
 (câu hỏi và câu trả lời); impact và rủi ro bug; file hoặc khu vực liên quan; mục `Lệnh build và test`
 (mọi lệnh build, test và check của repo); ràng buộc bất biến người dùng nêu, nếu có; mục `Chuẩn áp dụng`
 ghi những gì `standards-lookup.md` bảo ghi (nền tảng, đường dẫn tuyệt đối tới chuẩn hoặc `không có`, thứ
 tự ưu tiên).
+
+   ```markdown
+   | # | AC | Phép kiểm | Môi trường | Bằng chứng | Người chấm |
+   |---|---|---|---|---|---|
+   | 1 | <điều kiện đo được> | <lệnh / script so với mốc / người kiểm theo kịch bản> | <nơi chạy> | <file sẽ có> | <máy / verify / người ký> |
+   ```
+
+`Phép kiểm` là một trong `lệnh`, `script so với mốc`, `người kiểm theo kịch bản`. `Người chấm` là một
+trong `máy`, `verify`, `người ký`. Bảng AC còn ô trống thì chưa ghi `Trạng thái: xong` và chưa sang B2.
 
 ## B2. Tìm giải pháp
 
