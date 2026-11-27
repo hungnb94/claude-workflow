@@ -1202,6 +1202,18 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("one status line per item", agents)
         self.assertIn("Once after B4, before the final report", agents)
 
+    def test_readme_names_implementer_evidence_fixes_and_item_numbers(self):
+        """Verify README says fw-3-implement also fixes final evidence checks, takes a LOẠI line, and keeps reviewer numbers."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        tree = readme.split("\n## Project Structure\n", 1)[1].split("\n## ", 1)[0]
+        line = next(l for l in tree.splitlines() if "fw-3-implement.md" in l)
+        self.assertIn("B3/B4 and final evidence fixes", line)
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        row = next(l for l in agents.splitlines() if l.startswith("| `fw-3-implement` |"))
+        for token in ("`STEP` starts with a `LOẠI` line", "B4 findings keep the reviewer's `#` numbers"):
+            with self.subTest(token=token):
+                self.assertIn(token, row)
+
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
 

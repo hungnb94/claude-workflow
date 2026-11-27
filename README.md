@@ -280,7 +280,7 @@ Notes:
 
 | Subagent | Role | Model | Tools | Footprint (Tokens) | Responsibility |
 |---|---|---|---|---|---|
-| `fw-3-implement` | Implementer | Inherit | Read, Edit, Write, Bash, Grep, Glob | ~35 | Code a numbered list of items (the rows of one step batch, one review round's findings, or the failed evidence checks) in a fresh context, run the checks and commit each item when green, and return one status line per item; never touch `.workflows/` or spawn subagents |
+| `fw-3-implement` | Implementer | Inherit | Read, Edit, Write, Bash, Grep, Glob | ~35 | Code a numbered list of items (the rows of one step batch, one review round's findings, or the failed evidence checks) in a fresh context, run the checks and commit each item when green, and return one status line per item; `STEP` starts with a `LOẠI` line naming the list kind, and B4 findings keep the reviewer's `#` numbers; never touch `.workflows/` or spawn subagents |
 | `fw-3-evidence` | Evidence Verifier | Inherit | Read, Bash, Grep, Glob, Write | ~80 | Once after B4, before the final report, run the build and test commands and check each AC in a fresh context, save fresh evidence in `.workflows/<slug>/evidence/`, grade the machine and `verify` criteria, and return a status table; never edit code, commit, or read the plan |
 | `fw-4-review` | Independent Reviewer | Opus | Read, Grep, Glob, Bash | ~23 | Review the diff against the agreed requirements and platform standards without seeing the plan; report Blocker/Major/Minor with file:line (no Edit or Write) |
 
@@ -354,7 +354,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   └── marketplace.json         # Marketplace catalog distribution manifest
 ├── agents/
 │   ├── fw-3-evidence.md         # Feature workflow final check: Runs the checks and creates fresh evidence per AC
-│   ├── fw-3-implement.md        # Feature workflow B3/B4: Codes a list of items, one commit each, in a fresh context
+│   ├── fw-3-implement.md        # Feature workflow B3/B4 and final evidence fixes: Codes a list of items, one commit each, in a fresh context
 │   ├── fw-4-review.md           # Feature workflow B4: Independent read-only reviewer (Opus)
 │   ├── sb-1-generator.md        # Brainstorm: Options through one knowledge lens
 │   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
