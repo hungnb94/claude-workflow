@@ -1109,6 +1109,23 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(fix.index("làm mốc"), fix.index("Ghi lần sửa"))
         self.assertLess(fix.index("`git diff <mốc>..HEAD`"), fix.index("Diff có vấn đề"))
 
+    def test_feature_workflow_evidence_fixes_get_one_review(self):
+        """Verify commits of the evidence fix loop get one scoped fw-4-review, which stops on Blocker or Major without a new fix round."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        review = next(b for b in section.split("\n- ") if b.startswith("Review lần sửa"))
+        for token in ("spawn một `fw-4-review` mới", "`BASE` là mốc của lần sửa đầu tiên", "`### Review lần sửa` trong `## Bằng chứng cuối`", "Không sửa tiếp các phát hiện này", "còn Blocker hoặc Major thì không báo xong", "Không có commit sửa nào thì không spawn"):
+            with self.subTest(token=token):
+                self.assertIn(token, review)
+        resume = body.split("\n## Làm tiếp", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("chưa có\n     `### Review lần sửa` thì chạy review đó", resume)
+        report = body.split("\n## Báo cáo cuối\n", 1)[1]
+        for token in ("các commit sửa của `Bằng chứng xong`", "kết quả `### Review lần sửa`"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("one fresh `fw-4-review` reviews just those commits", readme)
+
     def test_feature_workflow_evidence_fixer_error_without_items_stops(self):
         """Verify an evidence fixer that returns an error with no item lines stops the loop like B3 step 6."""
         body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]

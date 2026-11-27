@@ -79,7 +79,9 @@ Khi người dùng chọn làm tiếp:
    - Lần sửa đã xong mà chưa chạy lại: chạy lại bằng một `fw-3-evidence` mới.
    - Lần chạy mới nhất có lệnh đỏ hoặc AC `không đạt` mà chưa có lần sửa: sửa như `Bằng chứng xong`
      nếu chưa hết giới hạn, hết thì dừng và báo người dùng.
-   - Lần chạy mới nhất không có lệnh đỏ hay AC `không đạt`: sang `Báo cáo cuối`, không chạy lại.
+   - Lần chạy mới nhất không có lệnh đỏ hay AC `không đạt`: có commit sửa mà chưa có
+     `### Review lần sửa` thì chạy review đó như `Bằng chứng xong`; rồi
+     sang `Báo cáo cuối`, không chạy lại.
 7. Lần chạy `Bằng chứng xong` bị ngắt (thư mục trong `DIR/evidence/` mà chưa có `RUN_DIR` nào đã ghi trỏ
    tới): bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính; rồi chạy lại
    `Bằng chứng xong` bằng một `fw-3-evidence` mới.
@@ -113,6 +115,12 @@ lại sau mỗi lần sửa của chính mục này. B3 và B4 không chạy nó
   Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn.
   Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
+- Review lần sửa: commit của vòng sửa có sau B4 nên reviewer chưa thấy. Vòng sửa dừng ở lần chạy không có
+  lệnh đỏ hay AC `không đạt`, và có ít nhất một commit sửa: spawn một `fw-4-review` mới, truyền như bước 1
+  của B4 nhưng `BASE` là mốc của lần sửa đầu tiên, để reviewer chỉ xem các commit sửa. Ghi kết quả vào
+  `### Review lần sửa` trong `## Bằng chứng cuối`. Không sửa tiếp các phát hiện này, vì không có vòng
+  review thứ 3: còn Blocker hoặc Major thì không báo xong, dừng và báo người dùng kèm các phát hiện đó;
+  Minor vào "Minor đã bỏ qua" của `Báo cáo cuối`. Không có commit sửa nào thì không spawn.
 - `fw-3-implement` của vòng sửa trả `lỗi` mà không có dòng `<#>` nào: dừng và báo người dùng như bước 6
   của B3.
 - Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit
@@ -301,8 +309,10 @@ thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 ## Báo cáo cuối
 
 Chạy theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì, rồi báo người dùng: nhánh, `BASE`, danh
-sách commit, bằng chứng của lần chạy đó, bảng trạng thái AC, Blocker hoặc Major còn lại, Minor đã bỏ qua
-(các dòng `hỏng` và `không sửa` trong mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`,
+sách commit, bằng chứng của lần chạy đó, bảng trạng thái AC, các commit sửa của `Bằng chứng xong` (từ
+mốc lần sửa đầu tới `HEAD`) và kết quả `### Review lần sửa`, Blocker hoặc Major còn lại, Minor đã bỏ qua
+(các dòng `hỏng` và `không sửa` trong mục `## Minor` của các `04-review-<n>.md`, và Minor của
+`### Review lần sửa`), `Việc phát sinh`,
 đường dẫn `DIR`, và lệnh `git push -u origin <nhánh>` để họ tự push.
 Còn AC `chưa kiểm` hoặc `chờ người ký` thì báo "chờ kiểm N AC" kèm danh sách AC đó và
 lý do, không báo xong.
