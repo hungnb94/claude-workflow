@@ -26,17 +26,21 @@ Mỗi ý có đúng một nhãn. Tên nhãn dịch sang ngôn ngữ người h�
 
 ```markdown
 **1. <ý thứ nhất>** - ✅ Trả lời
+
 <câu trả lời ngắn>
 > "<trích nguyên văn>" - `<file>:<dòng>`
 
 **2. <ý thứ hai>** - ⚠️ Không chắc chắn
+
 Lý do: <suy ra | mơ hồ | mâu thuẫn>, <giải thích một câu>.
 > "<trích nguyên văn>" - `<file>:<dòng>`
 
 Ngoài tài liệu (chưa kiểm): <chỉ khi thật sự hữu ích>
 
 **3. <ý thứ ba>** - ❌ Không biết
+
 Không thấy trong các nguồn đã đọc.
+
 Ngoài tài liệu (chưa kiểm): <chỉ khi thật sự hữu ích>
 
 ---
@@ -51,20 +55,26 @@ Nguồn: `handbook.md`, `onboarding.md`.
 
 ```markdown
 **1. Số ngày nghỉ phép** - ✅ Trả lời
+
 Mỗi năm được 12 ngày nghỉ phép có lương.
 > "Nhân viên chính thức được 12 ngày nghỉ phép có lương mỗi năm" - `handbook.md:15`
 
 **2. Làm từ xa** - ⚠️ Không chắc chắn
+
 Lý do: mơ hồ, tài liệu không nói ai được duyệt và bao nhiêu ngày.
 > "Làm việc từ xa được xem xét tùy theo tính chất công việc" - `handbook.md:22`
 
 **3. Hỗ trợ gửi xe** - ❌ Không biết
+
 Không thấy trong các nguồn đã đọc.
+
 Ngoài tài liệu (chưa kiểm): nhiều công ty ghi chính sách gửi xe trong thông báo của bộ phận hành chính, nên có thể hỏi bộ phận này.
 
 **4. Thời gian thử việc** - ⚠️ Không chắc chắn
+
 Lý do: mâu thuẫn, hai file ghi hai thời hạn khác nhau.
 > "Thời gian thử việc là 2 tháng" - `handbook.md:8`
+
 > "Thời gian thử việc kéo dài 60 ngày làm việc" - `onboarding.md:5`
 
 ---
