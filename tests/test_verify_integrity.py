@@ -1087,9 +1087,27 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, final)
 
-    def test_readme_final_minor_pass_leftover(self):
-        """Verify the README line that still describes the final Minor pass."""
-        self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
+    def test_readme_describes_batched_implementers_and_one_final_evidence_run(self):
+        """Verify README describes B3 batches, one fixer per B4 round, and a single final evidence run."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertNotIn("fixed together by one `fw-3-implement` after the last round", readme)
+        overview = readme.split("\n## Overview\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("a fresh implementer subagent per batch of steps", overview)
+        feature = next(line for line in overview.splitlines() if line.startswith("1. **Feature Workflow**"))
+        for token in ("the whole step table goes to one fresh `fw-3-implement` subagent", "at most 3 batches that run one after another, never in parallel", "B3 does not run the evidence check", "hands every Blocker, Major, and small Minor finding of that round to one fresh `fw-3-implement`", "there is no separate Minor pass", "Once, after step 4 and before the final report, a fresh `fw-3-evidence`", "at most 2 times"):
+            with self.subTest(token=token):
+                self.assertIn(token, feature)
+        self.assertNotIn("Before it marks step 3 done", feature)
+        diagram = readme.split("\n### Four-Step Feature Workflow\n", 1)[1].split("```text\n", 1)[1].split("```", 1)[0]
+        for token in ("one per batch", "max 3 batches", "per round", "once"):
+            with self.subTest(token=token):
+                self.assertIn(token, diagram)
+        self.assertNotIn("one per step", diagram)
+        writer = next(line for line in readme.splitlines() if line.startswith("4. **One Writer at a Time**"))
+        self.assertIn("one fresh agent per batch of steps, per review round, or per evidence fix", writer)
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        self.assertIn("one status line per item", agents)
+        self.assertIn("Once after B4, before the final report", agents)
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
