@@ -1,6 +1,6 @@
 {
   "name": "workflow",
-  "version": "5.7.0",
+  "version": "5.8.0",
   "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, and learning coach skills",
   "author": {
     "name": "Hung Nguyen",

@@ -741,8 +741,8 @@ class TestVerifyIntegrity(unittest.TestCase):
             "thì ghi `chưa kiểm: không có file bằng\n  chứng`",
             "`RUN_DIR` agent trả",
             "nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`)",
-            "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
-            "không chặn B3, B4",
+            "Có lệnh đỏ hoặc AC `không đạt`: không báo xong",
+            "`chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối",
             "chạy lại một lần bằng agent mới",
         ):
             with self.subTest(token=token):
@@ -771,11 +771,10 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(status, section)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
-        self.assertIn("có lệnh đỏ hoặc AC `không đạt`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
-        self.assertIn("mục\n`Bằng chứng theo AC` (bảng agent trả)", b3.split("**Ra:**", 1)[1])
+        self.assertIn("B3 không chạy\n   `Bằng chứng xong`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
+        self.assertNotIn("Bằng chứng theo AC", b3)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
-        self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
-        self.assertIn("`Bằng chứng theo AC`) vào `04-review-<n>.md`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        self.assertIn("Vòng này không chạy `Bằng chứng xong`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]
         for token in ("bảng trạng thái AC", "Còn AC `chưa kiểm` hoặc `chờ người ký`", '"chờ kiểm N AC"', "lý do, không báo xong"):
             with self.subTest(token=token):
@@ -786,9 +785,8 @@ class TestVerifyIntegrity(unittest.TestCase):
         body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
         section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
         rule = (
-            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở\n"
-            "  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không\n"
-            "  đổi sau B1."
+            "Trạng thái AC chỉ ghi vào `## Bằng chứng cuối` và báo cáo cuối, không ghi vào `01-requirements.md`;\n"
+            "  file đó không đổi sau B1."
         )
         self.assertIn(rule, section)
         sentences = re.split(r"(?<=[.:;])\s", body.replace("\n", " "))
@@ -867,7 +865,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("bước 2 của mục `Làm tiếp`", init)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
-        for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
+        for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Lô | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
             with self.subTest(token=token):
                 self.assertIn(token, b3)
         self.assertIn("`Việc phát sinh`", b3.split("**Ra:**", 1)[1])
@@ -889,7 +887,7 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
         spawn = b3.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
-        for token in ("`fw-3-implement`", "Mỗi dòng một agent", "không chạy hai agent cùng lúc", '`subagent_type: "fork"`'):
+        for token in ("`fw-3-implement`", "Mỗi lô một agent", "Lô sau chỉ bắt đầu khi lô trước trả về", "không chạy hai\n   agent cùng lúc", '`subagent_type: "fork"`'):
             with self.subTest(token=token):
                 self.assertIn(token, spawn)
         implementer = read("agents", "fw-3-implement.md")
@@ -899,12 +897,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertEqual(passed, declared)
         self.assertIn("`hỏng <lý do>`", b3.split("\n6. ", 1)[1])
         final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("git diff BASE..HEAD", "nới lỏng", "`Bằng chứng xong`", "có lệnh đỏ", "sau 2 lần vẫn chưa ổn", "Commit trộn", "Không tự sửa code"):
+        for token in ("git diff BASE..HEAD", "nới lỏng", "B3 không chạy\n   `Bằng chứng xong`", "sau 2 lần vẫn chưa ổn", "Commit trộn", "Không tự\n   sửa code"):
             with self.subTest(token=token):
                 self.assertIn(token, final_check)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("`fw-3-implement` mới", b4)
-        self.assertIn("chạy `Bằng chứng xong` như bước 7 của B3", b4)
+        self.assertIn("kiểm diff\n   của các commit sửa", b4)
+        self.assertNotIn("như bước 7 của B3", b4)
         self.assertIn("`hỏng <lý do>`", b4)
         self.assertIn("không thêm dòng vào `Bảng bước`", b4)
         self.assertIn("`CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`", spawn)
@@ -916,34 +915,122 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, constraints)
         steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        for token in ("sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng", "`không có lệnh kiểm`"):
+        for token in ("Sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng", "`không có lệnh kiểm`"):
             with self.subTest(token=token):
                 self.assertIn(token, steps)
         output = implementer.split("<output>", 1)[1]
-        for token in ("`Kết quả: xong <commit hash>`", "exit code", "`Việc phát sinh`"):
+        for token in ("`Kết quả: xong` khi mọi mục `xong`", "exit code", "`Việc phát sinh`"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
-    def test_implementer_fixes_final_minors_in_one_pass(self):
-        """Verify the implementer takes the final Minor list, runs the checks once, and commits each Minor on its own."""
-        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
-        inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
-        self.assertIn("danh sách Minor của lượt cuối B4", inputs)
-        self.assertIn("lượt Minor cuối của B4", implementer.split("<role>", 1)[1].split("</role>", 1)[0])
-        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
-        self.assertIn("một lần trên toàn bộ thay đổi", check_step)
-        self.assertIn("hoàn tác phần đã sửa cho\n   nó trước bước 5", steps.split("\n4. ", 1)[1].split("\n5. ", 1)[0])
-        commit_step = steps.split("\n6. ", 1)[1]
-        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu", "Không stage một phần file", "`git status --porcelain` phải sạch"):
+    def test_feature_workflow_b3_splits_rows_into_batches(self):
+        """Verify B3 gives all step rows to one implementer by default, splits into at most 3 sequential batches, and records each row as returned."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        self.assertNotIn("Mỗi dòng một agent", body)
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        table = b3.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
+        for token in ("Số lô: <n> - <lý do>", "| # | Mục tiêu | File dự kiến | Lô | Trạng thái |", "| 1 | <một thay đổi, một commit> | <file> | 1 | chưa |", "dòng `Số lô`"):
             with self.subTest(token=token):
-                self.assertIn(token, commit_step)
-        self.assertIn("hoặc danh sách Minor (mỗi Minor một commit)", inputs)
-        self.assertIn("final pass of review Minors", vi.parse_frontmatter(implementer)["description"])
+                self.assertIn(token, table)
+        spawn = b3.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        for token in ("Mặc định\n   1 lô cho mọi dòng", "một agent vừa nhanh vừa chính xác", "Chia 2-3 lô khi việc nhiều", "các\n   phần không chung file", "một agent không đọc hết context cho mọi dòng", "Tối đa 3 lô", "Mỗi lô một agent", "Lô sau chỉ bắt đầu khi lô trước trả về", "`STEP`: các dòng `chưa` của lô", "commit dòng đó"):
+            with self.subTest(token=token):
+                self.assertIn(token, spawn)
+        record = b3.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        for token in ("theo đúng dòng agent trả", "`<#> xong <hash>` ghi\n   `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`<#> chưa` giữ `chưa`", "Có dòng `hỏng` hoặc agent trả `lỗi`: dừng, không chạy lô sau"):
+            with self.subTest(token=token):
+                self.assertIn(token, record)
+        final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
+        self.assertIn("truyền như bước 5 với `STEP` là các dòng mới", final_check)
+        for token in ("ghi vào một lô mới (số lô kế tiếp)", "cập nhật `Số lô`", "lô sửa này không tính vào giới\n   hạn 3 lô"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_check)
+        self.assertLess(final_check.index("lô mới"), final_check.index("`STEP` là các dòng mới"))
+        self.assertIn("Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của\n   agent code xanh", final_check)
+        out = b3.split("**Ra:**", 1)[1]
+        self.assertIn("dòng `Số lô`", out)
+        self.assertNotIn("bằng chứng", out)
+
+    def test_feature_workflow_b3_counts_diff_fix_batches_from_file(self):
+        """Verify B3 marks diff-fix batches in the batch line so resume can count them against the 2-fix limit."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
+        for token in ("Ghi lô đó trong `Số lô` là lô sửa diff kèm lần sửa", "`lô 2: sửa diff lần 1`", "sau 2 lần vẫn chưa ổn (đếm các lô sửa diff trong `Số lô`)"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_check)
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        resume_b3 = resume.split("Đang ở B3:", 1)[1].split("Đang ở B4:", 1)[0]
+        self.assertIn("các lô sửa diff đã ghi trong `Số lô` được tính vào giới hạn 2 lần sửa của bước đó", resume_b3)
+
+    def test_implementer_commits_each_item_of_a_list(self):
+        """Verify the implementer takes a numbered item list and runs code, checks, and one commit per item in order."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        role = implementer.split("<role>", 1)[1].split("</role>", 1)[0]
+        self.assertIn("danh sách hạng mục", role)
+        self.assertIn("mỗi mục một commit", role)
+        inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
+        for token in ("danh sách hạng mục có số, mỗi mục một commit", "dòng `Bảng bước` của một lô B3", "phát hiện của một vòng B4", "AC `không đạt` của `Bằng chứng xong`", "Một việc là danh\n  sách một mục"):
+            with self.subTest(token=token):
+                self.assertIn(token, inputs)
+        self.assertNotIn("Minor", implementer)
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        per_item = steps.split("\n3. ", 1)[1]
+        self.assertIn("mục trước commit xong mới sang mục sau", per_item)
+        checks = per_item.split("\n   3. ", 1)[1].split("\n   4. ", 1)[0]
+        self.assertIn("Chạy mọi lệnh trong `CHECKS`", checks)
+        commit = per_item.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        for token in ("một commit cho mục đó", "`git add -- <file>`", "Không stage một phần file", "`git status --porcelain` phải sạch", "`<#> xong <hash>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit)
+        self.assertNotIn("bắc cầu", implementer)
+        self.assertNotIn("cùng file chung một commit", implementer)
+        failed = per_item.split("\n   5. ", 1)[1]
+        for token in ("Sửa 2 lần vẫn đỏ", "không commit", "khôi phục file của mục đó", "`<#> hỏng <lý do>`", "dòng `LOẠI`: `LOẠI: bảng bước`", "thì dừng, các mục sau ghi `<#> chưa`", "`LOẠI: phát hiện` hay `LOẠI: bằng chứng` thì làm tiếp mục sau"):
+            with self.subTest(token=token):
+                self.assertIn(token, failed)
+        self.assertNotIn("`STEP`\n      là dòng `Bảng bước`", failed)
+        for kind in ("`LOẠI: bảng bước`", "`LOẠI: phát hiện`", "`LOẠI: bằng chứng`"):
+            with self.subTest(kind=kind):
+                self.assertIn(kind, inputs)
+        self.assertIn("Thiếu dòng `LOẠI` thì coi là thiếu input", inputs)
+        self.assertIn("Thiếu input nào thì báo thiếu gì và dừng", inputs)
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b3_spawn = skill.split("## B3.", 1)[1].split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        self.assertIn("dòng đầu\n     `LOẠI: bảng bước`", b3_spawn)
+        b4_fix = skill.split("## B4.", 1)[1].split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        self.assertIn("dòng đầu `LOẠI: phát hiện`", b4_fix)
+        evidence = skill.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("dòng đầu `LOẠI: bằng chứng`", evidence)
+        description = vi.parse_frontmatter(implementer)["description"]
+        self.assertIn("one commit per item", description)
+        self.assertNotIn("Minor", description)
         output = implementer.split("<output>", 1)[1]
-        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
+        for token in ("một dòng mỗi mục", "`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`<#> chưa`"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
+
+    def test_implementer_reuses_commit_of_an_earlier_item(self):
+        """Verify an item already fixed by an earlier item's commit reports that commit instead of an extra one."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        per_item = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0].split("\n3. ", 1)[1]
+        commit = per_item.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        for token in ("Commit của một mục trước đã sửa luôn mục này", "không còn gì để sửa, `CHECKS` xanh", "không commit\n      thêm", "`<#> xong <hash của commit đó>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit)
+
+    def test_implementer_evidence_items_do_not_block_each_other(self):
+        """Verify an evidence item is green when its own command passes, so two red commands do not deadlock."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        baseline = steps.split("\n2. ", 1)[1].split("\n3. ", 1)[0]
+        self.assertIn("`LOẠI: bằng chứng`: chạy mọi lệnh trong `CHECKS` một lần trước khi sửa", baseline)
+        run = steps.split("\n   3. ", 1)[1].split("\n   4. ", 1)[0]
+        for token in ("lệnh của chính mục đó\n      xanh", "không lệnh nào xanh ở mốc nay đỏ", "Lệnh đã đỏ ở mốc và thuộc mục sau thì không chặn mục này"):
+            with self.subTest(token=token):
+                self.assertIn(token, run)
+        commit = steps.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        self.assertIn("mục sau cũng không được làm nó đỏ\n      lại", commit)
 
     def test_evidence_agent_is_blind_and_writes_only_evidence(self):
         """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to its RUN_DIR."""
@@ -981,43 +1068,181 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(status=status):
                 self.assertIn(status, output)
 
-    def test_feature_workflow_fixes_minors_in_one_final_pass(self):
-        """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
+    def test_feature_workflow_evidence_runs_once_before_final_report(self):
+        """Verify the evidence check runs once after B4, records into the last review file, and owns its fix-and-rerun loop."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Trước khi\nghi `Trạng thái: xong` của `03-implementation.md`", section)
+        self.assertNotIn("03-implementation.md", section)
+        for token in (
+            "Mục này\nchỉ chạy ở cuối, sau B4 và trước `Báo cáo cuối`",
+            "một lần, cộng các lần chạy\nlại sau mỗi lần sửa của chính mục này",
+            "Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn",
+            "B3 và B4 không chạy nó",
+            "Ghi lần chạy vào mục `## Bằng chứng cuối` của `04-review-<n>.md` mới nhất",
+            "`RUN_DIR` agent trả, và bảng trạng thái AC agent trả",
+            "Quay lại code như B3: spawn một `fw-3-implement` mới",
+            "truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt`",
+            "vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới",
+            "Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+        self.assertNotIn("chạy đúng một lần", section)
+        outside = body.replace(section, "")
+        self.assertNotIn("Sau 2 lần sửa vẫn đỏ", outside)
+        report = body.split("## Báo cáo cuối", 1)[1]
+        self.assertIn("Chạy theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì, rồi báo người dùng", report)
+        for token in ("lượt Minor cuối", "như bước 7 của B3", "mở agent mới"):
+            with self.subTest(token=token):
+                self.assertNotIn(token, report)
+        self.assertIn("mục `## Minor`", report)
+
+    def test_feature_workflow_evidence_fix_checks_diff_before_rerun(self):
+        """Verify each evidence fix records HEAD first and checks the fix diff like B3 step 7 before a fresh evidence run."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        fix = next(b for b in section.split("\n- ") if b.startswith("Có lệnh đỏ hoặc AC `không đạt`"))
+        for token in ("ghi `HEAD` lúc đó vào `## Bằng chứng cuối` làm mốc", "`git diff <mốc>..HEAD`", "kiểm như bước 7 của B3", "không test hay\n  assertion nào bị xoá, skip hay nới lỏng", "không file nào nằm ngoài yêu cầu", "Diff có vấn đề: ghi vào\n  `## Bằng chứng cuối`, không chạy lại, dừng và báo người dùng, không báo xong"):
+            with self.subTest(token=token):
+                self.assertIn(token, fix)
+        self.assertLess(fix.index("làm mốc"), fix.index("Ghi lần sửa"))
+        self.assertLess(fix.index("`git diff <mốc>..HEAD`"), fix.index("Diff có vấn đề"))
+
+    def test_feature_workflow_evidence_fixes_get_one_review(self):
+        """Verify commits of the evidence fix loop get one scoped fw-4-review, which stops on Blocker or Major without a new fix round."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        review = next(b for b in section.split("\n- ") if b.startswith("Review lần sửa"))
+        for token in ("spawn một `fw-4-review` mới", "`BASE` là mốc của lần sửa đầu tiên", "`### Review lần sửa` trong `## Bằng chứng cuối`", "Không sửa tiếp các phát hiện này", "còn Blocker hoặc Major thì không báo xong", "Không có commit sửa nào thì không spawn"):
+            with self.subTest(token=token):
+                self.assertIn(token, review)
+        resume = body.split("\n## Làm tiếp", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("chưa có\n     `### Review lần sửa` thì chạy review đó", resume)
+        report = body.split("\n## Báo cáo cuối\n", 1)[1]
+        for token in ("các commit sửa của `Bằng chứng xong`", "kết quả `### Review lần sửa`"):
+            with self.subTest(token=token):
+                self.assertIn(token, report)
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("one fresh `fw-4-review` reviews just those commits", readme)
+
+    def test_feature_workflow_evidence_fixer_error_without_items_stops(self):
+        """Verify an evidence fixer that returns an error with no item lines stops the loop like B3 step 6."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        bullet = next(b for b in section.split("\n- ") if b.startswith("`fw-3-implement` của vòng sửa"))
+        self.assertIn("trả `lỗi` mà không có dòng `<#>` nào: dừng và báo người dùng như bước 6\n  của B3", bullet)
+
+    def test_feature_workflow_b4_fixes_each_round_with_one_agent(self):
+        """Verify each B4 round hands every Blocker, Major, and small Minor to one implementer and has no final Minor pass."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
         body = skill.split("---", 2)[2]
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertNotIn("Sửa Minor khi sửa nhỏ", body)
+        self.assertNotIn("\n5. ", b4)
+        self.assertNotIn("chờ lượt cuối", b4)
+        self.assertNotIn("lượt Minor cuối", b4)
         fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
-        for token in ("`chờ lượt cuối`", "mục `## Minor` của `04-review-<n>.md`", "`không sửa: <lý do>`"):
+        for token in ("Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ", "không mở\n   rộng phạm vi", "truyền như bước 5 của B3", "`STEP` là danh sách các phát hiện đó", "file:line, vấn đề, gợi ý sửa", "`không sửa: <lý do>`", "mục `## Minor` của `04-review-<n>.md`", "mỗi phát hiện bằng một commit mới", "theo đúng dòng agent trả", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "Blocker hoặc Major\n   `hỏng`: dừng và hỏi người dùng làm lại hay dừng", "Minor `hỏng` chỉ ghi, không dừng", "kiểm diff\n   của các commit sửa", "nới lỏng"):
             with self.subTest(token=token):
                 self.assertIn(token, fix_step)
-        round_two = b4.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
-        for token in ("chép các Minor còn `chờ lượt cuối` của vòng 1", "bỏ dòng trùng"):
-            with self.subTest(token=token):
-                self.assertIn(token, round_two)
-        final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`", "theo đúng dòng agent trả cho Minor đó", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`hỏng <lý do>` cho mọi Minor của lượt này"):
-            with self.subTest(token=token):
-                self.assertIn(token, final_pass)
+        self.assertIn("chỉ khi danh sách đó không rỗng (rỗng thì không spawn)", fix_step)
+        round_two = b4.split("\n4. ", 1)[1].split("**Ra:**", 1)[0]
+        self.assertNotIn("chép các Minor", round_two)
         out = b4.split("**Ra:**", 1)[1]
-        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "`chờ lượt cuối`", "`không sửa: <lý do>`"):
+        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "Trạng thái Minor: `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`."):
             with self.subTest(token=token):
                 self.assertIn(token, out)
 
+    def test_feature_workflow_b4_keeps_reviewer_numbers(self):
+        """Verify B4 passes findings with the reviewer's numbers and the Minor table keeps those numbers instead of renumbering from 1."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        self.assertIn("kèm số `#` reviewer đặt", fix_step)
+        self.assertIn("không đánh số lại", fix_step)
+        out = b4.split("**Ra:**", 1)[1]
+        self.assertIn("cột `#` giữ đúng số\n`#` reviewer đặt (cũng là số trong `STEP`)", out)
+        self.assertIn("| <# của reviewer> | <file:line> | <vấn đề> | xong <commit> |", out)
+        self.assertNotIn("| 1 | <file:line>", out)
+
+    def test_feature_workflow_resume_matches_batches_and_single_evidence(self):
+        """Verify resume records commits before handing leftover rows or findings to a new implementer, and resumes the final evidence loop."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
+        for gone in ("Mỗi dòng một agent", "mỗi dòng một agent", "lượt Minor cuối", "Lượt Minor cuối", "chờ lượt cuối"):
+            with self.subTest(gone=gone):
+                self.assertNotIn(gone, body)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
-        resume_b4 = resume.split("Đang ở B4:", 1)[1]
-        self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
-        self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
-        self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
-        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi", "Minor chưa có trạng thái"):
+        resume_b3 = resume.split("Đang ở B3:", 1)[1].split("Đang ở B4:", 1)[0]
+        for token in ("`Số lô`", "ghi `xong <commit>` vào dòng\n   tương ứng trước", "Các dòng `chưa` còn lại giao cho\n   `fw-3-implement` mới theo bước 5 của B3", "giữ lô đã ghi"):
             with self.subTest(token=token):
-                self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
-        report = body.split("## Báo cáo cuối", 1)[1]
-        self.assertNotIn("như bước 7 của B3", report)
-        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`", "mở agent mới"):
+                self.assertIn(token, resume_b3)
+        self.assertLess(resume_b3.index("tương ứng trước"), resume_b3.index("Các dòng `chưa` còn lại"))
+        resume_b4 = resume.split("Đang ở B4:", 1)[1].split("\n6. ", 1)[0]
+        for token in ("ghi `xong <commit>` vào phát hiện tương ứng trước", "Blocker hoặc Major ghi `hỏng` thì hỏi người dùng", "Minor `hỏng` vào \"Minor đã bỏ qua\"", "không hỏi", "Các phát hiện còn lại chưa ghi gì", "như bước 3 của B4", "giao cho một `fw-3-implement` mới"):
             with self.subTest(token=token):
-                self.assertIn(token, report)
-        self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
+                self.assertIn(token, resume_b4)
+        self.assertLess(resume_b4.index("tương ứng trước"), resume_b4.index("Các phát hiện còn lại"))
+        final = resume.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        for token in ("chạy `Bằng chứng xong` rồi `Báo cáo cuối`", "`## Bằng chứng cuối`", "ghi vào lần sửa tương ứng trước", "chạy lại bằng một `fw-3-evidence` mới", "giới hạn lần\n   sửa của `Bằng chứng xong`"):
+            with self.subTest(token=token):
+                self.assertIn(token, final)
+
+    def test_feature_workflow_resume_covers_each_evidence_loop_state(self):
+        """Verify resuming the final evidence loop handles an interrupted fixer, a failed run with no fix yet, and a green run without a report."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        final = resume.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        record = final.index("ghi vào lần sửa tương ứng trước")
+        bullets = final.split("\n   - ")[1:]
+        self.assertEqual(len(bullets), 4)
+        self.assertLess(record, final.index("\n   - "))
+        interrupted = next(b for b in bullets if b.startswith("Lần sửa bị ngắt"))
+        for token in ("chưa `xong` hay `hỏng`", "giao cho một `fw-3-implement` mới", "vẫn là lần sửa đó", "rồi chạy lại bằng một `fw-3-evidence` mới"):
+            with self.subTest(token=token):
+                self.assertIn(token, interrupted)
+        no_fix = next(b for b in bullets if "mà chưa có lần sửa" in b)
+        for token in ("lệnh đỏ hoặc AC `không đạt`", "sửa như `Bằng chứng xong`", "nếu chưa hết giới hạn", "dừng và báo người dùng"):
+            with self.subTest(token=token):
+                self.assertIn(token, no_fix)
+        green = next(b for b in bullets if "không có lệnh đỏ hay AC `không đạt`" in b)
+        self.assertIn("sang `Báo cáo cuối`, không chạy lại", green)
+        self.assertNotIn("fw-3-evidence", green)
+
+    def test_readme_describes_batched_implementers_and_one_final_evidence_run(self):
+        """Verify README describes B3 batches, one fixer per B4 round, and a single final evidence run."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertNotIn("fixed together by one `fw-3-implement` after the last round", readme)
+        overview = readme.split("\n## Overview\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("a fresh implementer subagent per batch of steps", overview)
+        feature = next(line for line in overview.splitlines() if line.startswith("1. **Feature Workflow**"))
+        for token in ("the whole step table goes to one fresh `fw-3-implement` subagent", "at most 3 batches that run one after another, never in parallel", "B3 does not run the evidence check", "hands every Blocker, Major, and small Minor finding of that round to one fresh `fw-3-implement`", "there is no separate Minor pass", "Once, after step 4 and before the final report, a fresh `fw-3-evidence`", "at most 2 times"):
+            with self.subTest(token=token):
+                self.assertIn(token, feature)
+        self.assertNotIn("Before it marks step 3 done", feature)
+        diagram = readme.split("\n### Four-Step Feature Workflow\n", 1)[1].split("```text\n", 1)[1].split("```", 1)[0]
+        for token in ("one per batch", "max 3 batches", "per round", "once"):
+            with self.subTest(token=token):
+                self.assertIn(token, diagram)
+        self.assertNotIn("one per step", diagram)
+        writer = next(line for line in readme.splitlines() if line.startswith("4. **One Writer at a Time**"))
+        self.assertIn("one fresh agent per batch of steps, per review round, or per evidence fix", writer)
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        self.assertIn("one status line per item", agents)
+        self.assertIn("Once after B4, before the final report", agents)
+
+    def test_readme_names_implementer_evidence_fixes_and_item_numbers(self):
+        """Verify README says fw-3-implement also fixes final evidence checks, takes a LOẠI line, and keeps reviewer numbers."""
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        tree = readme.split("\n## Project Structure\n", 1)[1].split("\n## ", 1)[0]
+        line = next(l for l in tree.splitlines() if "fw-3-implement.md" in l)
+        self.assertIn("B3/B4 and final evidence fixes", line)
+        agents = readme.split("\n### Feature Workflow Subagents\n", 1)[1].split("\n### ", 1)[0]
+        row = next(l for l in agents.splitlines() if l.startswith("| `fw-3-implement` |"))
+        for token in ("`STEP` starts with a `LOẠI` line", "B4 findings keep the reviewer's `#` numbers"):
+            with self.subTest(token=token):
+                self.assertIn(token, row)
 
     def test_comment_policy_is_single_source(self):
         """Verify every code-writing step reads the shared comment policy instead of copying it."""
