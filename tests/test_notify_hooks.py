@@ -73,9 +73,12 @@ class NotifyTestCase(unittest.TestCase):
 
     def add_focus(self):
         (self.bin / "sh").symlink_to(SH)
+        # notify.sh runs as a direct child of this test process, so its $PPID is our pid.
         self._write_exec(
             "ps",
-            "#!/bin/sh\ncase \"$2\" in\n  tty=) printf '%s\\n' \"$FAKE_TTY\" ;;\n  ppid=) echo 1 ;;\nesac\n",
+            "#!/bin/sh\n"
+            f"[ \"$3\" = -p ] && [ \"$4\" = {os.getpid()} ] || exit 0\n"
+            "case \"$2\" in\n  tty=) printf '%s\\n' \"$FAKE_TTY\" ;;\n  ppid=) echo 1 ;;\nesac\n",
         )
 
     def run_script(self, kind, stdin="", env_extra=None, args=None, script=SCRIPT):
@@ -356,6 +359,23 @@ class TestNotifyFocusTab(NotifyTestCase):
         (name, args), = self.run_click(command)
         self.assertEqual(name, "open")
         self.assertEqual(args, ["-b", "com.apple.Terminal"])
+
+    def test_resolve_starts_from_notify_parent_pid(self):
+        env = {
+            "PATH": str(self.bin),
+            "HOME": str(self.tmp),
+            "FAKE_UNAME": "Darwin",
+            "FAKE_LOG_DIR": str(self.logs),
+            "FAKE_TTY": "ttys003",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        result = subprocess.run(
+            [SH, "-c", f"sh '{SCRIPT}' stop; :"], capture_output=True, timeout=15, cwd=self.proj, env=env
+        )
+        self.assertEqual((result.returncode, result.stdout, result.stderr), (0, b"", b""))
+        (name, args), = self.calls(1)
+        self.assertEqual(name, "terminal-notifier")
+        self.assertEqual(args, self.BASE_ARGS)
 
     def test_group_id_per_tty(self):
         def group(tty):
