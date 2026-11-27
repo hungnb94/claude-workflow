@@ -48,6 +48,8 @@ Thiếu input nào thì báo thiếu gì và dừng.
    4. Xanh, hoặc `CHECKS` là `không có`, thì commit một commit cho mục đó: chỉ `git add -- <file>`,
       message theo `COMMIT_STYLE`, không `--no-verify`. Không stage một phần file (`git add -p`,
       `git apply --cached`). Commit xong thì `git status --porcelain` phải sạch. Ghi `<#> xong <hash>`.
+      Commit của một mục trước đã sửa luôn mục này (không còn gì để sửa, `CHECKS` xanh): không commit
+      thêm, ghi `<#> xong <hash của commit đó>`.
    5. Sửa 2 lần vẫn đỏ: không commit, khôi phục file của mục đó
       (`git restore --staged --worktree -- <file>`, xoá file mới tạo) và ghi `<#> hỏng <lý do>`. Đọc
       dòng `LOẠI`: `LOẠI: bảng bước` (các dòng phụ thuộc nhau) thì dừng, các mục sau ghi `<#> chưa`;

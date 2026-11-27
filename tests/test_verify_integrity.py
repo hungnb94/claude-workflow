@@ -998,6 +998,15 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
+    def test_implementer_reuses_commit_of_an_earlier_item(self):
+        """Verify an item already fixed by an earlier item's commit reports that commit instead of an extra one."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        per_item = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0].split("\n3. ", 1)[1]
+        commit = per_item.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        for token in ("Commit của một mục trước đã sửa luôn mục này", "không còn gì để sửa, `CHECKS` xanh", "không commit\n      thêm", "`<#> xong <hash của commit đó>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit)
+
     def test_evidence_agent_is_blind_and_writes_only_evidence(self):
         """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to its RUN_DIR."""
         agent = (ROOT_DIR / "agents" / "fw-3-evidence.md").read_text(encoding="utf-8")
