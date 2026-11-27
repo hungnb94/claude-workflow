@@ -113,6 +113,8 @@ lại sau mỗi lần sửa của chính mục này. B3 và B4 không chạy nó
   Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn.
   Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
+- `fw-3-implement` của vòng sửa trả `lỗi` mà không có dòng `<#>` nào: dừng và báo người dùng như bước 6
+  của B3.
 - Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit
   nó; chỉ chạy lại bằng agent mới khi working tree đã sạch. Lỗi khác: chạy lại một lần bằng agent mới;
   vẫn lỗi thì dừng và báo người dùng.

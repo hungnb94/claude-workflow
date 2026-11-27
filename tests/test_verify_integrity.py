@@ -1075,6 +1075,13 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLess(fix.index("làm mốc"), fix.index("Ghi lần sửa"))
         self.assertLess(fix.index("`git diff <mốc>..HEAD`"), fix.index("Diff có vấn đề"))
 
+    def test_feature_workflow_evidence_fixer_error_without_items_stops(self):
+        """Verify an evidence fixer that returns an error with no item lines stops the loop like B3 step 6."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        bullet = next(b for b in section.split("\n- ") if b.startswith("`fw-3-implement` của vòng sửa"))
+        self.assertIn("trả `lỗi` mà không có dòng `<#>` nào: dừng và báo người dùng như bước 6\n  của B3", bullet)
+
     def test_feature_workflow_b4_fixes_each_round_with_one_agent(self):
         """Verify each B4 round hands every Blocker, Major, and small Minor to one implementer and has no final Minor pass."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
