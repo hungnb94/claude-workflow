@@ -1064,6 +1064,17 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertNotIn(token, report)
         self.assertIn("mục `## Minor`", report)
 
+    def test_feature_workflow_evidence_fix_checks_diff_before_rerun(self):
+        """Verify each evidence fix records HEAD first and checks the fix diff like B3 step 7 before a fresh evidence run."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        fix = next(b for b in section.split("\n- ") if b.startswith("Có lệnh đỏ hoặc AC `không đạt`"))
+        for token in ("ghi `HEAD` lúc đó vào `## Bằng chứng cuối` làm mốc", "`git diff <mốc>..HEAD`", "kiểm như bước 7 của B3", "không test hay\n  assertion nào bị xoá, skip hay nới lỏng", "không file nào nằm ngoài yêu cầu", "Diff có vấn đề: ghi vào\n  `## Bằng chứng cuối`, không chạy lại, dừng và báo người dùng, không báo xong"):
+            with self.subTest(token=token):
+                self.assertIn(token, fix)
+        self.assertLess(fix.index("làm mốc"), fix.index("Ghi lần sửa"))
+        self.assertLess(fix.index("`git diff <mốc>..HEAD`"), fix.index("Diff có vấn đề"))
+
     def test_feature_workflow_b4_fixes_each_round_with_one_agent(self):
         """Verify each B4 round hands every Blocker, Major, and small Minor to one implementer and has no final Minor pass."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")

@@ -104,8 +104,12 @@ lại sau mỗi lần sửa của chính mục này. B3 và B4 không chạy nó
   file đó không đổi sau B1.
 - Có lệnh đỏ hoặc AC `không đạt`: không báo xong. Quay lại code như B3: spawn một `fw-3-implement` mới,
   truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt` (mỗi mục kèm dòng lỗi và file bằng
-  chứng), dòng đầu `LOẠI: bằng chứng`. Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`,
-  `<#> hỏng <lý do>`) vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới.
+  chứng), dòng đầu `LOẠI: bằng chứng`. Trước khi spawn, ghi `HEAD` lúc đó vào `## Bằng chứng cuối` làm mốc
+  của lần sửa. Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`,
+  `<#> hỏng <lý do>`) vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới
+  sau khi kiểm diff của lần sửa: đọc `git diff <mốc>..HEAD` và kiểm như bước 7 của B3 (không test hay
+  assertion nào bị xoá, skip hay nới lỏng, không file nào nằm ngoài yêu cầu). Diff có vấn đề: ghi vào
+  `## Bằng chứng cuối`, không chạy lại, dừng và báo người dùng, không báo xong.
   Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn.
   Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
