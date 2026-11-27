@@ -71,7 +71,14 @@ class NotifyTestCase(unittest.TestCase):
         path.write_text(content)
         path.chmod(0o755)
 
-    def run_script(self, kind, stdin="", env_extra=None, args=None):
+    def add_focus(self):
+        (self.bin / "sh").symlink_to(SH)
+        self._write_exec(
+            "ps",
+            "#!/bin/sh\ncase \"$2\" in\n  tty=) printf '%s\\n' \"$FAKE_TTY\" ;;\n  ppid=) echo 1 ;;\nesac\n",
+        )
+
+    def run_script(self, kind, stdin="", env_extra=None, args=None, script=SCRIPT):
         env = {
             "PATH": str(self.bin),
             "HOME": str(self.tmp),
@@ -80,7 +87,7 @@ class NotifyTestCase(unittest.TestCase):
             "LANG": "C.UTF-8",
         }
         env.update(env_extra or {})
-        argv = [SH, str(SCRIPT)] + ([kind] if kind is not None else []) + (args or [])
+        argv = [SH, str(script)] + ([kind] if kind is not None else []) + (args or [])
         result = subprocess.run(
             argv, input=stdin.encode(), capture_output=True, timeout=15, cwd=self.proj, env=env
         )
@@ -274,6 +281,116 @@ class TestNotifyScript(NotifyTestCase):
         self.run_script("stop", env_extra={"LC_ALL": "C", "LANG": "C"})
         (_, args), = self.calls(1)
         self.assertEqual(args[1], "Claude Code · my-proj")
+
+
+class TestNotifyFocusTab(NotifyTestCase):
+    BASE_ARGS = ["-title", "Claude Code · my-proj", "-message", "Done — ready for review", "-sound", "Glass"]
+
+    def setUp(self):
+        super().setUp()
+        self.add_uname()
+        self.add_focus()
+        self.add_fakes("terminal-notifier", "osascript", "open")
+
+    def notifier_args(self, env, script=SCRIPT):
+        for f in self.logs.iterdir():
+            f.unlink()
+        self.run_script("stop", env_extra=env, script=script)
+        (name, args), = self.calls(1)
+        self.assertEqual(name, "terminal-notifier")
+        self.assertEqual(args[:6], self.BASE_ARGS)
+        return args[6:]
+
+    def focus_cmd(self, tty, terminal, bundle):
+        focus = ROOT_DIR / "hooks" / "focus-terminal.sh"
+        return f"sh '{focus}' focus '{tty}' '{terminal}' '{bundle}'"
+
+    def run_click(self, command):
+        for f in self.logs.iterdir():
+            f.unlink()
+        env = {"PATH": str(self.bin), "FAKE_LOG_DIR": str(self.logs)}
+        subprocess.run([SH, "-c", command], capture_output=True, timeout=15, cwd=self.tmp, env=env)
+        return self.calls(1)
+
+    def test_terminal_app_group_and_execute(self):
+        env = {"FAKE_TTY": "ttys003", "TERM_PROGRAM": "Apple_Terminal", "__CFBundleIdentifier": "com.apple.Terminal"}
+        extra = self.notifier_args(env)
+        command = self.focus_cmd("/dev/ttys003", "Apple_Terminal", "com.apple.Terminal")
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-execute", command])
+        (name, args), = self.run_click(command)
+        self.assertEqual(name, "osascript")
+        self.assertIn('tell application "Terminal"', args)
+        self.assertEqual(args[-1], "/dev/ttys003")
+
+    def test_iterm_group_and_execute(self):
+        env = {"FAKE_TTY": "ttys012", "TERM_PROGRAM": "iTerm.app", "__CFBundleIdentifier": "com.googlecode.iterm2"}
+        extra = self.notifier_args(env)
+        command = self.focus_cmd("/dev/ttys012", "iTerm.app", "com.googlecode.iterm2")
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys012", "-execute", command])
+        (name, args), = self.run_click(command)
+        self.assertEqual(name, "osascript")
+        self.assertIn('tell application "iTerm2"', args)
+        self.assertEqual(args[-1], "/dev/ttys012")
+
+    def test_group_id_per_tty(self):
+        def group(tty):
+            extra = self.notifier_args({"FAKE_TTY": tty, "TERM_PROGRAM": "Apple_Terminal"})
+            return extra[extra.index("-group") + 1]
+
+        self.assertEqual(group("ttys003"), group("ttys003"))
+        self.assertNotEqual(group("ttys003"), group("ttys004"))
+
+    def test_other_terminal_activates_bundle(self):
+        env = {"FAKE_TTY": "ttys003", "TERM_PROGRAM": "ghostty", "__CFBundleIdentifier": "com.mitchellh.ghostty"}
+        extra = self.notifier_args(env)
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-activate", "com.mitchellh.ghostty"])
+
+    def test_tmux_only_activates_app(self):
+        env = {
+            "FAKE_TTY": "ttys003",
+            "TERM_PROGRAM": "Apple_Terminal",
+            "__CFBundleIdentifier": "com.apple.Terminal",
+            "TMUX": "/tmp/tmux-501/default,1,0",
+        }
+        self.assertEqual(self.notifier_args(env), ["-activate", "com.apple.Terminal"])
+
+    def test_no_tty_only_activates_app(self):
+        env = {"FAKE_TTY": "??", "TERM_PROGRAM": "Apple_Terminal", "__CFBundleIdentifier": "com.apple.Terminal"}
+        self.assertEqual(self.notifier_args(env), ["-activate", "com.apple.Terminal"])
+
+    def test_nothing_resolved_keeps_old_command(self):
+        self.assertEqual(self.notifier_args({"FAKE_TTY": "??"}), [])
+
+    def test_injection_values_never_reach_command(self):
+        payloads = ["x;touch PWNED", 'x"y', "x'y", "$(touch PWNED)", "a b"]
+        for bad in payloads:
+            with self.subTest(bad=bad):
+                extra = self.notifier_args(
+                    {"FAKE_TTY": "ttys" + bad, "TERM_PROGRAM": "Apple_Terminal", "__CFBundleIdentifier": bad}
+                )
+                self.assertEqual(extra, [])
+                extra = self.notifier_args(
+                    {"FAKE_TTY": "ttys003", "TERM_PROGRAM": bad, "__CFBundleIdentifier": "com.apple" + bad}
+                )
+                self.assertEqual(extra, ["-group", "claude-workflow-ttys003"])
+        for d in (self.proj, self.tmp):
+            self.assertEqual(list(d.glob("PWNED*")), [])
+
+    def test_quote_in_script_path_falls_back_to_activate(self):
+        hooks = self.tmp / "it's" / "hooks"
+        hooks.mkdir(parents=True)
+        for name in ("notify.sh", "focus-terminal.sh"):
+            shutil.copy2(ROOT_DIR / "hooks" / name, hooks / name)
+        env = {"FAKE_TTY": "ttys003", "TERM_PROGRAM": "Apple_Terminal", "__CFBundleIdentifier": "com.apple.Terminal"}
+        extra = self.notifier_args(env, script=hooks / "notify.sh")
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-activate", "com.apple.Terminal"])
+
+    def test_returns_fast_with_slow_notifier(self):
+        (self.bin / "terminal-notifier").unlink()
+        self.add_fakes("terminal-notifier", slow=True)
+        start = time.time()
+        self.run_script("stop", env_extra={"FAKE_TTY": "ttys003", "TERM_PROGRAM": "Apple_Terminal"})
+        self.assertLess(time.time() - start, 1)
 
 
 class TestHooksConfig(unittest.TestCase):

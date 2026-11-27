@@ -76,9 +76,39 @@ case "$body" in
   -*) body=" $body" ;;
 esac
 
+case "$0" in
+  */*) script_dir=${0%/*} ;;
+  *) script_dir=. ;;
+esac
+case "$script_dir" in
+  /*) ;;
+  *) script_dir=$PWD/$script_dir ;;
+esac
+focus_script=$script_dir/focus-terminal.sh
+
 notify_darwin() {
   if has terminal-notifier; then
-    run_bg terminal-notifier -title "$title" -message "$body" -sound "$mac_sound"
+    tty=''
+    terminal=''
+    bundle=''
+    { read -r tty; read -r terminal; read -r bundle; } <<EOF
+$(sh "$focus_script" resolve "$PPID" </dev/null 2>/dev/null)
+EOF
+    set -- -title "$title" -message "$body" -sound "$mac_sound"
+    focus_cmd=''
+    if [ -n "$tty" ]; then
+      set -- "$@" -group "claude-workflow-${tty#/dev/}"
+      case "$focus_script" in
+        *"'"*) ;;
+        *) [ -n "$terminal" ] && focus_cmd="sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
+      esac
+    fi
+    if [ -n "$focus_cmd" ]; then
+      set -- "$@" -execute "$focus_cmd"
+    elif [ -n "$bundle" ]; then
+      set -- "$@" -activate "$bundle"
+    fi
+    run_bg terminal-notifier "$@"
   elif has osascript; then
     run_bg osascript \
       -e 'on run argv' \
