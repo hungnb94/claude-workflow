@@ -1309,8 +1309,16 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertNotIn(old_table, report, "myths and mistakes belong in each lesson's Pitfalls")
 
         header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))
-        for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form"):
+        for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form", "Source material form"):
             self.assertIn(column, header)
+        columns = [cell.strip() for cell in header.strip("|").split("|")]
+        form_index = columns.index("Source material form")
+        rows = [line for line in domains.splitlines() if line.startswith("| ") and line != header]
+        self.assertEqual(len(rows), 10)
+        for row in rows:
+            cells = [cell.strip() for cell in row.strip("|").split("|")]
+            self.assertEqual(len(cells), len(columns), row)
+            self.assertTrue(cells[form_index], row)
         self.assertIn("| Fallback |", domains)
 
         for heading in ("## Evidence labels", "## Red flags", "## Mentor rules", "## Principle filters", "## Principle labels"):
