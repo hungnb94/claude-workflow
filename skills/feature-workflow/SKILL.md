@@ -253,9 +253,10 @@ commit (`git log --oneline BASE..HEAD`).
    đánh giá code mà không biết ý định của người viết.
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
 3. Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ (sửa nhỏ, không mở
-   rộng phạm vi) của vòng đó, truyền như bước 5 của B3 với `STEP` là danh sách các phát hiện đó (mỗi mục
-   kèm số `#` reviewer đặt, file:line, vấn đề, gợi ý sửa), dòng đầu `LOẠI: phát hiện`; không đánh số
-   lại. Minor khác ghi `không sửa: <lý do>` vào mục `## Minor` của `04-review-<n>.md`.
+   rộng phạm vi) của vòng đó, chỉ khi danh sách đó không rỗng (rỗng thì không spawn),
+   truyền như bước 5 của B3 với `STEP` là danh sách các phát hiện đó (mỗi mục kèm số `#` reviewer đặt,
+   file:line, vấn đề, gợi ý sửa), dòng đầu `LOẠI: phát hiện`; không đánh số lại. Minor khác ghi
+   `không sửa: <lý do>` vào mục `## Minor` của `04-review-<n>.md`.
    Agent sửa mỗi phát hiện bằng một commit mới, test xanh. Agent trả về thì
    ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
    `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`. Blocker hoặc Major

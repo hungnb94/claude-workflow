@@ -1070,6 +1070,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ", "không mở\n   rộng phạm vi", "truyền như bước 5 của B3", "`STEP` là danh sách các phát hiện đó", "file:line, vấn đề, gợi ý sửa", "`không sửa: <lý do>`", "mục `## Minor` của `04-review-<n>.md`", "mỗi phát hiện bằng một commit mới", "theo đúng dòng agent trả", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "Blocker hoặc Major\n   `hỏng`: dừng và hỏi người dùng làm lại hay dừng", "Minor `hỏng` chỉ ghi, không dừng", "kiểm diff\n   của các commit sửa", "nới lỏng"):
             with self.subTest(token=token):
                 self.assertIn(token, fix_step)
+        self.assertIn("chỉ khi danh sách đó không rỗng (rỗng thì không spawn)", fix_step)
         round_two = b4.split("\n4. ", 1)[1].split("**Ra:**", 1)[0]
         self.assertNotIn("chép các Minor", round_two)
         out = b4.split("**Ra:**", 1)[1]
@@ -1083,7 +1084,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
         self.assertIn("kèm số `#` reviewer đặt", fix_step)
-        self.assertIn("không đánh số\n   lại", fix_step)
+        self.assertIn("không đánh số lại", fix_step)
         out = b4.split("**Ra:**", 1)[1]
         self.assertIn("cột `#` giữ đúng số\n`#` reviewer đặt (cũng là số trong `STEP`)", out)
         self.assertIn("| <# của reviewer> | <file:line> | <vấn đề> | xong <commit> |", out)
