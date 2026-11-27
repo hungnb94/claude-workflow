@@ -32,6 +32,7 @@ Mỗi ý có đúng một nhãn. Tên nhãn dịch sang ngôn ngữ người h�
 **2. <ý thứ hai>** - ⚠️ Không chắc chắn
 Lý do: <suy ra | mơ hồ | mâu thuẫn>, <giải thích một câu>.
 > "<trích nguyên văn>" - `<file>:<dòng>`
+
 Ngoài tài liệu (chưa kiểm): <chỉ khi thật sự hữu ích>
 
 **3. <ý thứ ba>** - ❌ Không biết
