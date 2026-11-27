@@ -97,7 +97,7 @@ Only myths, mistakes, or disagreements that fit no principle. Leave the part out
 
 Every item in a Source material part follows these rules.
 
-1. One lead-in sentence comes before each block: what it shows and where it comes from.
+1. One lead-in sentence comes before each block: what it shows and which source it comes from (title, file, or project, not the person).
 2. Every code block has a language tag (`python`, `bash`, `json`, `yaml`; `text` for prompts and plain output).
 3. Copy the real code from the source. Cut only the lines that do not bear on the principle, and mark each cut with a comment in the block's own language (`// ...`, `# ...`, `<!-- ... -->`). Do not rename, rewrite, or tidy what you keep. Aim for **Excerpt** in Counts.
 4. When the source shows the output or result, put it in its own block right after the code.
