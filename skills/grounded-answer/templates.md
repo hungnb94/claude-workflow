@@ -45,29 +45,30 @@ Chưa kiểm: <nguồn hoặc phần bỏ qua, hoặc "không có">
 
 ## Ví dụ
 
-Câu hỏi: "Hạn hoàn tiền bao lâu, phí ship có được miễn không, có bảo hành quốc tế không, và hỗ trợ mấy giờ?"
-Nguồn: `policy.md`, `faq.md`.
+Câu hỏi: "Mỗi năm được nghỉ phép bao nhiêu ngày, có được làm từ xa không, công ty có hỗ trợ gửi xe không, và thử việc kéo dài bao lâu?"
+Nguồn: `handbook.md`, `onboarding.md`.
 
 ```markdown
-**1. Hạn hoàn tiền** - ⚠️ Không chắc chắn
-Lý do: mâu thuẫn, hai file ghi hai mốc khác nhau.
-> "Hạn hoàn tiền là 30 ngày kể từ ngày mua" - `policy.md:4`
-> "Hạn hoàn tiền là 45 ngày" - `faq.md:7`
+**1. Số ngày nghỉ phép** - ✅ Trả lời
+Mỗi năm được 12 ngày nghỉ phép có lương.
+> "Nhân viên chính thức được 12 ngày nghỉ phép có lương mỗi năm" - `handbook.md:15`
 
-**2. Miễn phí vận chuyển** - ⚠️ Không chắc chắn
-Lý do: mơ hồ, tài liệu không nói là trường hợp nào.
-> "Phí vận chuyển có thể được miễn trong một số trường hợp" - `policy.md:9`
+**2. Làm từ xa** - ⚠️ Không chắc chắn
+Lý do: mơ hồ, tài liệu không nói ai được duyệt và bao nhiêu ngày.
+> "Làm việc từ xa được xem xét tùy theo tính chất công việc" - `handbook.md:22`
 
-**3. Bảo hành quốc tế** - ❌ Không biết
+**3. Hỗ trợ gửi xe** - ❌ Không biết
 Không thấy trong các nguồn đã đọc.
+Ngoài tài liệu (chưa kiểm): nhiều công ty ghi chính sách gửi xe trong thông báo của bộ phận hành chính, nên có thể hỏi bộ phận này.
 
-**4. Giờ hỗ trợ** - ✅ Trả lời
-Hỗ trợ từ 8h đến 17h, thứ Hai đến thứ Sáu.
-> "Bộ phận hỗ trợ làm việc từ 8h đến 17h, thứ Hai đến thứ Sáu" - `faq.md:12`
+**4. Thời gian thử việc** - ⚠️ Không chắc chắn
+Lý do: mâu thuẫn, hai file ghi hai thời hạn khác nhau.
+> "Thời gian thử việc là 2 tháng" - `handbook.md:8`
+> "Thời gian thử việc kéo dài 60 ngày làm việc" - `onboarding.md:5`
 
 ---
-Nguồn đã đọc: `policy.md`, `faq.md`
+Nguồn đã đọc: `handbook.md`, `onboarding.md`
 Chưa kiểm: không có
 ```
 
-Ý 1 không chọn 30 hay 45 ngày. Ý 3 không thêm dòng "Ngoài tài liệu" vì không có gì thật sự hữu ích để nói.
+Ý 4 không chọn 2 tháng hay 60 ngày làm việc. Ý 3 có dòng "Ngoài tài liệu" vì có một gợi ý thật sự hữu ích, và dòng đó nằm dưới nhãn ❌, tách khỏi câu "Không thấy trong các nguồn đã đọc."
