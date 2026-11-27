@@ -259,11 +259,23 @@ export CLAUDE_WORKFLOW_NOTIFY=0
 
 Optional tools:
 
-- macOS: `terminal-notifier` is used when installed, otherwise the built-in `osascript`.
+- macOS: `terminal-notifier` is used when installed (`brew install terminal-notifier`), otherwise the built-in `osascript`.
 - Linux: `notify-send` for the alert, and `canberra-gtk-play` or `paplay` for the sound (falls back to the terminal bell).
 - `jq`: reads the question text, notification message, and project folder from the hook input. Without it, alerts use generic text (`Claude has a question for you`, `Claude needs permission`) and the current directory name.
 
 A question asked through `AskUserQuestion` can trigger two alerts, one from the `PreToolUse` hook and one from the `Notification` hook.
+
+### Click to return to the tab (macOS)
+
+With `terminal-notifier` installed, clicking an alert brings back the terminal tab that runs that Claude session, even with many tabs open:
+
+- **Terminal.app and iTerm2**: the click selects the tab (iTerm2: the session) with the session's tty, brings its window to the front, and activates the app. `hooks/focus-terminal.sh` finds the tty when the alert is sent and selects the tab when you click.
+- **First click**: macOS asks you to allow automation of Terminal or iTerm2. If you deny it, a click only brings the app to the front. You can change this later in System Settings → Privacy & Security → Automation.
+- **Closed tab**: clicking an old alert only brings the app to the front, with no error.
+- **tmux, and other terminals** (Ghostty, WezTerm, kitty, the VS Code terminal): a click only brings the terminal app to the front; it does not pick a tab or pane.
+- Each tab keeps only its latest alert in Notification Center; a new alert from the same tab replaces the old one.
+
+Without `terminal-notifier` (the `osascript` fallback) and on Linux, alerts work as before and a click does not return to the tab.
 
 ## Kotlin Formatting (ktlint)
 
@@ -373,6 +385,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │   └── sb-2-judge.md            # Brainstorm: Blind rubric judge (Opus, read-only)
 ├── hooks/
 │   ├── hooks.json               # Hooks (Stop, AskUserQuestion, Notification notifiers; PostToolUse ktlint format)
+│   ├── focus-terminal.sh        # POSIX sh helper for notify.sh: finds the session tab and focuses it on click (macOS)
 │   ├── ktlint-format.sh         # POSIX sh ktlint formatter for Kotlin files (PostToolUse)
 │   └── notify.sh                # POSIX sh notifier for macOS/Linux (opt-out: CLAUDE_WORKFLOW_NOTIFY=0)
 ├── scripts/
@@ -430,6 +443,7 @@ claude-workflow/                 # Repository root (plugin identifier: workflow)
 │       └── templates.md         # Three labels, fixed ❌ sentence, answer format, and an example
 ├── tests/
 │   ├── test_bump_version.py     # Unit tests for version calculation
+│   ├── test_focus_terminal.py   # Unit tests for the focus-terminal helper
 │   ├── test_ktlint_format_hook.py # Unit tests for the ktlint format hook
 │   ├── test_notify_hooks.py     # Unit tests for notification hooks
 │   └── test_verify_integrity.py # Unit tests for integrity gate
