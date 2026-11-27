@@ -71,9 +71,15 @@ Khi người dùng chọn làm tiếp:
    phần còn lại giao cho một `fw-3-implement` mới.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
    còn lại chạy `Bằng chứng xong` rồi `Báo cáo cuối`. `04-review-<n>.md` mới nhất đã có mục
-   `## Bằng chứng cuối` thì làm tiếp vòng sửa trong đó: commit trên nhánh mà mục đó chưa ghi thì ghi vào
-   lần sửa tương ứng trước; lần sửa đã xong mà chưa chạy lại thì chạy lại bằng một `fw-3-evidence` mới;
-   các lần sửa đã ghi được tính vào giới hạn lần sửa của `Bằng chứng xong`.
+   `## Bằng chứng cuối` thì làm tiếp vòng sửa trong đó; các lần sửa đã ghi được tính vào giới hạn lần
+   sửa của `Bằng chứng xong`. Commit trên nhánh mà mục đó chưa ghi thì ghi vào lần sửa tương ứng trước,
+   rồi:
+   - Lần sửa bị ngắt (còn mục chưa `xong` hay `hỏng`): các mục đó giao cho một `fw-3-implement` mới,
+     vẫn là lần sửa đó, rồi chạy lại bằng một `fw-3-evidence` mới.
+   - Lần sửa đã xong mà chưa chạy lại: chạy lại bằng một `fw-3-evidence` mới.
+   - Lần chạy mới nhất có lệnh đỏ hoặc AC `không đạt` mà chưa có lần sửa: sửa như `Bằng chứng xong`
+     nếu chưa hết giới hạn, hết thì dừng và báo người dùng.
+   - Lần chạy mới nhất không có lệnh đỏ hay AC `không đạt`: sang `Báo cáo cuối`, không chạy lại.
 7. Lần chạy `Bằng chứng xong` bị ngắt (thư mục trong `DIR/evidence/` mà chưa có `RUN_DIR` nào đã ghi trỏ
    tới): bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính; rồi chạy lại
    `Bằng chứng xong` bằng một `fw-3-evidence` mới.

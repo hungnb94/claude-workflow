@@ -1083,9 +1083,30 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, resume_b4)
         self.assertLess(resume_b4.index("tương ứng trước"), resume_b4.index("Các phát hiện còn lại"))
         final = resume.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
-        for token in ("chạy `Bằng chứng xong` rồi `Báo cáo cuối`", "`## Bằng chứng cuối`", "ghi vào\n   lần sửa tương ứng trước", "chạy lại bằng một `fw-3-evidence` mới", "giới hạn lần sửa của `Bằng chứng xong`"):
+        for token in ("chạy `Bằng chứng xong` rồi `Báo cáo cuối`", "`## Bằng chứng cuối`", "ghi vào lần sửa tương ứng trước", "chạy lại bằng một `fw-3-evidence` mới", "giới hạn lần\n   sửa của `Bằng chứng xong`"):
             with self.subTest(token=token):
                 self.assertIn(token, final)
+
+    def test_feature_workflow_resume_covers_each_evidence_loop_state(self):
+        """Verify resuming the final evidence loop handles an interrupted fixer, a failed run with no fix yet, and a green run without a report."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        final = resume.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        record = final.index("ghi vào lần sửa tương ứng trước")
+        bullets = final.split("\n   - ")[1:]
+        self.assertEqual(len(bullets), 4)
+        self.assertLess(record, final.index("\n   - "))
+        interrupted = next(b for b in bullets if b.startswith("Lần sửa bị ngắt"))
+        for token in ("chưa `xong` hay `hỏng`", "giao cho một `fw-3-implement` mới", "vẫn là lần sửa đó", "rồi chạy lại bằng một `fw-3-evidence` mới"):
+            with self.subTest(token=token):
+                self.assertIn(token, interrupted)
+        no_fix = next(b for b in bullets if "mà chưa có lần sửa" in b)
+        for token in ("lệnh đỏ hoặc AC `không đạt`", "sửa như `Bằng chứng xong`", "nếu chưa hết giới hạn", "dừng và báo người dùng"):
+            with self.subTest(token=token):
+                self.assertIn(token, no_fix)
+        green = next(b for b in bullets if "không có lệnh đỏ hay AC `không đạt`" in b)
+        self.assertIn("sang `Báo cáo cuối`, không chạy lại", green)
+        self.assertNotIn("fw-3-evidence", green)
 
     def test_readme_describes_batched_implementers_and_one_final_evidence_run(self):
         """Verify README describes B3 batches, one fixer per B4 round, and a single final evidence run."""
