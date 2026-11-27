@@ -31,12 +31,16 @@ Input: `$ARGUMENTS`.
 
 ### Bước 2. Đọc nguồn
 
-- Có nêu file hoặc thư mục: chỉ đọc đúng nguồn đó. Không đọc thêm file khác.
+- Có nêu file hoặc thư mục: chỉ đọc đúng nguồn đó. Không đọc thêm file khác. Thư mục được nêu thì tìm theo
+  cách ở mục không nêu nguồn bên dưới, nhưng chỉ trong thư mục đó.
+- File hoặc thư mục được nêu không tồn tại (ví dụ gõ sai tên): báo rõ cho người dùng rồi dừng. Không chuyển
+  sang đọc thư mục hiện tại hay nguồn khác.
 - Có nêu connector: chỉ dùng tool của connector đó. Connector chưa cài, chưa đăng nhập hoặc gọi lỗi thì báo
   rõ cho người dùng rồi dừng. Không chuyển sang đọc thư mục hiện tại hay nguồn khác.
 - Không nêu nguồn: tìm trong thư mục hiện tại, kể cả thư mục con. Dùng Grep và Glob với từ khoá của từng ý,
   chỉ đọc những đoạn trúng, không đọc cả cây thư mục. Nhiều file trúng hoặc thư mục lớn thì giao subagent
-  `Explore` có sẵn tìm và trả về đoạn trích nguyên văn kèm `file:dòng`, để context không bị đầy.
+  `Explore` có sẵn tìm và trả về đoạn trích nguyên văn kèm `file:dòng`, để context không bị đầy. File Glob
+  thấy mà Grep không đọc được (PDF, docx…) thì đọc bằng Read; Read vẫn không đọc được thì ghi vào "Chưa kiểm".
 - Ghi lại mọi file hoặc trang đã đọc, và những gì không kiểm được (file không mở được, kết quả bị cắt, thư
   mục bỏ qua).
 
