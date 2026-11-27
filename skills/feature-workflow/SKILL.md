@@ -87,7 +87,8 @@ Khi người dùng chọn làm tiếp:
 ## Bằng chứng xong
 
 "Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Mục này
-chạy đúng một lần, sau B4, trước `Báo cáo cuối`, kể cả khi B4 không sửa gì; B3 và B4 không chạy nó.
+chỉ chạy ở cuối, sau B4 và trước `Báo cáo cuối`, kể cả khi B4 không sửa gì: một lần, cộng các lần chạy
+lại sau mỗi lần sửa của chính mục này. B3 và B4 không chạy nó.
 
 - Sau thay đổi cuối cùng, spawn một agent `fw-3-evidence` mới (trong plugin: `workflow:fw-3-evidence`),
   không dùng `subagent_type: "fork"`. Truyền `REQUIREMENTS` (đường dẫn tuyệt đối tới
@@ -105,6 +106,7 @@ chạy đúng một lần, sau B4, trước `Báo cáo cuối`, kể cả khi B4
   truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt` (mỗi mục kèm dòng lỗi và file bằng
   chứng), dòng đầu `LOẠI: bằng chứng`. Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`,
   `<#> hỏng <lý do>`) vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới.
+  Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn.
   Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng lỗi kèm output.
   `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
 - Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit

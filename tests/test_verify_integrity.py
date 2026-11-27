@@ -1037,7 +1037,9 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("Trước khi\nghi `Trạng thái: xong` của `03-implementation.md`", section)
         self.assertNotIn("03-implementation.md", section)
         for token in (
-            "Mục này\nchạy đúng một lần, sau B4, trước `Báo cáo cuối`",
+            "Mục này\nchỉ chạy ở cuối, sau B4 và trước `Báo cáo cuối`",
+            "một lần, cộng các lần chạy\nlại sau mỗi lần sửa của chính mục này",
+            "Agent sửa trả có mục `<#> hỏng` thì vẫn chạy lại để có kết quả mới; lần sửa đó vẫn tính vào giới hạn",
             "B3 và B4 không chạy nó",
             "Ghi lần chạy vào mục `## Bằng chứng cuối` của `04-review-<n>.md` mới nhất",
             "`RUN_DIR` agent trả, và bảng trạng thái AC agent trả",
@@ -1048,6 +1050,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         ):
             with self.subTest(token=token):
                 self.assertIn(token, section)
+        self.assertNotIn("chạy đúng một lần", section)
         outside = body.replace(section, "")
         self.assertNotIn("Sau 2 lần sửa vẫn đỏ", outside)
         report = body.split("## Báo cáo cuối", 1)[1]
