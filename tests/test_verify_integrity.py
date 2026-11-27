@@ -951,6 +951,18 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("dòng `Số lô`", out)
         self.assertNotIn("bằng chứng", out)
 
+    def test_feature_workflow_b3_counts_diff_fix_batches_from_file(self):
+        """Verify B3 marks diff-fix batches in the batch line so resume can count them against the 2-fix limit."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
+        for token in ("Ghi lô đó trong `Số lô` là lô sửa diff kèm lần sửa", "`lô 2: sửa diff lần 1`", "sau 2 lần vẫn chưa ổn (đếm các lô sửa diff trong `Số lô`)"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_check)
+        resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
+        resume_b3 = resume.split("Đang ở B3:", 1)[1].split("Đang ở B4:", 1)[0]
+        self.assertIn("các lô sửa diff đã ghi trong `Số lô` được tính vào giới hạn 2 lần sửa của bước đó", resume_b3)
+
     def test_implementer_commits_each_item_of_a_list(self):
         """Verify the implementer takes a numbered item list and runs code, checks, and one commit per item in order."""
         implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")

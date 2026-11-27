@@ -62,7 +62,7 @@ Khi người dùng chọn làm tiếp:
    `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi `xong <commit>` vào dòng
    tương ứng trước. Dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Các dòng `chưa` còn lại giao cho
    `fw-3-implement` mới theo bước 5 của B3, giữ lô đã ghi, mỗi lô một agent. Mọi dòng đã `xong` thì chạy
-   bước 7 của B3.
+   bước 7 của B3; các lô sửa diff đã ghi trong `Số lô` được tính vào giới hạn 2 lần sửa của bước đó.
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
    file đó: ghi `xong <commit>` vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần.
    Blocker hoặc Major ghi `hỏng` thì hỏi người dùng làm lại hay dừng; Minor `hỏng` vào "Minor đã bỏ qua"
@@ -241,9 +241,11 @@ và mục `Lệnh build và test`.
    assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu. B3 không chạy
    `Bằng chứng xong`: mục đó chạy một lần trước `Báo cáo cuối`. Diff có vấn đề: thêm dòng vào
    `Bảng bước`, ghi vào một lô mới (số lô kế tiếp) và cập nhật `Số lô`; lô sửa này không tính vào giới
-   hạn 3 lô. Sửa bằng một `fw-3-implement` mới, truyền như bước 5 với `STEP` là các dòng mới, rồi
-   làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người dùng. Commit trộn nhiều thay đổi thì
-   không sửa được vì không viết lại commit: ghi vào `Việc phát sinh` và nói trong báo cáo cuối. Không tự
+   hạn 3 lô. Ghi lô đó trong `Số lô` là lô sửa diff kèm lần sửa (ví dụ `lô 2: sửa diff lần 1`).
+   Sửa bằng một `fw-3-implement` mới, truyền như bước 5 với `STEP` là các dòng mới, rồi làm lại bước
+   này; sau 2 lần vẫn chưa ổn (đếm các lô sửa diff trong `Số lô`) thì dừng và báo người dùng.
+   Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào `Việc phát sinh` và
+   nói trong báo cáo cuối. Không tự
    sửa code trong session chính. Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của
    agent code xanh.
 
