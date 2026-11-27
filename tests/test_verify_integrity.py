@@ -771,8 +771,8 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(status, section)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
-        self.assertIn("có lệnh đỏ hoặc AC `không đạt`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
-        self.assertIn("mục\n`Bằng chứng theo AC` (bảng agent trả)", b3.split("**Ra:**", 1)[1])
+        self.assertIn("B3 không chạy\n   `Bằng chứng xong`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
+        self.assertNotIn("Bằng chứng theo AC", b3)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
         self.assertIn("`Bằng chứng theo AC`) vào `04-review-<n>.md`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
@@ -867,7 +867,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("bước 2 của mục `Làm tiếp`", init)
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
-        for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
+        for token in ("## Bảng bước", "| # | Mục tiêu | File dự kiến | Lô | Trạng thái |", "## Việc phát sinh", "`xong <commit>`", "`hỏng <lý do>`"):
             with self.subTest(token=token):
                 self.assertIn(token, b3)
         self.assertIn("`Việc phát sinh`", b3.split("**Ra:**", 1)[1])
@@ -889,7 +889,7 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
         spawn = b3.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
-        for token in ("`fw-3-implement`", "Mỗi dòng một agent", "không chạy hai agent cùng lúc", '`subagent_type: "fork"`'):
+        for token in ("`fw-3-implement`", "Mỗi lô một agent", "Lô sau chỉ bắt đầu khi lô trước trả về", "không chạy hai\n   agent cùng lúc", '`subagent_type: "fork"`'):
             with self.subTest(token=token):
                 self.assertIn(token, spawn)
         implementer = read("agents", "fw-3-implement.md")
@@ -899,7 +899,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertEqual(passed, declared)
         self.assertIn("`hỏng <lý do>`", b3.split("\n6. ", 1)[1])
         final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("git diff BASE..HEAD", "nới lỏng", "`Bằng chứng xong`", "có lệnh đỏ", "sau 2 lần vẫn chưa ổn", "Commit trộn", "Không tự sửa code"):
+        for token in ("git diff BASE..HEAD", "nới lỏng", "B3 không chạy\n   `Bằng chứng xong`", "sau 2 lần vẫn chưa ổn", "Commit trộn", "Không tự\n   sửa code"):
             with self.subTest(token=token):
                 self.assertIn(token, final_check)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
@@ -923,6 +923,30 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("`Kết quả: xong` khi mọi mục `xong`", "exit code", "`Việc phát sinh`"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
+
+    def test_feature_workflow_b3_splits_rows_into_batches(self):
+        """Verify B3 gives all step rows to one implementer by default, splits into at most 3 sequential batches, and records each row as returned."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        self.assertNotIn("Mỗi dòng một agent", body)
+        b3 = body.split("## B3.", 1)[1].split("## B4.", 1)[0]
+        table = b3.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
+        for token in ("Số lô: <n> - <lý do>", "| # | Mục tiêu | File dự kiến | Lô | Trạng thái |", "| 1 | <một thay đổi, một commit> | <file> | 1 | chưa |", "dòng `Số lô`"):
+            with self.subTest(token=token):
+                self.assertIn(token, table)
+        spawn = b3.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        for token in ("Mặc định\n   1 lô cho mọi dòng", "một agent vừa nhanh vừa chính xác", "Chia 2-3 lô khi việc nhiều", "các\n   phần không chung file", "một agent không đọc hết context cho mọi dòng", "Tối đa 3 lô", "Mỗi lô một agent", "Lô sau chỉ bắt đầu khi lô trước trả về", "`STEP`: các dòng `chưa` của lô", "commit dòng đó"):
+            with self.subTest(token=token):
+                self.assertIn(token, spawn)
+        record = b3.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        for token in ("theo đúng dòng agent trả", "`<#> xong <hash>` ghi\n   `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`<#> chưa` giữ `chưa`", "Có dòng `hỏng` hoặc agent trả `lỗi`: dừng, không chạy lô sau"):
+            with self.subTest(token=token):
+                self.assertIn(token, record)
+        final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
+        self.assertIn("truyền như bước 5 với `STEP` là các dòng mới", final_check)
+        self.assertIn("Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của\n   agent code xanh", final_check)
+        out = b3.split("**Ra:**", 1)[1]
+        self.assertIn("dòng `Số lô`", out)
+        self.assertNotIn("bằng chứng", out)
 
     def test_implementer_commits_each_item_of_a_list(self):
         """Verify the implementer takes a numbered item list and runs code, checks, and one commit per item in order."""

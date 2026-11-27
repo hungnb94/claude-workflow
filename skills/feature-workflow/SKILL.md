@@ -176,26 +176,33 @@ và mục `Lệnh build và test`.
    đó trước khi code.
 4. Đang ở nhánh mặc định hoặc detached HEAD thì `git switch -c feature/<SLUG>`. Trước commit đầu tiên,
    ghi ngay vào `03-implementation.md` (chưa có dòng trạng thái): phương án, đánh giá, thiết kế ở bước 3
-   nếu có, nhánh, `BASE` = `git rev-parse HEAD`, `Bảng bước` và `Việc phát sinh` theo khung dưới. Làm lại
-   B3 mà `03-implementation.md` đã có `BASE` thì giữ `BASE` cũ, không ghi đè, để review vẫn thấy các
-   commit đã có.
+   nếu có, nhánh, `BASE` = `git rev-parse HEAD`, dòng `Số lô`, `Bảng bước` và `Việc phát sinh` theo khung
+   dưới. Làm lại B3 mà `03-implementation.md` đã có `BASE` thì giữ `BASE` cũ, không ghi đè, để review vẫn
+   thấy các commit đã có.
 
    ```markdown
+   Số lô: <n> - <lý do>
+
    ## Bảng bước
 
-   | # | Mục tiêu | File dự kiến | Trạng thái |
-   |---|---|---|---|
-   | 1 | <một thay đổi, một commit> | <file> | chưa |
+   | # | Mục tiêu | File dự kiến | Lô | Trạng thái |
+   |---|---|---|---|---|
+   | 1 | <một thay đổi, một commit> | <file> | 1 | chưa |
 
    ## Việc phát sinh
 
    - <việc ngoài phạm vi thấy trong lúc code, chưa làm>
    ```
 
-5. Lần lượt với từng dòng `chưa` của `Bảng bước`, spawn một agent `fw-3-implement` mới (trong plugin:
-   `workflow:fw-3-implement`). Mỗi dòng một agent, không chạy hai agent cùng lúc, không dùng
-   `subagent_type: "fork"`: agent code trong context mới, chỉ biết những gì được truyền. Truyền:
-   - `STEP`: mục tiêu và file dự kiến của dòng đó.
+5. Chia các dòng của `Bảng bước` thành lô và ghi vào cột `Lô` và dòng `Số lô` trước khi spawn. Mặc định
+   1 lô cho mọi dòng: việc nhỏ thì một agent vừa nhanh vừa chính xác. Chia 2-3 lô khi việc nhiều: các
+   phần không chung file, hoặc một agent không đọc hết context cho mọi dòng. Tối đa 3 lô.
+
+   Lần lượt với từng lô còn dòng `chưa`, spawn một agent `fw-3-implement` mới (trong plugin:
+   `workflow:fw-3-implement`). Mỗi lô một agent. Lô sau chỉ bắt đầu khi lô trước trả về; không chạy hai
+   agent cùng lúc, không dùng `subagent_type: "fork"`: agent code trong context mới, chỉ biết những gì
+   được truyền. Truyền:
+   - `STEP`: các dòng `chưa` của lô, mỗi dòng giữ số `#`, mục tiêu và file dự kiến.
    - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
    - `DESIGN`: đường dẫn tuyệt đối tới `02-solution.md` kèm heading của phương án đã chọn, hoặc tới
      `03-implementation.md` kèm heading thiết kế nếu đã tự viết ở bước 3.
@@ -204,22 +211,24 @@ và mục `Lệnh build và test`.
    - `COMMIT_STYLE`: `<Base directory của skill này>/../atomic-commit/SKILL.md`.
    - `CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`.
 
-   Agent code bước đó, có test cho hành vi mới nếu repo có test, chạy `CHECKS`, xanh mới tự commit (chỉ
-   `git add -- <file>`, không `--no-verify`).
-6. Agent trả về thì ghi ngay dòng đó trong `Bảng bước`: `xong <commit>` hoặc `hỏng <lý do>`, và chép các
-   việc trong `Việc phát sinh` của nó vào mục cùng tên của `03-implementation.md`; không làm luôn việc
-   ngoài phạm vi. Agent trả `lỗi` (test đỏ sau 2 lần sửa): dừng, báo người dùng lỗi và những gì đã thử.
+   Agent làm lần lượt từng dòng: code, có test cho hành vi mới nếu repo có test, chạy `CHECKS`, xanh mới
+   tự commit dòng đó (chỉ `git add -- <file>`, không `--no-verify`), rồi sang dòng sau.
+6. Agent trả về thì ghi ngay từng dòng trong `Bảng bước` theo đúng dòng agent trả: `<#> xong <hash>` ghi
+   `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`, `<#> chưa` giữ `chưa`. Chép các việc trong
+   `Việc phát sinh` của nó vào mục cùng tên của `03-implementation.md`; không làm luôn việc ngoài phạm vi.
+   Có dòng `hỏng` hoặc agent trả `lỗi`: dừng, không chạy lô sau, báo người dùng lỗi và những gì đã thử.
 7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`, kiểm không test hay
-   assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu; rồi chạy theo mục
-   `Bằng chứng xong`. Diff có vấn đề, có lệnh đỏ hoặc AC `không đạt`: thêm một dòng vào `Bảng bước` và
-   sửa bằng một `fw-3-implement` mới (commit mới), rồi làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng
-   và báo người dùng. Commit trộn nhiều thay đổi thì không sửa được vì không viết lại commit: ghi vào
-   `Việc phát sinh` và nói trong báo cáo cuối. Không tự sửa code trong session chính.
+   assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu. B3 không chạy
+   `Bằng chứng xong`: mục đó chạy một lần trước `Báo cáo cuối`. Diff có vấn đề: thêm dòng vào
+   `Bảng bước` và sửa bằng một `fw-3-implement` mới, truyền như bước 5 với `STEP` là các dòng mới, rồi
+   làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người dùng. Commit trộn nhiều thay đổi thì
+   không sửa được vì không viết lại commit: ghi vào `Việc phát sinh` và nói trong báo cáo cuối. Không tự
+   sửa code trong session chính. Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của
+   agent code xanh.
 
 **Ra:** `03-implementation.md` gồm: phương án đã chọn và điểm; đánh giá maintain và mở rộng; thiết kế nếu
-phải tự viết; nhánh; `BASE`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách commit
-(`git log --oneline BASE..HEAD`); bằng chứng theo mục `Bằng chứng xong`, gồm kết quả lệnh và mục
-`Bằng chứng theo AC` (bảng agent trả).
+phải tự viết; nhánh; `BASE`; dòng `Số lô`; `Bảng bước` với mọi dòng `xong`; `Việc phát sinh`; danh sách
+commit (`git log --oneline BASE..HEAD`).
 
 ## B4. Review và sửa
 
