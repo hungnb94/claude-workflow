@@ -1278,28 +1278,47 @@ class TestVerifyIntegrity(unittest.TestCase):
         counts = templates.split("## Counts", 1)[1].split("## Report", 1)[0]
         for key in (
             "Candidates", "Kept", "Min schools", "Votes", "Few voices", "Shortfall", "Chat summary", "File name",
-            "Lesson lines", "Main file", "Appendix", "Examples", "Self-check questions", "This week",
+            "Principle lines", "Main file", "Source material", "Excerpt", "Metaphor", "This week",
         ):
             self.assertRegex(counts, rf"(?m)^- {key}: ", key)
+        for key in ("Lesson lines", "Appendix", "Examples", "Self-check questions"):
+            self.assertNotRegex(counts, rf"(?m)^- {key}: ", key)
         file_name = re.search(r"(?m)^- File name: (.*)$", counts).group(1)
-        for suffix in ("-answers", "-sources"):
-            self.assertIn(suffix, file_name)
+        self.assertIn("-sources", file_name)
+        self.assertNotIn("-answers", file_name)
         kept = int(re.search(r"(?m)^- Kept: (\d+)$", counts).group(1))
         high = int(re.search(r"(?m)^- Candidates: \d+-(\d+)$", counts).group(1))
         self.assertLess(kept, high)
         self.assertNotRegex(counts, r"\d+ of 6", "vote thresholds must scale with N, not a fixed 6")
         self.assertIn("## Self-check", templates)
         report = re.split(r"(?m)^## Self-check$", templates.split("## Report", 1)[1], maxsplit=1)[0]
-        for heading in ("### Main file", "### Answers file", "### Sources file"):
+        for heading in ("### Main file", "### Source material rules", "### Sources file"):
             self.assertIn(heading, report)
-        for part in ("## Learning path", "### Examples", "### Pitfalls", "### Apply", "### Self-check", "## Teach-back"):
-            self.assertIn(part, report)
+        self.assertNotIn("### Answers file", report)
+        self.assertIn("## Reading path", report)
+        main_template = report.split("### Main file", 1)[1].split("### Source material rules", 1)[0]
+        principle = re.split(r"(?m)^## Principle <n>\..*$", main_template, maxsplit=1)[1]
+        principle = re.split(r"(?m)^## ", principle, maxsplit=1)[0]
+        self.assertEqual(
+            re.findall(r"(?m)^### (.+)$", principle),
+            ["Statement", "Source material", "Mechanism", "Thresholds and steps", "When not to use", "Pitfalls", "Apply"],
+        )
+        for part in ("### Examples", "### Self-check", "## Teach-back", "## Appendix", "Confused with"):
+            self.assertNotIn(part, report)
         for old_table in ("## 2. Myths", "## 4. Common mistakes"):
-            self.assertNotIn(old_table, report, "myths and mistakes belong in each lesson's Pitfalls")
+            self.assertNotIn(old_table, report, "myths and mistakes belong in each principle's Pitfalls")
 
         header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))
-        for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form"):
+        for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form", "Source material form"):
             self.assertIn(column, header)
+        columns = [cell.strip() for cell in header.strip("|").split("|")]
+        form_index = columns.index("Source material form")
+        rows = [line for line in domains.splitlines() if line.startswith("| ") and line != header]
+        self.assertEqual(len(rows), 10)
+        for row in rows:
+            cells = [cell.strip() for cell in row.strip("|").split("|")]
+            self.assertEqual(len(cells), len(columns), row)
+            self.assertTrue(cells[form_index], row)
         self.assertIn("| Fallback |", domains)
 
         for heading in ("## Evidence labels", "## Red flags", "## Mentor rules", "## Principle filters", "## Principle labels"):
