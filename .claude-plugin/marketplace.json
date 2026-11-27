@@ -5,7 +5,7 @@
     "name": "Hung Nguyen",
     "email": "hungnb94@gmail.com"
   },
-  "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, learning coach, and grounded answer skills",
+  "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, learning coach, and grounded answer (grounded-answer) skills",
   "plugins": [
     {
       "name": "workflow",
@@ -13,7 +13,7 @@
         "source": "github",
         "repo": "hungnb94/claude-workflow"
       },
-      "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, learning coach, and grounded answer skills",
+      "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, learning coach, and grounded answer (grounded-answer) skills",
       "version": "5.9.0",
       "author": {
         "name": "Hung Nguyen",
