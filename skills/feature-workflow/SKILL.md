@@ -58,21 +58,22 @@ Khi người dùng chọn làm tiếp:
 3. Đã có `03-implementation.md`: nhánh ghi trong file đó (mặc định `feature/<SLUG>`) phải còn và chứa
    `BASE` (`git merge-base --is-ancestor <BASE> <nhánh>`); switch sang nhánh đó. Không thoả thì dừng và
    hỏi người dùng.
-4. Đang ở B3: đọc `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng
-   `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi vào dòng tương ứng trước.
-   Làm tiếp từ dòng đầu tiên chưa `xong`; dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Mọi dòng đã
-   `xong` thì chạy bước 7 của B3.
+4. Đang ở B3: đọc `Số lô`, `Bảng bước` và `Việc phát sinh` của `03-implementation.md`, cùng
+   `git log --oneline BASE..HEAD`. Commit có trên nhánh mà bảng chưa ghi: ghi `xong <commit>` vào dòng
+   tương ứng trước. Dòng `hỏng` thì hỏi người dùng làm lại hay dừng. Các dòng `chưa` còn lại giao cho
+   `fw-3-implement` mới theo bước 5 của B3, giữ lô đã ghi, mỗi lô một agent. Mọi dòng đã `xong` thì chạy
+   bước 7 của B3.
 5. Đang ở B4: đọc `04-review-<n>.md` mới nhất và `git log --oneline BASE..HEAD`. Commit sửa chưa ghi vào
-   file đó: ghi vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần. Với Blocker và Major:
-   làm tiếp từ phát hiện đầu tiên chưa ghi đã sửa hay không sửa; phát hiện ghi `hỏng` thì hỏi người dùng
-   làm lại hay dừng. Minor `chờ lượt cuối` coi như đã ghi, chỉ xử lý ở lượt Minor cuối; Minor `hỏng` vào
-   "Minor đã bỏ qua" của `Báo cáo cuối`, không hỏi. Minor `chờ lượt cuối` trong mục
-   `## Minor` của file mới nhất đó mà commit sửa đã có trên nhánh: ghi `xong <commit>` vào file đó trước,
-   chỉ đưa Minor còn `chờ lượt cuối` vào lượt Minor cuối. Minor chưa có trạng thái (bị ngắt giữa bước 2
-   và bước 3 của B4) thì ghi trạng thái như bước 3 của B4 trước.
+   file đó: ghi `xong <commit>` vào phát hiện tương ứng trước, để không sửa một phát hiện hai lần.
+   Blocker hoặc Major ghi `hỏng` thì hỏi người dùng làm lại hay dừng; Minor `hỏng` vào "Minor đã bỏ qua"
+   của `Báo cáo cuối`, không hỏi. Các phát hiện còn lại chưa ghi gì (bị ngắt giữa bước 2 và bước 3 của
+   B4, hoặc lúc agent đang sửa) thì xử lý như bước 3 của B4: Minor không sửa ghi `không sửa: <lý do>`,
+   phần còn lại giao cho một `fw-3-implement` mới.
 6. Mọi file Ra đều `xong`: vòng review mới nhất là vòng 1 và có Blocker hoặc Major thì chạy vòng 2 của B4;
-   còn lại chạy bước 5 của B4 nếu còn Minor `chờ lượt cuối`, rồi `Báo cáo cuối`, kể cả lần chạy
-   `Bằng chứng xong` của nó.
+   còn lại chạy `Bằng chứng xong` rồi `Báo cáo cuối`. `04-review-<n>.md` mới nhất đã có mục
+   `## Bằng chứng cuối` thì làm tiếp vòng sửa trong đó: commit trên nhánh mà mục đó chưa ghi thì ghi vào
+   lần sửa tương ứng trước; lần sửa đã xong mà chưa chạy lại thì chạy lại bằng một `fw-3-evidence` mới;
+   các lần sửa đã ghi được tính vào giới hạn lần sửa của `Bằng chứng xong`.
 7. Lần chạy `Bằng chứng xong` bị ngắt (thư mục trong `DIR/evidence/` mà chưa có `RUN_DIR` nào đã ghi trỏ
    tới): bỏ qua thư mục dở đó, không xoá, vì chỉ `RUN_DIR` của lần chạy mới được tính; rồi chạy lại
    `Bằng chứng xong` bằng một `fw-3-evidence` mới.

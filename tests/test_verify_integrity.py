@@ -1064,18 +1064,31 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, out)
 
-    def test_feature_workflow_final_minor_pass_leftovers(self):
-        """Verify the resume and report parts that still mention the final Minor pass."""
+    def test_feature_workflow_resume_matches_batches_and_single_evidence(self):
+        """Verify resume records commits before handing leftover rows or findings to a new implementer, and resumes the final evidence loop."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
         body = skill.split("---", 2)[2]
+        for gone in ("Mỗi dòng một agent", "mỗi dòng một agent", "lượt Minor cuối", "Lượt Minor cuối", "chờ lượt cuối"):
+            with self.subTest(gone=gone):
+                self.assertNotIn(gone, body)
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
-        resume_b4 = resume.split("Đang ở B4:", 1)[1]
-        self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])
-        self.assertIn("`## Minor` của file mới nhất", resume_b4.split("\n6. ", 1)[0])
-        self.assertIn("bước 5 của B4", resume_b4.split("\n6. ", 1)[1])
-        for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi", "Minor chưa có trạng thái"):
+        resume_b3 = resume.split("Đang ở B3:", 1)[1].split("Đang ở B4:", 1)[0]
+        for token in ("`Số lô`", "ghi `xong <commit>` vào dòng\n   tương ứng trước", "Các dòng `chưa` còn lại giao cho\n   `fw-3-implement` mới theo bước 5 của B3", "giữ lô đã ghi"):
             with self.subTest(token=token):
-                self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
+                self.assertIn(token, resume_b3)
+        self.assertLess(resume_b3.index("tương ứng trước"), resume_b3.index("Các dòng `chưa` còn lại"))
+        resume_b4 = resume.split("Đang ở B4:", 1)[1].split("\n6. ", 1)[0]
+        for token in ("ghi `xong <commit>` vào phát hiện tương ứng trước", "Blocker hoặc Major ghi `hỏng` thì hỏi người dùng", "Minor `hỏng` vào \"Minor đã bỏ qua\"", "không hỏi", "Các phát hiện còn lại chưa ghi gì", "như bước 3 của B4", "giao cho một `fw-3-implement` mới"):
+            with self.subTest(token=token):
+                self.assertIn(token, resume_b4)
+        self.assertLess(resume_b4.index("tương ứng trước"), resume_b4.index("Các phát hiện còn lại"))
+        final = resume.split("\n6. ", 1)[1].split("\n7. ", 1)[0]
+        for token in ("chạy `Bằng chứng xong` rồi `Báo cáo cuối`", "`## Bằng chứng cuối`", "ghi vào\n   lần sửa tương ứng trước", "chạy lại bằng một `fw-3-evidence` mới", "giới hạn lần sửa của `Bằng chứng xong`"):
+            with self.subTest(token=token):
+                self.assertIn(token, final)
+
+    def test_readme_final_minor_pass_leftover(self):
+        """Verify the README line that still describes the final Minor pass."""
         self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
 
     def test_comment_policy_is_single_source(self):
