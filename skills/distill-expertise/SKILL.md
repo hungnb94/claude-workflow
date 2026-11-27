@@ -28,7 +28,7 @@ Counts and thresholds live in `templates.md`. Domain rules live in `evidence-dom
 
 ### Step 1. Classify the domain
 
-Read `evidence-domains.md`. Pick the row whose Signals best match the topic, or the Fallback row. Note its student evidence, proxy, and freshness limit. A topic can match more than one row. Use the most specific row and say which one you used.
+Read `evidence-domains.md`. Pick the row whose Signals best match the topic, or the Fallback row. Note its student evidence, proxy, freshness limit, Apply form, and Source material form. A topic can match more than one row. Use the most specific row and say which one you used.
 
 ### Step 2. Find candidates
 
