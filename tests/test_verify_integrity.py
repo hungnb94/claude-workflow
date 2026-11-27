@@ -1019,6 +1019,19 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, commit)
 
+    def test_implementer_evidence_items_do_not_block_each_other(self):
+        """Verify an evidence item is green when its own command passes, so two red commands do not deadlock."""
+        implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        baseline = steps.split("\n2. ", 1)[1].split("\n3. ", 1)[0]
+        self.assertIn("`LOẠI: bằng chứng`: chạy mọi lệnh trong `CHECKS` một lần trước khi sửa", baseline)
+        run = steps.split("\n   3. ", 1)[1].split("\n   4. ", 1)[0]
+        for token in ("lệnh của chính mục đó\n      xanh", "không lệnh nào xanh ở mốc nay đỏ", "Lệnh đã đỏ ở mốc và thuộc mục sau thì không chặn mục này"):
+            with self.subTest(token=token):
+                self.assertIn(token, run)
+        commit = steps.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        self.assertIn("mục sau cũng không được làm nó đỏ\n      lại", commit)
+
     def test_evidence_agent_is_blind_and_writes_only_evidence(self):
         """Verify the evidence agent's tools, inputs, AC statuses, and that it writes only to its RUN_DIR."""
         agent = (ROOT_DIR / "agents" / "fw-3-evidence.md").read_text(encoding="utf-8")

@@ -38,16 +38,21 @@ Thiếu input nào thì báo thiếu gì và dừng.
    những file tham chiếu mà bảng của chuẩn chỉ tới cho các mục. Trong `COMMIT_STYLE` chỉ đọc
    `## Commit message rules` và `## Safety rules`, cùng `templates.md` nằm cùng thư mục với nó.
 2. `git status --porcelain` có thay đổi chưa commit: dừng và trả lỗi, không đụng vào chúng.
+   `LOẠI: bằng chứng`: chạy mọi lệnh trong `CHECKS` một lần trước khi sửa và ghi lệnh nào đỏ làm mốc.
 3. Làm lần lượt từng mục của `STEP` theo thứ tự, mục trước commit xong mới sang mục sau:
    1. Đọc code quanh chỗ sẽ sửa; grep trước khi viết function hoặc class mới để không làm trùng cái đã
       có.
    2. Code chỉ mục đó. Hành vi mới có test nếu repo có test. Không xoá, skip hay nới lỏng test hoặc
       assertion có sẵn. Thấy việc khác cần làm thì không làm, ghi vào `Việc phát sinh` của output.
    3. Chạy mọi lệnh trong `CHECKS`. Đỏ thì sửa rồi chạy lại. `CHECKS` là `không có` thì bỏ qua và ghi
-      `không có lệnh kiểm` ở output.
+      `không có lệnh kiểm` ở output. Với `LOẠI: bằng chứng`, "xanh" của mục là: lệnh của chính mục đó
+      xanh (mục là AC thì lệnh hay bước kiểm ghi trong AC đó đạt), và không lệnh nào xanh ở mốc nay đỏ.
+      Lệnh đã đỏ ở mốc và thuộc mục sau thì không chặn mục này, vì mục sau sẽ sửa nó.
    4. Xanh, hoặc `CHECKS` là `không có`, thì commit một commit cho mục đó: chỉ `git add -- <file>`,
       message theo `COMMIT_STYLE`, không `--no-verify`. Không stage một phần file (`git add -p`,
       `git apply --cached`). Commit xong thì `git status --porcelain` phải sạch. Ghi `<#> xong <hash>`.
+      Với `LOẠI: bằng chứng`, lệnh của mục vừa xong thôi là đỏ ở mốc: mục sau cũng không được làm nó đỏ
+      lại.
       Commit của một mục trước đã sửa luôn mục này (không còn gì để sửa, `CHECKS` xanh): không commit
       thêm, ghi `<#> xong <hash của commit đó>`.
    5. Sửa 2 lần vẫn đỏ: không commit, khôi phục file của mục đó
