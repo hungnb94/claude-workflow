@@ -916,32 +916,45 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, constraints)
         steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        for token in ("sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng", "`không có lệnh kiểm`"):
+        for token in ("Sửa 2 lần vẫn đỏ", "`git add -- <file>`", "không `--no-verify`", "nới lỏng", "`không có lệnh kiểm`"):
             with self.subTest(token=token):
                 self.assertIn(token, steps)
         output = implementer.split("<output>", 1)[1]
-        for token in ("`Kết quả: xong <commit hash>`", "exit code", "`Việc phát sinh`"):
+        for token in ("`Kết quả: xong` khi mọi mục `xong`", "exit code", "`Việc phát sinh`"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
-    def test_implementer_fixes_final_minors_in_one_pass(self):
-        """Verify the implementer takes the final Minor list, runs the checks once, and commits each Minor on its own."""
+    def test_implementer_commits_each_item_of_a_list(self):
+        """Verify the implementer takes a numbered item list and runs code, checks, and one commit per item in order."""
         implementer = (ROOT_DIR / "agents" / "fw-3-implement.md").read_text(encoding="utf-8")
+        role = implementer.split("<role>", 1)[1].split("</role>", 1)[0]
+        self.assertIn("danh sách hạng mục", role)
+        self.assertIn("mỗi mục một commit", role)
         inputs = implementer.split("<inputs>", 1)[1].split("</inputs>", 1)[0]
-        self.assertIn("danh sách Minor của lượt cuối B4", inputs)
-        self.assertIn("lượt Minor cuối của B4", implementer.split("<role>", 1)[1].split("</role>", 1)[0])
-        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
-        check_step = steps.split("\n5. ", 1)[1].split("\n6. ", 1)[0]
-        self.assertIn("một lần trên toàn bộ thay đổi", check_step)
-        self.assertIn("hoàn tác phần đã sửa cho\n   nó trước bước 5", steps.split("\n4. ", 1)[1].split("\n5. ", 1)[0])
-        commit_step = steps.split("\n6. ", 1)[1]
-        for token in ("mỗi Minor một commit", "cùng file chung một commit", "kể cả bắc cầu", "Không stage một phần file", "`git status --porcelain` phải sạch"):
+        for token in ("danh sách hạng mục có số, mỗi mục một commit", "dòng `Bảng bước` của một lô B3", "phát hiện của một vòng B4", "AC `không đạt` của `Bằng chứng xong`", "Một việc là danh\n  sách một mục"):
             with self.subTest(token=token):
-                self.assertIn(token, commit_step)
-        self.assertIn("hoặc danh sách Minor (mỗi Minor một commit)", inputs)
-        self.assertIn("final pass of review Minors", vi.parse_frontmatter(implementer)["description"])
+                self.assertIn(token, inputs)
+        self.assertNotIn("Minor", implementer)
+        steps = implementer.split("<steps>", 1)[1].split("</steps>", 1)[0]
+        per_item = steps.split("\n3. ", 1)[1]
+        self.assertIn("mục trước commit xong mới sang mục sau", per_item)
+        checks = per_item.split("\n   3. ", 1)[1].split("\n   4. ", 1)[0]
+        self.assertIn("Chạy mọi lệnh trong `CHECKS`", checks)
+        commit = per_item.split("\n   4. ", 1)[1].split("\n   5. ", 1)[0]
+        for token in ("một commit cho mục đó", "`git add -- <file>`", "Không stage một phần file", "`git status --porcelain` phải sạch", "`<#> xong <hash>`"):
+            with self.subTest(token=token):
+                self.assertIn(token, commit)
+        self.assertNotIn("bắc cầu", implementer)
+        self.assertNotIn("cùng file chung một commit", implementer)
+        failed = per_item.split("\n   5. ", 1)[1]
+        for token in ("Sửa 2 lần vẫn đỏ", "không commit", "khôi phục file của mục đó", "`<#> hỏng <lý do>`", "dòng `Bảng bước`", "thì dừng, các mục sau ghi `<#> chưa`", "còn lại làm\n      tiếp mục sau"):
+            with self.subTest(token=token):
+                self.assertIn(token, failed)
+        description = vi.parse_frontmatter(implementer)["description"]
+        self.assertIn("one commit per item", description)
+        self.assertNotIn("Minor", description)
         output = implementer.split("<output>", 1)[1]
-        for token in ("`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`Kết quả: xong` không kèm hash"):
+        for token in ("một dòng mỗi mục", "`<#> xong <hash>`", "`<#> hỏng <lý do>`", "`<#> chưa`"):
             with self.subTest(token=token):
                 self.assertIn(token, output)
 
