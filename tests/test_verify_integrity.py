@@ -774,8 +774,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("B3 không chạy\n   `Bằng chứng xong`", b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0])
         self.assertNotIn("Bằng chứng theo AC", b3)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
-        self.assertIn("kể cả cách sửa khi đỏ\n   hoặc có AC `không đạt`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
-        self.assertIn("`Bằng chứng theo AC`) vào `04-review-<n>.md`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
+        self.assertIn("Vòng này không chạy `Bằng chứng xong`", b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0])
         report = body.split("## Báo cáo cuối", 1)[1]
         for token in ("bảng trạng thái AC", "Còn AC `chưa kiểm` hoặc `chờ người ký`", '"chờ kiểm N AC"', "lý do, không báo xong"):
             with self.subTest(token=token):
@@ -904,7 +903,8 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, final_check)
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertIn("`fw-3-implement` mới", b4)
-        self.assertIn("chạy `Bằng chứng xong` như bước 7 của B3", b4)
+        self.assertIn("kiểm diff\n   của các commit sửa", b4)
+        self.assertNotIn("như bước 7 của B3", b4)
         self.assertIn("`hỏng <lý do>`", b4)
         self.assertIn("không thêm dòng vào `Bảng bước`", b4)
         self.assertIn("`CHECKS`: các lệnh trong `Lệnh build và test`, hoặc `không có`", spawn)
@@ -1018,29 +1018,30 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(status=status):
                 self.assertIn(status, output)
 
-    def test_feature_workflow_fixes_minors_in_one_final_pass(self):
-        """Verify B4 queues small Minors in the review file and fixes them with one implementer after the last round."""
+    def test_feature_workflow_b4_fixes_each_round_with_one_agent(self):
+        """Verify each B4 round hands every Blocker, Major, and small Minor to one implementer and has no final Minor pass."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
         body = skill.split("---", 2)[2]
         b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
         self.assertNotIn("Sửa Minor khi sửa nhỏ", body)
+        self.assertNotIn("\n5. ", b4)
+        self.assertNotIn("chờ lượt cuối", b4)
+        self.assertNotIn("lượt Minor cuối", b4)
         fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
-        for token in ("`chờ lượt cuối`", "mục `## Minor` của `04-review-<n>.md`", "`không sửa: <lý do>`"):
+        for token in ("Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ", "không mở\n   rộng phạm vi", "truyền như bước 5 của B3", "`STEP` là danh sách các phát hiện đó", "file:line, vấn đề, gợi ý sửa", "`không sửa: <lý do>`", "mục `## Minor` của\n   `04-review-<n>.md`", "mỗi phát hiện bằng một commit mới", "theo đúng dòng agent trả", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "Blocker hoặc Major\n   `hỏng`: dừng và hỏi người dùng làm lại hay dừng", "Minor `hỏng` chỉ ghi, không dừng", "kiểm diff\n   của các commit sửa", "nới lỏng"):
             with self.subTest(token=token):
                 self.assertIn(token, fix_step)
-        round_two = b4.split("\n4. ", 1)[1].split("\n5. ", 1)[0]
-        for token in ("chép các Minor còn `chờ lượt cuối` của vòng 1", "bỏ dòng trùng"):
-            with self.subTest(token=token):
-                self.assertIn(token, round_two)
-        final_pass = b4.split("\n5. ", 1)[1].split("**Ra:**", 1)[0]
-        for token in ("đúng một `fw-3-implement`", "danh sách các Minor", "`04-review-<n>.md` mới nhất", "file mới nhất đó", "`xong <commit>`", "`hỏng <lý do>`", "không dừng", "`Báo cáo cuối`", "theo đúng dòng agent trả cho Minor đó", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "`hỏng <lý do>` cho mọi Minor của lượt này"):
-            with self.subTest(token=token):
-                self.assertIn(token, final_pass)
+        round_two = b4.split("\n4. ", 1)[1].split("**Ra:**", 1)[0]
+        self.assertNotIn("chép các Minor", round_two)
         out = b4.split("**Ra:**", 1)[1]
-        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "`chờ lượt cuối`", "`không sửa: <lý do>`"):
+        for token in ("\n   ## Minor\n", "| # | file:line | Vấn đề | Trạng thái |", "Trạng thái Minor: `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`."):
             with self.subTest(token=token):
                 self.assertIn(token, out)
 
+    def test_feature_workflow_final_minor_pass_leftovers(self):
+        """Verify the resume and report parts that still mention the final Minor pass."""
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
+        body = skill.split("---", 2)[2]
         resume = body.split("\n## Làm tiếp\n", 1)[1].split("\n## ", 1)[0]
         resume_b4 = resume.split("Đang ở B4:", 1)[1]
         self.assertIn("`chờ lượt cuối`", resume_b4.split("\n6. ", 1)[0])

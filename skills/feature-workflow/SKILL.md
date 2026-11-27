@@ -240,39 +240,32 @@ commit (`git log --oneline BASE..HEAD`).
    truyền `02-solution.md` hay `03-implementation.md`, không dùng `subagent_type: "fork"`: reviewer phải
    đánh giá code mà không biết ý định của người viết.
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
-3. Sửa hết Blocker và Major. Minor không sửa trong vòng: Minor sửa nhỏ và không mở rộng phạm vi thì ghi
-   `chờ lượt cuối` vào mục `## Minor` của `04-review-<n>.md`, Minor khác ghi `không sửa: <lý do>`. Mỗi
-   Blocker hoặc Major là một `fw-3-implement` mới, truyền như bước 5 của B3 với `STEP` là phát hiện đó
-   (file:line, vấn đề, gợi ý sửa); agent sửa bằng một commit mới, test xanh. Agent trả về thì
-   ghi ngay vào `04-review-<n>.md` phát hiện đó đã sửa ở commit nào, hoặc `hỏng <lý do>`; agent trả
-   `lỗi` thì dừng và báo người dùng như bước 6 của B3. Phát hiện nào không sửa thì ghi lý do. Sửa xong
-   thì kiểm diff của các commit sửa và chạy `Bằng chứng xong` như bước 7 của B3, kể cả cách sửa khi đỏ
-   hoặc có AC `không đạt`, nhưng ghi lần sửa đó và kết quả của lần chạy (lệnh, `RUN_DIR`, mục
-   `Bằng chứng theo AC`) vào `04-review-<n>.md` chứ không thêm dòng vào `Bảng bước` của
-   `03-implementation.md` đã xong.
+3. Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ (sửa nhỏ, không mở
+   rộng phạm vi) của vòng đó, truyền như bước 5 của B3 với `STEP` là danh sách các phát hiện đó (mỗi mục
+   kèm file:line, vấn đề, gợi ý sửa). Minor khác ghi `không sửa: <lý do>` vào mục `## Minor` của
+   `04-review-<n>.md`. Agent sửa mỗi phát hiện bằng một commit mới, test xanh. Agent trả về thì
+   ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
+   `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`. Blocker hoặc Major
+   `hỏng`: dừng và hỏi người dùng làm lại hay dừng. Minor `hỏng` chỉ ghi, không dừng. Agent trả `lỗi` mà
+   không có dòng nào cho các phát hiện: dừng và báo người dùng như bước 6 của B3. Sửa xong thì kiểm diff
+   của các commit sửa (không test hay assertion nào bị xoá, skip hay nới lỏng); diff có vấn đề thì ghi
+   vào `04-review-<n>.md` và nêu trong báo cáo cuối. Vòng này không chạy `Bằng chứng xong`, và
+   không thêm dòng vào `Bảng bước` của `03-implementation.md` đã xong.
 4. Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major. Không có vòng 3: còn Blocker hoặc Major sau vòng 2
-   thì báo người dùng. Khi ghi `04-review-2.md`, chép các Minor còn `chờ lượt cuối` của vòng 1 sang mục
-   `## Minor` của file đó và bỏ dòng trùng (cùng file:line và vấn đề), để mỗi Minor chỉ nằm một lần.
-5. Lượt Minor cuối: sau vòng review cuối, còn Minor `chờ lượt cuối` trong mục `## Minor` của
-   `04-review-<n>.md` mới nhất thì spawn đúng một `fw-3-implement` mới, truyền như bước 5 của B3 với
-   `STEP` là danh sách các Minor đó (mỗi mục kèm file:line, vấn đề, gợi ý sửa). Agent trả về thì ghi ngay
-   vào dòng của từng Minor trong file mới nhất đó trạng thái theo đúng dòng agent trả cho Minor đó:
-   `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`; agent trả `lỗi` thì ghi
-   `hỏng <lý do>` cho mọi Minor của lượt này. Cả hai trường hợp đều không dừng. Lượt này không chạy
-   `Bằng chứng xong` riêng: `Báo cáo cuối` kiểm diff các commit Minor và chạy lần đó.
+   thì báo người dùng.
 
-**Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào) hay
-không sửa (lý do); kết quả lần chạy `Bằng chứng xong` sau khi sửa, nếu có; Minor ghi trong mục `## Minor` theo khung:
+**Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào),
+`hỏng` (lý do) hay không sửa (lý do); Minor ghi trong mục `## Minor` theo khung:
 
    ```markdown
    ## Minor
 
    | # | file:line | Vấn đề | Trạng thái |
    |---|---|---|---|
-   | 1 | <file:line> | <vấn đề> | chờ lượt cuối |
+   | 1 | <file:line> | <vấn đề> | xong <commit> |
    ```
 
-Trạng thái Minor: `chờ lượt cuối`, `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`.
+Trạng thái Minor: `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`.
 
 ## Không làm
 
