@@ -103,9 +103,10 @@ chạy đúng một lần, sau B4, trước `Báo cáo cuối`, kể cả khi B4
   file đó không đổi sau B1.
 - Có lệnh đỏ hoặc AC `không đạt`: không báo xong. Quay lại code như B3: spawn một `fw-3-implement` mới,
   truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt` (mỗi mục kèm dòng lỗi và file bằng
-  chứng). Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`, `<#> hỏng <lý do>`) vào mục
-  `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới. Sau 2 lần sửa vẫn đỏ thì dừng
-  và báo người dùng lỗi kèm output. `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
+  chứng), dòng đầu `LOẠI: bằng chứng`. Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`,
+  `<#> hỏng <lý do>`) vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới.
+  Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng lỗi kèm output.
+  `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
 - Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit
   nó; chỉ chạy lại bằng agent mới khi working tree đã sạch. Lỗi khác: chạy lại một lần bằng agent mới;
   vẫn lỗi thì dừng và báo người dùng.
@@ -212,7 +213,8 @@ và mục `Lệnh build và test`.
    `workflow:fw-3-implement`). Mỗi lô một agent. Lô sau chỉ bắt đầu khi lô trước trả về; không chạy hai
    agent cùng lúc, không dùng `subagent_type: "fork"`: agent code trong context mới, chỉ biết những gì
    được truyền. Truyền:
-   - `STEP`: các dòng `chưa` của lô, mỗi dòng giữ số `#`, mục tiêu và file dự kiến.
+   - `STEP`: các dòng `chưa` của lô, mỗi dòng giữ số `#`, mục tiêu và file dự kiến; dòng đầu
+     `LOẠI: bảng bước`.
    - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
    - `DESIGN`: đường dẫn tuyệt đối tới `02-solution.md` kèm heading của phương án đã chọn, hoặc tới
      `03-implementation.md` kèm heading thiết kế nếu đã tự viết ở bước 3.
@@ -252,9 +254,9 @@ commit (`git log --oneline BASE..HEAD`).
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
 3. Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ (sửa nhỏ, không mở
    rộng phạm vi) của vòng đó, truyền như bước 5 của B3 với `STEP` là danh sách các phát hiện đó (mỗi mục
-   kèm file:line, vấn đề, gợi ý sửa). Minor khác ghi `không sửa: <lý do>` vào mục `## Minor` của
-   `04-review-<n>.md`. Agent sửa mỗi phát hiện bằng một commit mới, test xanh. Agent trả về thì
-   ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
+   kèm file:line, vấn đề, gợi ý sửa), dòng đầu `LOẠI: phát hiện`. Minor khác ghi `không sửa: <lý do>`
+   vào mục `## Minor` của `04-review-<n>.md`. Agent sửa mỗi phát hiện bằng một commit mới, test xanh.
+   Agent trả về thì ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
    `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`. Blocker hoặc Major
    `hỏng`: dừng và hỏi người dùng làm lại hay dừng. Minor `hỏng` chỉ ghi, không dừng. Agent trả `lỗi` mà
    không có dòng nào cho các phát hiện: dừng và báo người dùng như bước 6 của B3. Sửa xong thì kiểm diff

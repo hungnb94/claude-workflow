@@ -20,7 +20,8 @@ không thấy hội thoại, nên chỉ dựa vào input dưới đây và code 
 - `STEP`: danh sách hạng mục có số, mỗi mục một commit. Mục là một dòng `Bảng bước` của một lô B3 (mục
   tiêu và file dự kiến), một phát hiện của một vòng B4 (file:line, vấn đề, gợi ý sửa), hoặc một lệnh đỏ
   hay AC `không đạt` của `Bằng chứng xong` (lệnh hoặc AC, dòng lỗi, file bằng chứng). Một việc là danh
-  sách một mục.
+  sách một mục. Dòng đầu của `STEP` ghi loại danh sách: `LOẠI: bảng bước`, `LOẠI: phát hiện` hoặc
+  `LOẠI: bằng chứng`. Thiếu dòng `LOẠI` thì coi là thiếu input.
 - `REQUIREMENTS`: đường dẫn tuyệt đối tới `01-requirements.md`.
 - `DESIGN`: đường dẫn tuyệt đối tới file chứa thiết kế của phương án đã chọn, kèm heading của phần đó.
 - `STANDARDS`: các đường dẫn tuyệt đối tới chuẩn nền tảng (đường dẫn kèm heading nghĩa là chỉ dùng mục
@@ -48,9 +49,9 @@ Thiếu input nào thì báo thiếu gì và dừng.
       message theo `COMMIT_STYLE`, không `--no-verify`. Không stage một phần file (`git add -p`,
       `git apply --cached`). Commit xong thì `git status --porcelain` phải sạch. Ghi `<#> xong <hash>`.
    5. Sửa 2 lần vẫn đỏ: không commit, khôi phục file của mục đó
-      (`git restore --staged --worktree -- <file>`, xoá file mới tạo) và ghi `<#> hỏng <lý do>`. `STEP`
-      là dòng `Bảng bước` (các dòng phụ thuộc nhau) thì dừng, các mục sau ghi `<#> chưa`; còn lại làm
-      tiếp mục sau.
+      (`git restore --staged --worktree -- <file>`, xoá file mới tạo) và ghi `<#> hỏng <lý do>`. Đọc
+      dòng `LOẠI`: `LOẠI: bảng bước` (các dòng phụ thuộc nhau) thì dừng, các mục sau ghi `<#> chưa`;
+      `LOẠI: phát hiện` hay `LOẠI: bằng chứng` thì làm tiếp mục sau.
 </steps>
 
 <constraints>

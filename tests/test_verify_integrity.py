@@ -970,9 +970,22 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("bắc cầu", implementer)
         self.assertNotIn("cùng file chung một commit", implementer)
         failed = per_item.split("\n   5. ", 1)[1]
-        for token in ("Sửa 2 lần vẫn đỏ", "không commit", "khôi phục file của mục đó", "`<#> hỏng <lý do>`", "dòng `Bảng bước`", "thì dừng, các mục sau ghi `<#> chưa`", "còn lại làm\n      tiếp mục sau"):
+        for token in ("Sửa 2 lần vẫn đỏ", "không commit", "khôi phục file của mục đó", "`<#> hỏng <lý do>`", "dòng `LOẠI`: `LOẠI: bảng bước`", "thì dừng, các mục sau ghi `<#> chưa`", "`LOẠI: phát hiện` hay `LOẠI: bằng chứng` thì làm tiếp mục sau"):
             with self.subTest(token=token):
                 self.assertIn(token, failed)
+        self.assertNotIn("`STEP`\n      là dòng `Bảng bước`", failed)
+        for kind in ("`LOẠI: bảng bước`", "`LOẠI: phát hiện`", "`LOẠI: bằng chứng`"):
+            with self.subTest(kind=kind):
+                self.assertIn(kind, inputs)
+        self.assertIn("Thiếu dòng `LOẠI` thì coi là thiếu input", inputs)
+        self.assertIn("Thiếu input nào thì báo thiếu gì và dừng", inputs)
+        skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b3_spawn = skill.split("## B3.", 1)[1].split("\n5. ", 1)[1].split("\n6. ", 1)[0]
+        self.assertIn("dòng đầu\n     `LOẠI: bảng bước`", b3_spawn)
+        b4_fix = skill.split("## B4.", 1)[1].split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        self.assertIn("dòng đầu `LOẠI: phát hiện`", b4_fix)
+        evidence = skill.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("dòng đầu `LOẠI: bằng chứng`", evidence)
         description = vi.parse_frontmatter(implementer)["description"]
         self.assertIn("one commit per item", description)
         self.assertNotIn("Minor", description)
@@ -1030,8 +1043,8 @@ class TestVerifyIntegrity(unittest.TestCase):
             "`RUN_DIR` agent trả, và bảng trạng thái AC agent trả",
             "Quay lại code như B3: spawn một `fw-3-implement` mới",
             "truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt`",
-            "vào mục\n  `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới",
-            "Sau 2 lần sửa vẫn đỏ thì dừng\n  và báo người dùng",
+            "vào mục `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới",
+            "Sau 2 lần sửa vẫn đỏ thì dừng và báo người dùng",
         ):
             with self.subTest(token=token):
                 self.assertIn(token, section)
@@ -1054,7 +1067,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("chờ lượt cuối", b4)
         self.assertNotIn("lượt Minor cuối", b4)
         fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
-        for token in ("Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ", "không mở\n   rộng phạm vi", "truyền như bước 5 của B3", "`STEP` là danh sách các phát hiện đó", "file:line, vấn đề, gợi ý sửa", "`không sửa: <lý do>`", "mục `## Minor` của\n   `04-review-<n>.md`", "mỗi phát hiện bằng một commit mới", "theo đúng dòng agent trả", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "Blocker hoặc Major\n   `hỏng`: dừng và hỏi người dùng làm lại hay dừng", "Minor `hỏng` chỉ ghi, không dừng", "kiểm diff\n   của các commit sửa", "nới lỏng"):
+        for token in ("Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ", "không mở\n   rộng phạm vi", "truyền như bước 5 của B3", "`STEP` là danh sách các phát hiện đó", "file:line, vấn đề, gợi ý sửa", "`không sửa: <lý do>`", "mục `## Minor` của `04-review-<n>.md`", "mỗi phát hiện bằng một commit mới", "theo đúng dòng agent trả", "`<#> xong <hash>` ghi `xong <commit>`", "`<#> hỏng <lý do>` ghi `hỏng <lý do>`", "Blocker hoặc Major\n   `hỏng`: dừng và hỏi người dùng làm lại hay dừng", "Minor `hỏng` chỉ ghi, không dừng", "kiểm diff\n   của các commit sửa", "nới lỏng"):
             with self.subTest(token=token):
                 self.assertIn(token, fix_step)
         round_two = b4.split("\n4. ", 1)[1].split("**Ra:**", 1)[0]
