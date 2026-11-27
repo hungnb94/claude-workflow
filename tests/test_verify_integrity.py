@@ -741,8 +741,8 @@ class TestVerifyIntegrity(unittest.TestCase):
             "thì ghi `chưa kiểm: không có file bằng\n  chứng`",
             "`RUN_DIR` agent trả",
             "nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`)",
-            "Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong",
-            "không chặn B3, B4",
+            "Có lệnh đỏ hoặc AC `không đạt`: không báo xong",
+            "`chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối",
             "chạy lại một lần bằng agent mới",
         ):
             with self.subTest(token=token):
@@ -785,9 +785,8 @@ class TestVerifyIntegrity(unittest.TestCase):
         body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
         section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
         rule = (
-            "Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở\n"
-            "  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không\n"
-            "  đổi sau B1."
+            "Trạng thái AC chỉ ghi vào `## Bằng chứng cuối` và báo cáo cuối, không ghi vào `01-requirements.md`;\n"
+            "  file đó không đổi sau B1."
         )
         self.assertIn(rule, section)
         sentences = re.split(r"(?<=[.:;])\s", body.replace("\n", " "))
@@ -1018,6 +1017,33 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(status=status):
                 self.assertIn(status, output)
 
+    def test_feature_workflow_evidence_runs_once_before_final_report(self):
+        """Verify the evidence check runs once after B4, records into the last review file, and owns its fix-and-rerun loop."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        section = body.split("\n## Bằng chứng xong\n", 1)[1].split("\n## ", 1)[0]
+        self.assertNotIn("Trước khi\nghi `Trạng thái: xong` của `03-implementation.md`", section)
+        self.assertNotIn("03-implementation.md", section)
+        for token in (
+            "Mục này\nchạy đúng một lần, sau B4, trước `Báo cáo cuối`",
+            "B3 và B4 không chạy nó",
+            "Ghi lần chạy vào mục `## Bằng chứng cuối` của `04-review-<n>.md` mới nhất",
+            "`RUN_DIR` agent trả, và bảng trạng thái AC agent trả",
+            "Quay lại code như B3: spawn một `fw-3-implement` mới",
+            "truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt`",
+            "vào mục\n  `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới",
+            "Sau 2 lần sửa vẫn đỏ thì dừng\n  và báo người dùng",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, section)
+        outside = body.replace(section, "")
+        self.assertNotIn("Sau 2 lần sửa vẫn đỏ", outside)
+        report = body.split("## Báo cáo cuối", 1)[1]
+        self.assertIn("Chạy theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì, rồi báo người dùng", report)
+        for token in ("lượt Minor cuối", "như bước 7 của B3", "mở agent mới"):
+            with self.subTest(token=token):
+                self.assertNotIn(token, report)
+        self.assertIn("mục `## Minor`", report)
+
     def test_feature_workflow_b4_fixes_each_round_with_one_agent(self):
         """Verify each B4 round hands every Blocker, Major, and small Minor to one implementer and has no final Minor pass."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
@@ -1050,11 +1076,6 @@ class TestVerifyIntegrity(unittest.TestCase):
         for token in ("Với Blocker và Major:", "coi như đã ghi", "không hỏi", "Minor chưa có trạng thái"):
             with self.subTest(token=token):
                 self.assertIn(token, resume_b4.split("\n6. ", 1)[0])
-        report = body.split("## Báo cáo cuối", 1)[1]
-        self.assertNotIn("như bước 7 của B3", report)
-        for token in ("lượt Minor cuối", "nới lỏng", "mục `## Minor`", "mở agent mới"):
-            with self.subTest(token=token):
-                self.assertIn(token, report)
         self.assertIn("fixed together by one `fw-3-implement` after the last round", (ROOT_DIR / "README.md").read_text(encoding="utf-8"))
 
     def test_comment_policy_is_single_source(self):

@@ -79,23 +79,26 @@ Khi người dùng chọn làm tiếp:
 
 ## Bằng chứng xong
 
-"Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Trước khi
-ghi `Trạng thái: xong` của `03-implementation.md`, và trước báo cáo cuối:
+"Xong", "xanh", "đã sửa" chỉ đúng khi vừa chạy lại; kết quả cũ hay lời tự đánh giá không tính. Mục này
+chạy đúng một lần, sau B4, trước `Báo cáo cuối`, kể cả khi B4 không sửa gì; B3 và B4 không chạy nó.
 
 - Sau thay đổi cuối cùng, spawn một agent `fw-3-evidence` mới (trong plugin: `workflow:fw-3-evidence`),
   không dùng `subagent_type: "fork"`. Truyền `REQUIREMENTS` (đường dẫn tuyệt đối tới
   `01-requirements.md`), `BASE`, `CHECKS` (các lệnh trong `Lệnh build và test`, hoặc `không có`) và
   `EVIDENCE_DIR` = `DIR/evidence/`. Session chính không tự chạy lệnh kiểm, chỉ chép bảng agent trả.
-- Ghi từng lệnh, exit code, dòng tóm tắt chép từ output, `HEAD` lúc chạy và `RUN_DIR` agent trả.
-  Agent ghi `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
+- Ghi lần chạy vào mục `## Bằng chứng cuối` của `04-review-<n>.md` mới nhất: từng lệnh, exit code, dòng
+  tóm tắt chép từ output, `HEAD` lúc chạy, `RUN_DIR` agent trả, và bảng trạng thái AC agent trả. Agent
+  ghi `không có lệnh kiểm` thì nói rõ trong báo cáo cuối là chưa có lần chạy nào.
 - Trạng thái AC: `đạt`, `không đạt`, `chờ người ký`, `chưa kiểm: <lý do>`. `đạt` mà file dẫn tới không
   nằm trong `RUN_DIR` của lần chạy này (kiểm bằng `ls`) thì ghi `chưa kiểm: không có file bằng
   chứng`; file ở thư mục khác không tính.
-- Trạng thái AC chỉ ghi vào mục `Bằng chứng theo AC` của file bước đang chạy (`03-implementation.md` ở
-  B3, `04-review-<n>.md` ở B4) và vào báo cáo cuối, không ghi vào `01-requirements.md`; file đó không
-  đổi sau B1.
-- Có lệnh đỏ hoặc AC `không đạt`: không ghi trạng thái xong, không báo xong; báo lỗi kèm output.
-  `chưa kiểm` và `chờ người ký` không chặn B3, B4, chỉ đổi lời báo cuối.
+- Trạng thái AC chỉ ghi vào `## Bằng chứng cuối` và báo cáo cuối, không ghi vào `01-requirements.md`;
+  file đó không đổi sau B1.
+- Có lệnh đỏ hoặc AC `không đạt`: không báo xong. Quay lại code như B3: spawn một `fw-3-implement` mới,
+  truyền như bước 5 của B3 với `STEP` là các lệnh đỏ và AC `không đạt` (mỗi mục kèm dòng lỗi và file bằng
+  chứng). Ghi lần sửa và các dòng agent trả (`<#> xong <hash>`, `<#> hỏng <lý do>`) vào mục
+  `## Bằng chứng cuối`, rồi chạy lại mục này bằng một `fw-3-evidence` mới. Sau 2 lần sửa vẫn đỏ thì dừng
+  và báo người dùng lỗi kèm output. `chưa kiểm` và `chờ người ký` không chặn, chỉ đổi lời báo cuối.
 - Agent trả `lỗi` vì working tree bẩn: liệt kê thay đổi, đề nghị người dùng stash hoặc bỏ, không commit
   nó; chỉ chạy lại bằng agent mới khi working tree đã sạch. Lỗi khác: chạy lại một lần bằng agent mới;
   vẫn lỗi thì dừng và báo người dùng.
@@ -274,11 +277,9 @@ thay đổi code do `fw-3-implement` làm, mỗi lần một agent.
 
 ## Báo cáo cuối
 
-Có lượt Minor cuối thì trước tiên kiểm diff các commit của lượt đó (không test hay assertion nào bị xoá,
-skip hay nới lỏng); diff có vấn đề thì ghi vào `04-review-<n>.md` mới nhất và nêu trong báo cáo cuối, không
-mở agent mới. Chạy lại theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì
-(bằng chứng của B3 không thay lần chạy này), rồi báo người dùng: nhánh, `BASE`, danh sách commit, bằng
-chứng của lần chạy đó, bảng trạng thái AC, Blocker hoặc Major còn lại, Minor đã bỏ qua (các dòng `hỏng`
-và `không sửa` trong mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`, đường dẫn `DIR`, và
-lệnh `git push -u origin <nhánh>` để họ tự push. Còn AC `chưa kiểm` hoặc `chờ người ký` thì báo
-"chờ kiểm N AC" kèm danh sách AC đó và lý do, không báo xong.
+Chạy theo mục `Bằng chứng xong`, kể cả khi B4 không sửa gì, rồi báo người dùng: nhánh, `BASE`, danh
+sách commit, bằng chứng của lần chạy đó, bảng trạng thái AC, Blocker hoặc Major còn lại, Minor đã bỏ qua
+(các dòng `hỏng` và `không sửa` trong mục `## Minor` của các `04-review-<n>.md`), `Việc phát sinh`,
+đường dẫn `DIR`, và lệnh `git push -u origin <nhánh>` để họ tự push.
+Còn AC `chưa kiểm` hoặc `chờ người ký` thì báo "chờ kiểm N AC" kèm danh sách AC đó và
+lý do, không báo xong.
