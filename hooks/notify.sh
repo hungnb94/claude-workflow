@@ -100,8 +100,12 @@ EOF
       set -- "$@" -group "claude-workflow-${tty#/dev/}"
       case "$focus_script" in
         *"'"*) ;;
-        *) [ -n "$terminal" ] && focus_cmd="sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
+        *) [ -n "$terminal" ] && focus_cmd="[ -f '$focus_script' ] && sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
       esac
+    fi
+    # The plugin cache path is versioned; an old notification must still work after an upgrade removes it.
+    if [ -n "$focus_cmd" ] && [ -n "$bundle" ]; then
+      focus_cmd="$focus_cmd || open -b '$bundle'"
     fi
     if [ -n "$focus_cmd" ]; then
       set -- "$@" -execute "$focus_cmd"

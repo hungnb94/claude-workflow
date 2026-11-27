@@ -303,7 +303,8 @@ class TestNotifyFocusTab(NotifyTestCase):
 
     def focus_cmd(self, tty, terminal, bundle):
         focus = ROOT_DIR / "hooks" / "focus-terminal.sh"
-        return f"sh '{focus}' focus '{tty}' '{terminal}' '{bundle}'"
+        command = f"[ -f '{focus}' ] && sh '{focus}' focus '{tty}' '{terminal}' '{bundle}'"
+        return f"{command} || open -b '{bundle}'" if bundle else command
 
     def run_click(self, command):
         for f in self.logs.iterdir():
@@ -331,6 +332,30 @@ class TestNotifyFocusTab(NotifyTestCase):
         self.assertEqual(name, "osascript")
         self.assertIn('tell application "iTerm2"', args)
         self.assertEqual(args[-1], "/dev/ttys012")
+
+    def test_execute_without_bundle_has_no_open_fallback(self):
+        extra = self.notifier_args({"FAKE_TTY": "ttys003", "TERM_PROGRAM": "Apple_Terminal"})
+        command = self.focus_cmd("/dev/ttys003", "Apple_Terminal", "")
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-execute", command])
+        self.assertNotIn("open -b", command)
+
+    def test_click_after_script_removed_opens_bundle(self):
+        hooks = self.tmp / "5.11.0" / "hooks"
+        hooks.mkdir(parents=True)
+        for name in ("notify.sh", "focus-terminal.sh"):
+            shutil.copy2(ROOT_DIR / "hooks" / name, hooks / name)
+        env = {"FAKE_TTY": "ttys003", "TERM_PROGRAM": "Apple_Terminal", "__CFBundleIdentifier": "com.apple.Terminal"}
+        extra = self.notifier_args(env, script=hooks / "notify.sh")
+        focus = hooks / "focus-terminal.sh"
+        command = (
+            f"[ -f '{focus}' ] && sh '{focus}' focus '/dev/ttys003' 'Apple_Terminal' 'com.apple.Terminal'"
+            " || open -b 'com.apple.Terminal'"
+        )
+        self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-execute", command])
+        shutil.rmtree(self.tmp / "5.11.0")
+        (name, args), = self.run_click(command)
+        self.assertEqual(name, "open")
+        self.assertEqual(args, ["-b", "com.apple.Terminal"])
 
     def test_group_id_per_tty(self):
         def group(tty):
