@@ -26,7 +26,7 @@ spec.loader.exec_module(vi)
 
 class TestVerifyIntegrity(unittest.TestCase):
 
-    USER_ONLY_SKILLS = {"distill-expertise", "learning-coach"}
+    USER_ONLY_SKILLS = {"distill-expertise", "grounded-answer", "learning-coach"}
 
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
