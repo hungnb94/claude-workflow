@@ -254,9 +254,10 @@ commit (`git log --oneline BASE..HEAD`).
 2. Ghi kết quả vào `04-review-<n>.md` (n là số vòng) ngay khi reviewer trả về, trước khi sửa.
 3. Mỗi vòng spawn đúng một `fw-3-implement` mới cho mọi Blocker, Major và Minor nhỏ (sửa nhỏ, không mở
    rộng phạm vi) của vòng đó, truyền như bước 5 của B3 với `STEP` là danh sách các phát hiện đó (mỗi mục
-   kèm file:line, vấn đề, gợi ý sửa), dòng đầu `LOẠI: phát hiện`. Minor khác ghi `không sửa: <lý do>`
-   vào mục `## Minor` của `04-review-<n>.md`. Agent sửa mỗi phát hiện bằng một commit mới, test xanh.
-   Agent trả về thì ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
+   kèm số `#` reviewer đặt, file:line, vấn đề, gợi ý sửa), dòng đầu `LOẠI: phát hiện`; không đánh số
+   lại. Minor khác ghi `không sửa: <lý do>` vào mục `## Minor` của `04-review-<n>.md`.
+   Agent sửa mỗi phát hiện bằng một commit mới, test xanh. Agent trả về thì
+   ghi ngay vào `04-review-<n>.md` từng phát hiện theo đúng dòng agent trả:
    `<#> xong <hash>` ghi `xong <commit>`, `<#> hỏng <lý do>` ghi `hỏng <lý do>`. Blocker hoặc Major
    `hỏng`: dừng và hỏi người dùng làm lại hay dừng. Minor `hỏng` chỉ ghi, không dừng. Agent trả `lỗi` mà
    không có dòng nào cho các phát hiện: dừng và báo người dùng như bước 6 của B3. Sửa xong thì kiểm diff
@@ -267,14 +268,15 @@ commit (`git log --oneline BASE..HEAD`).
    thì báo người dùng.
 
 **Ra:** `04-review-<n>.md` gồm: các phát hiện của reviewer, và với mỗi phát hiện: đã sửa (commit nào),
-`hỏng` (lý do) hay không sửa (lý do); Minor ghi trong mục `## Minor` theo khung:
+`hỏng` (lý do) hay không sửa (lý do); Minor ghi trong mục `## Minor` theo khung, cột `#` giữ đúng số
+`#` reviewer đặt (cũng là số trong `STEP`):
 
    ```markdown
    ## Minor
 
    | # | file:line | Vấn đề | Trạng thái |
    |---|---|---|---|
-   | 1 | <file:line> | <vấn đề> | xong <commit> |
+   | <# của reviewer> | <file:line> | <vấn đề> | xong <commit> |
    ```
 
 Trạng thái Minor: `xong <commit>`, `hỏng <lý do>`, `không sửa: <lý do>`.

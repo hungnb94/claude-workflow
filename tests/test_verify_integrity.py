@@ -1077,6 +1077,18 @@ class TestVerifyIntegrity(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, out)
 
+    def test_feature_workflow_b4_keeps_reviewer_numbers(self):
+        """Verify B4 passes findings with the reviewer's numbers and the Minor table keeps those numbers instead of renumbering from 1."""
+        body = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8").split("---", 2)[2]
+        b4 = body.split("## B4.", 1)[1].split("\n## ", 1)[0]
+        fix_step = b4.split("\n3. ", 1)[1].split("\n4. ", 1)[0]
+        self.assertIn("kèm số `#` reviewer đặt", fix_step)
+        self.assertIn("không đánh số\n   lại", fix_step)
+        out = b4.split("**Ra:**", 1)[1]
+        self.assertIn("cột `#` giữ đúng số\n`#` reviewer đặt (cũng là số trong `STEP`)", out)
+        self.assertIn("| <# của reviewer> | <file:line> | <vấn đề> | xong <commit> |", out)
+        self.assertNotIn("| 1 | <file:line>", out)
+
     def test_feature_workflow_resume_matches_batches_and_single_evidence(self):
         """Verify resume records commits before handing leftover rows or findings to a new implementer, and resumes the final evidence loop."""
         skill = (ROOT_DIR / "skills" / "feature-workflow" / "SKILL.md").read_text(encoding="utf-8")
