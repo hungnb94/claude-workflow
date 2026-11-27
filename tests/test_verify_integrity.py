@@ -1306,7 +1306,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         for part in ("### Examples", "### Self-check", "## Teach-back", "## Appendix", "Confused with"):
             self.assertNotIn(part, report)
         for old_table in ("## 2. Myths", "## 4. Common mistakes"):
-            self.assertNotIn(old_table, report, "myths and mistakes belong in each lesson's Pitfalls")
+            self.assertNotIn(old_table, report, "myths and mistakes belong in each principle's Pitfalls")
 
         header = next(line for line in domains.splitlines() if line.startswith("| Domain type"))
         for column in ("Signals", "Student evidence", "Proxy when none", "Freshness limit", "Apply form", "Source material form"):
