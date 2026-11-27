@@ -942,6 +942,10 @@ class TestVerifyIntegrity(unittest.TestCase):
                 self.assertIn(token, record)
         final_check = b3.split("\n7. ", 1)[1].split("**Ra:**", 1)[0]
         self.assertIn("truyền như bước 5 với `STEP` là các dòng mới", final_check)
+        for token in ("ghi vào một lô mới (số lô kế tiếp)", "cập nhật `Số lô`", "lô sửa này không tính vào giới\n   hạn 3 lô"):
+            with self.subTest(token=token):
+                self.assertIn(token, final_check)
+        self.assertLess(final_check.index("lô mới"), final_check.index("`STEP` là các dòng mới"))
         self.assertIn("Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của\n   agent code xanh", final_check)
         out = b3.split("**Ra:**", 1)[1]
         self.assertIn("dòng `Số lô`", out)

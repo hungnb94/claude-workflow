@@ -234,7 +234,8 @@ và mục `Lệnh build và test`.
 7. Mọi dòng đã `xong`: đọc `git log --oneline BASE..HEAD` và `git diff BASE..HEAD`, kiểm không test hay
    assertion nào bị xoá, skip hay nới lỏng và không file nào nằm ngoài yêu cầu. B3 không chạy
    `Bằng chứng xong`: mục đó chạy một lần trước `Báo cáo cuối`. Diff có vấn đề: thêm dòng vào
-   `Bảng bước` và sửa bằng một `fw-3-implement` mới, truyền như bước 5 với `STEP` là các dòng mới, rồi
+   `Bảng bước`, ghi vào một lô mới (số lô kế tiếp) và cập nhật `Số lô`; lô sửa này không tính vào giới
+   hạn 3 lô. Sửa bằng một `fw-3-implement` mới, truyền như bước 5 với `STEP` là các dòng mới, rồi
    làm lại bước này; sau 2 lần vẫn chưa ổn thì dừng và báo người dùng. Commit trộn nhiều thay đổi thì
    không sửa được vì không viết lại commit: ghi vào `Việc phát sinh` và nói trong báo cáo cuối. Không tự
    sửa code trong session chính. Ghi `Trạng thái: xong` khi mọi dòng `xong`, diff đã kiểm và `CHECKS` của
