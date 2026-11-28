@@ -713,7 +713,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("written in that block's order", judge)
         self.assertIn("Finish the table of a block before you read the next block", judge)
         self.assertIn("one column per card in that block's order", judge)
-        self.assertIn("second order reverses the first; any later order is a new shuffle", judge)
+        self.assertNotIn("reverses the first", judge)
         self.assertIn("without looking back at an earlier table", judge)
         skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
         diverge_step = skill.split("### Step 4.", 1)[1].split("### Step 5.", 1)[0]
@@ -727,7 +727,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "Breaks convention",
             "`CARDS`: one block per reading order",
             "every card written out in full in that order",
-            "second order reverses the first; any later order is a new shuffle",
+            "by the rule under Counts in `templates.md`",
             "every ordering of every judge",
             "fewer tables than the blocks in its `CARDS`",
             "score each ordering that has no table yourself",
@@ -735,6 +735,9 @@ class TestVerifyIntegrity(unittest.TestCase):
             self.assertIn(token, judge_step)
         self.assertNotIn("`ORDERS`", judge_step)
         self.assertNotIn("identical tables", judge_step)
+        self.assertNotIn("reverses the first", judge_step)
+        counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
+        self.assertIn("second order reverses the first; any later order is a new shuffle", counts)
         self.assertIn("or every judge fails", judge_step)
         self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
