@@ -730,11 +730,12 @@ class TestVerifyIntegrity(unittest.TestCase):
             "second order reverses the first; any later order is a new shuffle",
             "every ordering of every judge",
             "fewer tables than the blocks in its `CARDS`",
-            "two identical tables",
             "score each ordering that has no table yourself",
         ):
             self.assertIn(token, judge_step)
         self.assertNotIn("`ORDERS`", judge_step)
+        self.assertNotIn("identical tables", judge_step)
+        self.assertIn("or every judge fails", judge_step)
         self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
         for heading in ("## Option card", "## Judge rubric"):
