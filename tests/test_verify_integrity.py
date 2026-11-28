@@ -712,7 +712,10 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("second order reverses the first; any later order is a new shuffle", judge)
         self.assertIn("without looking back at an earlier table", judge)
         skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
+        diverge_step = skill.split("### Step 4.", 1)[1].split("### Step 5.", 1)[0]
+        self.assertIn("so none sees another's output", diverge_step)
         judge_step = skill.split("### Step 5.", 1)[1].split("### Step 6.", 1)[0]
+        self.assertIn("in a shuffled order", judge_step)
         for token in (
             "without its Knowledge line",
             "`nợ SRP`",
