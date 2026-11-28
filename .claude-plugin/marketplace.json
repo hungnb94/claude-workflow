@@ -14,7 +14,7 @@
         "repo": "hungnb94/claude-workflow"
       },
       "description": "Four-step feature workflow (requirements interview, scored solution, atomic commits, independent review) with Android and KMP standards skills, plus issue writing, PR explanation, atomic commit, solution brainstorm, Jira lookup, distill expertise, agent authoring, learning coach, and grounded answer (grounded-answer) skills",
-      "version": "5.12.0",
+      "version": "5.13.0",
       "author": {
         "name": "Hung Nguyen",
         "email": "hungnb94@gmail.com"

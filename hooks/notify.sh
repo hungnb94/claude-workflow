@@ -76,9 +76,69 @@ case "$body" in
   -*) body=" $body" ;;
 esac
 
+case "$0" in
+  */*) script_dir=${0%/*} ;;
+  *) script_dir=. ;;
+esac
+case "$script_dir" in
+  /*) ;;
+  *) script_dir=$PWD/$script_dir ;;
+esac
+focus_script=$script_dir/focus-terminal.sh
+
+# The first terminal-notifier on PATH can be a copy that cannot run, such as the
+# x86_64-only Ruby gem on Apple silicon without Rosetta. Use the first one that runs.
+find_notifier() {
+  old_ifs=$IFS
+  IFS=:
+  for dir in $PATH; do
+    IFS=$old_ifs
+    [ -n "$dir" ] && [ -x "$dir/terminal-notifier" ] || continue
+    if "$dir/terminal-notifier" -help </dev/null >/dev/null 2>&1; then
+      printf '%s' "$dir/terminal-notifier"
+      return
+    fi
+  done
+  IFS=$old_ifs
+}
+
 notify_darwin() {
-  if has terminal-notifier; then
-    run_bg terminal-notifier -title "$title" -message "$body" -sound "$mac_sound"
+  notifier=$(find_notifier)
+  if [ -n "$notifier" ]; then
+    tty=''
+    terminal=''
+    bundle=''
+    { read -r tty; read -r terminal; read -r bundle; } <<EOF
+$(sh "$focus_script" resolve "$PPID" </dev/null 2>/dev/null)
+EOF
+    # terminal-notifier reads its options through NSUserDefaults, which parses a value that
+    # starts with [ ( { < or a quote as a property list. The parse turns it into nil or an
+    # array, so the message or the click command is lost. terminal-notifier drops one leading
+    # backslash, so a backslash keeps such a value a plain string. -execute values below
+    # always start with "test".
+    tn_body=$body
+    case "$tn_body" in
+      \[* | \(* | \{* | \<* | \"* | \'* | \\*) tn_body="\\$tn_body" ;;
+    esac
+    set -- -title "$title" -message "$tn_body" -sound "$mac_sound"
+    focus_cmd=''
+    if [ -n "$tty" ]; then
+      set -- "$@" -group "claude-workflow-${tty#/dev/}"
+      case "$focus_script" in
+        *"'"*) ;;
+        *) [ -n "$terminal" ] && focus_cmd="test -f '$focus_script' && sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
+      esac
+    fi
+    # The plugin cache path is versioned; an old notification must still work after an upgrade removes it.
+    if [ -n "$focus_cmd" ] && [ -n "$bundle" ]; then
+      focus_cmd="$focus_cmd || open -b '$bundle'"
+    fi
+    if [ -n "$focus_cmd" ]; then
+      set -- "$@" -execute "$focus_cmd"
+    elif [ -n "$bundle" ]; then
+      set -- "$@" -activate "$bundle"
+    fi
+    run_bg "$notifier" "$@"
   elif has osascript; then
     run_bg osascript \
       -e 'on run argv' \
