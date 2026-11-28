@@ -442,6 +442,10 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Chạy vòng 2 chỉ khi vòng 1 có Blocker hoặc Major", review_step)
         self.assertIn("Không có vòng 3", review_step)
         self.assertIn("Tối đa 5 câu mỗi vòng", steps[0])
+        self.assertIn("Mỗi câu có 3-4 lựa chọn đặt ở các điểm khác nhau trên một trục", steps[0])
+        self.assertIn("(a) gọn nhất ..., (b) theo chuẩn đã đọc ..., (c) bền nhất ...", steps[0])
+        self.assertIn("không về cách code: việc đó của B2", steps[0])
+        self.assertNotIn("Các lựa chọn: (a) ..., (b) ...\n", steps[0])
         self.assertIn("Không push, không tạo PR", body)
         self.assertIn("Session chính không tự sửa code", body)
 

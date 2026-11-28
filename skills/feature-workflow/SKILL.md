@@ -143,6 +143,10 @@ hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có t
 - Tự tra mọi sự thật có trong code (dùng subagent `Explore` khi phải đọc rộng). Chỉ hỏi những gì người
   dùng phải quyết định.
 - Tối đa 5 câu mỗi vòng. Trả lời "yes" là chấp nhận đề xuất.
+- Mỗi câu có 3-4 lựa chọn đặt ở các điểm khác nhau trên một trục mà câu đó thật sự xoay quanh (phạm vi,
+  mức hoàn thiện, hành vi khi lỗi): từ gọn nhất, qua cách theo đúng chuẩn và convention đã đọc, tới bền
+  nhất. Không đưa hai lựa chọn chỉ khác nhau về chi tiết. Câu thật sự chỉ có 2 lựa chọn thì ghi 2 và nói
+  vì sao. Lựa chọn nói về yêu cầu (người dùng thấy gì, làm tới đâu), không về cách code: việc đó của B2.
 - Mỗi câu đủ để trả lời mà không phải đi tìm thêm thông tin:
 
 ```markdown
@@ -150,7 +154,7 @@ hỏi, chờ trả lời rồi mới tính vòng sau. Người trả lời có t
 
 - Bối cảnh: phần nào của hệ thống, hiện đang chạy ra sao (dẫn file:line hoặc màn hình), giải thích
   thuật ngữ bằng lời thường.
-- Các lựa chọn: (a) ..., (b) ...
+- Các lựa chọn: (a) gọn nhất ..., (b) theo chuẩn đã đọc ..., (c) bền nhất ..., (d) ...
 - Impact so với hiện tại: mỗi lựa chọn đổi gì với người dùng và với code đang có, có thể gây bug gì.
 
 ➡️ Đề xuất: <lựa chọn>, vì <lý do>.
