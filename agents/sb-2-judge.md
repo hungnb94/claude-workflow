@@ -1,6 +1,6 @@
 ---
 name: sb-2-judge
-description: Blind Option Judge - Score anonymized option cards on the fixed rubric one criterion at a time, once per reading order, and return a ranked shortlist
+description: Blind Option Judge - Score anonymized option cards on the fixed rubric one criterion at a time and return a ranked shortlist
 tools:
   - Read
   - Grep
