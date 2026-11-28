@@ -738,6 +738,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertNotIn("reverses the first", judge_step)
         counts = templates.split("## Counts", 1)[1].split("## Criteria", 1)[0]
         self.assertIn("second order reverses the first; any later order is a new shuffle", counts)
+        self.assertIn("The first order is label order", counts)
         self.assertIn("or every judge fails", judge_step)
         self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
