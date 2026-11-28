@@ -10,9 +10,10 @@ Read at Steps 4-6 and by the brainstorm subagents. The counts and criteria below
 - Min per level: 2
 - Generators: 2
 - Options per generator: 9
-- Judge passes: 2
+- Judge agents: 1
+- Judge orderings: 2
 
-**Generators** times **Options per generator** equals **Options**: each generator fills its share of the rows. Each judge pass reads the kept options in a different order.
+**Generators** times **Options per generator** equals **Options**: each generator fills its share of the rows. Each judge reads the kept options in as many orders as **Judge orderings**, each order the reverse of the one before.
 
 Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If a level has fewer fitting options than **Min per level**, fill it with the closest ones and say why in each one's Reason cell.
 
@@ -61,7 +62,7 @@ Write in the user's language. Keep technical terms in English. Use these parts i
 
 ### 1. Context
 
-Two or three lines: the task, the detected platform and the paths of its standards, the architecture you found, and any project convention that shaped the options. Then one line naming the lenses the generators used, and any generator or judge pass that failed and what you did instead. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
+Two or three lines: the task, the detected platform and the paths of its standards, the architecture you found, and any project convention that shaped the options. Then one line naming the lenses the generators used, and any generator or judge that failed and what you did instead. Then one bullet per SRP hit and per owner scope dependency from Step 1, if any.
 
 ### 2. Assumptions
 
@@ -85,7 +86,7 @@ Only the kept options, one row each in label order. Put each top option's marker
 |---|---|---|---|---|---|
 | <label> | Name (pattern) | Low / Mid / High | One sentence | One phrase | <Total>/35 |
 
-Right below that table, put the scores by criterion inside `<details>` with the summary `Scores by criterion`, and leave a blank line after the summary so the table renders. One column per kept option in label order; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge's score averaged over the **Judge passes**. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
+Right below that table, put the scores by criterion inside `<details>` with the summary `Scores by criterion`, and leave a blank line after the summary so the table renders. One column per kept option in label order; keep its column count equal to **Kept**. One row per criterion, in the order of the Criteria list, then a bold Total row. Each score is the judge score averaged over every ordering of every judge. Total is the plain sum of the option's scores, out of 35 (5 x 7 criteria). All criteria weigh the same.
 
 | Criterion | A (Low) | B | C | D | E | F | G | H | I (High) |
 |---|---|---|---|---|---|---|---|---|---|
@@ -136,7 +137,7 @@ Short block, for every other kept option:
 
 <only if X does not have the highest Total: why it still wins over the higher-scoring option>
 
-<only if the judge passes shortlisted different options or reported close calls: which options, and the one question that would separate them>
+<only if the orderings shortlisted different options or reported close calls: which options, and the one question that would separate them>
 
 <only if the SRP check fired: Follow-up refactors, one line per responsibility left in the target (file:line, technique); they can become tickets with `/issue-writing`>
 

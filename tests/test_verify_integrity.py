@@ -607,11 +607,22 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertLessEqual(per_level * 3, kept)
         generators = int(re.search(r"^- Generators: (\d+)$", counts, flags=re.MULTILINE).group(1))
         per_generator = int(re.search(r"^- Options per generator: (\d+)$", counts, flags=re.MULTILINE).group(1))
-        passes = int(re.search(r"^- Judge passes: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        judge_agents = int(re.search(r"^- Judge agents: (\d+)$", counts, flags=re.MULTILINE).group(1))
+        orderings = int(re.search(r"^- Judge orderings: (\d+)$", counts, flags=re.MULTILINE).group(1))
         self.assertGreaterEqual(generators, 2)
         self.assertEqual(generators * per_generator, options)
-        self.assertGreaterEqual(passes, 2)
-        for token in ("**Generators**", "**Options per generator**", "**Judge passes**", "`sb-1-generator`", "`sb-2-judge`"):
+        self.assertGreaterEqual(judge_agents, 1)
+        self.assertGreaterEqual(orderings, 2)
+        self.assertLessEqual(generators + judge_agents, 3)
+        self.assertNotIn("Judge passes", templates)
+        for token in (
+            "**Generators**",
+            "**Options per generator**",
+            "**Judge agents**",
+            "**Judge orderings**",
+            "`sb-1-generator`",
+            "`sb-2-judge`",
+        ):
             self.assertIn(token, skill)
         self.assertNotIn("without subagents", skill)
         self.assertIn('never `subagent_type: "fork"`', skill)
@@ -697,9 +708,20 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("LENS_CATALOG", generator)
         self.assertIn("Do not score, rank, or recommend", generator)
         self.assertIn("Ignore the position of a card", judge)
+        self.assertIn("`ORDERS`", judge)
+        self.assertIn("reverse of the one before", judge)
+        self.assertIn("without looking back at an earlier table", judge)
         skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
         judge_step = skill.split("### Step 5.", 1)[1].split("### Step 6.", 1)[0]
-        for token in ("without its Knowledge line", "`nợ SRP`", "`Lý do scope rộng hơn`", "Breaks convention"):
+        for token in (
+            "without its Knowledge line",
+            "`nợ SRP`",
+            "`Lý do scope rộng hơn`",
+            "Breaks convention",
+            "`ORDERS`",
+            "reverse of the one before",
+            "every ordering of every judge",
+        ):
             self.assertIn(token, judge_step)
         self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
