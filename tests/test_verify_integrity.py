@@ -709,7 +709,7 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("Do not score, rank, or recommend", generator)
         self.assertIn("Ignore the position of a card", judge)
         self.assertIn("`ORDERS`", judge)
-        self.assertIn("reverse of the one before", judge)
+        self.assertIn("second order reverses the first; any later order is a new shuffle", judge)
         self.assertIn("without looking back at an earlier table", judge)
         skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
         judge_step = skill.split("### Step 5.", 1)[1].split("### Step 6.", 1)[0]
@@ -719,7 +719,7 @@ class TestVerifyIntegrity(unittest.TestCase):
             "`Lý do scope rộng hơn`",
             "Breaks convention",
             "`ORDERS`",
-            "reverse of the one before",
+            "second order reverses the first; any later order is a new shuffle",
             "every ordering of every judge",
             "fewer tables than the orders in its `ORDERS`",
             "two identical tables",

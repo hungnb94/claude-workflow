@@ -18,7 +18,7 @@ The orchestrator passes:
 - `BRIEF`: the task, the Context, and any Assumptions.
 - `TEMPLATES`: the absolute path of `templates.md`.
 - `CARDS`: the option cards, labeled `O1`, `O2`, and so on.
-- `ORDERS`: the reading orders, each a list of labels. Each order is the reverse of the one before.
+- `ORDERS`: the reading orders, each a list of labels. The second order reverses the first; any later order is a new shuffle.
 - `SHORTLIST`: how many options to return in the shortlist.
 
 If an input is missing, say which one in your reply and stop.

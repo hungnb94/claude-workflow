@@ -13,7 +13,7 @@ Read at Steps 4-6 and by the brainstorm subagents. The counts and criteria below
 - Judge agents: 1
 - Judge orderings: 2
 
-**Generators** times **Options per generator** equals **Options**: each generator fills its share of the rows. Each judge reads the kept options in as many orders as **Judge orderings**, each order the reverse of the one before.
+**Generators** times **Options per generator** equals **Options**: each generator fills its share of the rows. Each judge reads the kept options in as many orders as **Judge orderings**. The second order reverses the first; any later order is a new shuffle.
 
 Sort the kept options by investment and label them A, B, C and so on. A is the cheapest Low option and the last one is the most durable High option. Keep at least **Min per level** options at each of Low, Mid and High. If a level has fewer fitting options than **Min per level**, fill it with the closest ones and say why in each one's Reason cell.
 
