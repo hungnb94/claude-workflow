@@ -187,20 +187,26 @@ trong `máy`, `verify`, `người ký`. Bảng AC còn ô trống thì chưa ghi
 
 **Vào:** `01-requirements.md`.
 
-Gọi Skill `solution-brainstorm` (trong plugin: `workflow:solution-brainstorm`). Dòng đầu của args là
-`CALLER: feature-workflow`; tiếp theo là tóm tắt yêu cầu và đường dẫn tuyệt đối tới `01-requirements.md`.
-Không dừng hỏi người dùng sau bước này.
+Người dùng đã chạy `solution-brainstorm` cho story này và chọn một phương án (output nằm trong `STORY`
+hoặc trong session trước khi gọi skill này): không gọi lại skill. Chép output đó vào `02-solution.md`,
+thêm dòng `Nguồn: brainstorm trước B1` và `Đã chọn: <label>`.
+
+Còn lại: gọi Skill `solution-brainstorm` (trong plugin: `workflow:solution-brainstorm`). Dòng đầu của args
+là `CALLER: feature-workflow`; tiếp theo là tóm tắt yêu cầu và đường dẫn tuyệt đối tới
+`01-requirements.md`. Không dừng hỏi người dùng sau bước này.
 
 **Ra:** `02-solution.md` gồm: bảng các phương án giữ lại kèm Total, bảng điểm theo tiêu chí, các phương án
-chi tiết, và khuyến nghị, chép từ output của brainstorm.
+chi tiết, và khuyến nghị, chép từ output của brainstorm; cùng dòng `Nguồn` và `Đã chọn` nếu người dùng đã
+chọn trước.
 
 ## B3. Chọn giải pháp và code
 
 **Vào:** `02-solution.md`, và `01-requirements.md` để lấy acceptance criteria, ràng buộc, `Chuẩn áp dụng`
 và mục `Lệnh build và test`.
 
-1. Chọn phương án có Total cao nhất mà cả tiêu chí #4 (Extensibility) và #7 (Maintainability) đều ≥ 4.
-   Không phương án nào đạt thì dừng và hỏi người dùng.
+1. `02-solution.md` có dòng `Đã chọn`: dùng phương án đó; tiêu chí #4 hoặc #7 < 4 thì báo người dùng một
+   dòng, không dừng. Còn lại: chọn phương án có Total cao nhất mà cả tiêu chí
+   #4 (Extensibility) và #7 (Maintainability) đều ≥ 4. Không phương án nào đạt thì dừng và hỏi người dùng.
 2. Viết 3-5 câu đánh giá vì sao phương án này giữ dự án dễ maintain và dễ mở rộng về lâu dài, và chỗ nào
    có thể thành nợ.
 3. Phương án đã chọn chưa có phần chi tiết (layers/files, skeleton) trong `02-solution.md`: tự viết phần

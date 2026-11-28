@@ -435,6 +435,9 @@ class TestVerifyIntegrity(unittest.TestCase):
 
         self.assertIn("`01-requirements.md`", steps[2].split("1. Chọn", 1)[0])
         self.assertIn("#4 (Extensibility) và #7 (Maintainability) đều ≥ 4", steps[2])
+        self.assertIn("không gọi lại skill", steps[1])
+        self.assertIn("`Đã chọn: <label>`", steps[1])
+        self.assertIn("`Đã chọn`: dùng phương án đó", steps[2])
         templates = read("skills", "solution-brainstorm", "templates.md")
         criteria = templates.split("## Criteria", 1)[1].split("## Option card", 1)[0]
         self.assertRegex(criteria, r"(?m)^4\. Extensibility")
