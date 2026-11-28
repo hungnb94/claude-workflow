@@ -111,13 +111,22 @@ notify_darwin() {
     { read -r tty; read -r terminal; read -r bundle; } <<EOF
 $(sh "$focus_script" resolve "$PPID" </dev/null 2>/dev/null)
 EOF
-    set -- -title "$title" -message "$body" -sound "$mac_sound"
+    # terminal-notifier reads its options through NSUserDefaults, which parses a value that
+    # starts with [ ( { < or a quote as a property list. The parse turns it into nil or an
+    # array, so the message or the click command is lost. terminal-notifier drops one leading
+    # backslash, so a backslash keeps such a value a plain string. -execute values below
+    # always start with "test".
+    tn_body=$body
+    case "$tn_body" in
+      \[* | \(* | \{* | \<* | \"* | \'* | \\*) tn_body="\\$tn_body" ;;
+    esac
+    set -- -title "$title" -message "$tn_body" -sound "$mac_sound"
     focus_cmd=''
     if [ -n "$tty" ]; then
       set -- "$@" -group "claude-workflow-${tty#/dev/}"
       case "$focus_script" in
         *"'"*) ;;
-        *) [ -n "$terminal" ] && focus_cmd="[ -f '$focus_script' ] && sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
+        *) [ -n "$terminal" ] && focus_cmd="test -f '$focus_script' && sh '$focus_script' focus '$tty' '$terminal' '$bundle'" ;;
       esac
     fi
     # The plugin cache path is versioned; an old notification must still work after an upgrade removes it.

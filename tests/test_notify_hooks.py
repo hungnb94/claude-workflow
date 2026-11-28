@@ -205,6 +205,34 @@ class TestNotifyScript(NotifyTestCase):
         (_, args), = self.calls(1)
         self.assertEqual(args[3], " -rm")
 
+    def test_plist_like_body_escaped_for_terminal_notifier(self):
+        # NSUserDefaults would parse these as a property list and drop the message.
+        self.add_uname()
+        self.add_jq()
+        self.add_fakes("terminal-notifier")
+        for text in ("[draft] ok?", "(a) or (b)?", "{x}?", "<y>?", '"quoted"?', "'quoted'?", "\\path?"):
+            for f in self.logs.iterdir():
+                f.unlink()
+            self.run_script("question", question_input(text))
+            (_, args), = self.calls(1)
+            self.assertEqual(args[3], "\\" + text)
+
+    def test_plain_body_not_escaped(self):
+        self.add_uname()
+        self.add_jq()
+        self.add_fakes("terminal-notifier")
+        self.run_script("question", question_input("Pick one [A] or (B)?"))
+        (_, args), = self.calls(1)
+        self.assertEqual(args[3], "Pick one [A] or (B)?")
+
+    def test_osascript_body_not_escaped(self):
+        self.add_uname()
+        self.add_jq()
+        self.add_fakes("osascript")
+        self.run_script("question", question_input("(a) or (b)?"))
+        (_, args), = self.calls(1)
+        self.assertEqual(args[-3], "(a) or (b)?")
+
     def test_body_truncated_200(self):
         self.add_uname()
         self.add_jq()
@@ -327,7 +355,7 @@ class TestNotifyFocusTab(NotifyTestCase):
 
     def focus_cmd(self, tty, terminal, bundle):
         focus = ROOT_DIR / "hooks" / "focus-terminal.sh"
-        command = f"[ -f '{focus}' ] && sh '{focus}' focus '{tty}' '{terminal}' '{bundle}'"
+        command = f"test -f '{focus}' && sh '{focus}' focus '{tty}' '{terminal}' '{bundle}'"
         return f"{command} || open -b '{bundle}'" if bundle else command
 
     def run_click(self, command):
@@ -372,7 +400,7 @@ class TestNotifyFocusTab(NotifyTestCase):
         extra = self.notifier_args(env, script=hooks / "notify.sh")
         focus = hooks / "focus-terminal.sh"
         command = (
-            f"[ -f '{focus}' ] && sh '{focus}' focus '/dev/ttys003' 'Apple_Terminal' 'com.apple.Terminal'"
+            f"test -f '{focus}' && sh '{focus}' focus '/dev/ttys003' 'Apple_Terminal' 'com.apple.Terminal'"
             " || open -b 'com.apple.Terminal'"
         )
         self.assertEqual(extra, ["-group", "claude-workflow-ttys003", "-execute", command])
