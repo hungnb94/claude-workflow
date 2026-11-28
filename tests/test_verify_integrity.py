@@ -708,7 +708,11 @@ class TestVerifyIntegrity(unittest.TestCase):
         self.assertIn("LENS_CATALOG", generator)
         self.assertIn("Do not score, rank, or recommend", generator)
         self.assertIn("Ignore the position of a card", judge)
-        self.assertIn("`ORDERS`", judge)
+        self.assertNotIn("`ORDERS`", judge)
+        self.assertIn("`CARDS`: one block per reading order", judge)
+        self.assertIn("written in that block's order", judge)
+        self.assertIn("Finish the table of a block before you read the next block", judge)
+        self.assertIn("one column per card in that block's order", judge)
         self.assertIn("second order reverses the first; any later order is a new shuffle", judge)
         self.assertIn("without looking back at an earlier table", judge)
         skill = (ROOT_DIR / "skills" / "solution-brainstorm" / "SKILL.md").read_text(encoding="utf-8")
@@ -721,14 +725,16 @@ class TestVerifyIntegrity(unittest.TestCase):
             "`nợ SRP`",
             "`Lý do scope rộng hơn`",
             "Breaks convention",
-            "`ORDERS`",
+            "`CARDS`: one block per reading order",
+            "every card written out in full in that order",
             "second order reverses the first; any later order is a new shuffle",
             "every ordering of every judge",
-            "fewer tables than the orders in its `ORDERS`",
+            "fewer tables than the blocks in its `CARDS`",
             "two identical tables",
             "score each ordering that has no table yourself",
         ):
             self.assertIn(token, judge_step)
+        self.assertNotIn("`ORDERS`", judge_step)
         self.assertIn("only when that line names web sources", generator)
         self.assertIn("not the writing", judge)
         for heading in ("## Option card", "## Judge rubric"):
