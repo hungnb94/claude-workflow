@@ -259,7 +259,7 @@ export CLAUDE_WORKFLOW_NOTIFY=0
 
 Optional tools:
 
-- macOS: `terminal-notifier` is used when installed (`brew install terminal-notifier`), otherwise the built-in `osascript`.
+- macOS: `terminal-notifier` is used when installed (`brew install terminal-notifier`), otherwise the built-in `osascript`. The hook uses the first `terminal-notifier` on `PATH` that runs, so a broken copy (for example the x86_64 Ruby gem on Apple silicon without Rosetta) is skipped. Version 2.0.0 can post nothing on recent macOS; if no alert shows, run `brew upgrade terminal-notifier`.
 - Linux: `notify-send` for the alert, and `canberra-gtk-play` or `paplay` for the sound (falls back to the terminal bell).
 - `jq`: reads the question text, notification message, and project folder from the hook input. Without it, alerts use generic text (`Claude has a question for you`, `Claude needs permission`) and the current directory name.
 

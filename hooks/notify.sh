@@ -86,8 +86,25 @@ case "$script_dir" in
 esac
 focus_script=$script_dir/focus-terminal.sh
 
+# The first terminal-notifier on PATH can be a copy that cannot run, such as the
+# x86_64-only Ruby gem on Apple silicon without Rosetta. Use the first one that runs.
+find_notifier() {
+  old_ifs=$IFS
+  IFS=:
+  for dir in $PATH; do
+    IFS=$old_ifs
+    [ -n "$dir" ] && [ -x "$dir/terminal-notifier" ] || continue
+    if "$dir/terminal-notifier" -help </dev/null >/dev/null 2>&1; then
+      printf '%s' "$dir/terminal-notifier"
+      return
+    fi
+  done
+  IFS=$old_ifs
+}
+
 notify_darwin() {
-  if has terminal-notifier; then
+  notifier=$(find_notifier)
+  if [ -n "$notifier" ]; then
     tty=''
     terminal=''
     bundle=''
@@ -112,7 +129,7 @@ EOF
     elif [ -n "$bundle" ]; then
       set -- "$@" -activate "$bundle"
     fi
-    run_bg terminal-notifier "$@"
+    run_bg "$notifier" "$@"
   elif has osascript; then
     run_bg osascript \
       -e 'on run argv' \

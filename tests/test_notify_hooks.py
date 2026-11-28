@@ -63,7 +63,8 @@ class NotifyTestCase(unittest.TestCase):
         for name in names:
             self._write_exec(
                 name,
-                f"#!/bin/sh\n{delay}printf '%s\\0' \"$@\" > \"$FAKE_LOG_DIR/${{0##*/}}.$$\"\n",
+                # notify.sh probes terminal-notifier with -help before using it; the probe is not logged.
+                f"#!/bin/sh\n[ \"$1\" = -help ] && exit 0\n{delay}printf '%s\\0' \"$@\" > \"$FAKE_LOG_DIR/${{0##*/}}.$$\"\n",
             )
 
     def _write_exec(self, name, content):
@@ -127,6 +128,26 @@ class TestNotifyScript(NotifyTestCase):
             args,
             ["-title", "Claude Code · my-proj", "-message", "Done — ready for review", "-sound", "Glass"],
         )
+
+    def test_darwin_skips_terminal_notifier_that_cannot_run(self):
+        self.add_uname()
+        broken = self.tmp / "broken"
+        broken.mkdir()
+        (broken / "terminal-notifier").write_text("#!/bin/sh\nexit 1\n")
+        (broken / "terminal-notifier").chmod(0o755)
+        self.add_fakes("terminal-notifier")
+        self.run_script("stop", env_extra={"PATH": f"{broken}:{self.bin}"})
+        (name, args), = self.calls(1)
+        self.assertEqual(name, "terminal-notifier")
+        self.assertEqual(args[:2], ["-title", "Claude Code · my-proj"])
+
+    def test_darwin_falls_back_to_osascript_when_no_notifier_runs(self):
+        self.add_uname()
+        self._write_exec("terminal-notifier", "#!/bin/sh\nexit 1\n")
+        self.add_fakes("osascript")
+        self.run_script("stop")
+        (name, _), = self.calls(1)
+        self.assertEqual(name, "osascript")
 
     def test_darwin_osascript_fallback_uses_argv(self):
         self.add_uname()
