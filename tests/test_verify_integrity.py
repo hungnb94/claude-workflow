@@ -721,6 +721,9 @@ class TestVerifyIntegrity(unittest.TestCase):
             "`ORDERS`",
             "reverse of the one before",
             "every ordering of every judge",
+            "fewer tables than the orders in its `ORDERS`",
+            "two identical tables",
+            "score each ordering that has no table yourself",
         ):
             self.assertIn(token, judge_step)
         self.assertIn("only when that line names web sources", generator)

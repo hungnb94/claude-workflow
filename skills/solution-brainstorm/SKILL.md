@@ -63,7 +63,7 @@ Score the kept options with the blind judge:
 
 1. Use each option's card in the `## Option card` shape of `templates.md` (the generator's, or yours for a row you wrote), without its Knowledge line, which would reveal the lens. Put any Trade-off, `nợ SRP`, or `Lý do scope rộng hơn` from its Reason cell into Breaks convention. Relabel the cards `O1`, `O2`, and so on in a shuffled order.
 2. In one message, spawn as many `sb-2-judge` as **Judge agents** in Counts. Give each `ORDERS`: as many reading orders of the labels as **Judge orderings** in Counts, each order the reverse of the one before. Also pass `BRIEF`, `TEMPLATES`, `CARDS`, and `SHORTLIST` (**Detailed** in Counts).
-3. Map the labels back and average each score over every ordering of every judge. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it. Keep any shortlist disagreement between orderings or close call for the Recommendation. If every judge fails, score the options yourself and say so in Context.
+3. Map the labels back and average each score over every ordering of every judge. Add up each option's scores into the Total row described in `templates.md`. Recheck each sum before writing it. Keep any shortlist disagreement between orderings or close call for the Recommendation. If a judge returns fewer tables than the orders in its `ORDERS`, or two identical tables, or every judge fails, say so in Context and score each ordering that has no table yourself.
 
 Untested legacy: A uses the cheapest sufficient rung of the catalog's cost ladder. Any later option that climbs a rung states why the cheaper rung is not enough (`Lý do bậc rẻ hơn không đủ`).
 
